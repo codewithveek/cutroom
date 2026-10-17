@@ -7,8 +7,11 @@ import { type BlockId, type Scene, sceneSchemaByBlock } from "./scene";
  * What the model writes for one scene: the block, its props and narration.
  * Code assigns `id` and `baseFrames` afterwards, so the model never invents them.
  */
-function draftSchemaForBlock(blockId: BlockId) {
-  return sceneSchemaByBlock[blockId].omit({ id: true, baseFrames: true, transitionOrigin: true });
+function draftSchemaForBlock(blockId: BlockId, beats?: ReadonlyArray<string>) {
+  const draft = sceneSchemaByBlock[blockId].omit({ id: true, baseFrames: true, transitionOrigin: true });
+  const [firstBeat, ...otherBeats] = beats ?? [];
+  // Small models skip optional fields; a required enum makes structured output fill the beat.
+  return firstBeat ? draft.extend({ beat: z.enum([firstBeat, ...otherBeats]) }) : draft;
 }
 
 /** Omit that keeps a union discriminated. */
@@ -25,12 +28,15 @@ export interface StoryboardDraft {
  * Builds a storyboard-draft schema whose scenes may only use the blocks the look allows.
  * Narrowing the union shrinks the JSON Schema the model sees, which cuts invalid outputs.
  */
-export function createStoryboardDraftSchema(look: LookId): z.ZodType<StoryboardDraft> {
+export function createStoryboardDraftSchema(
+  look: LookId,
+  beats?: ReadonlyArray<string>,
+): z.ZodType<StoryboardDraft> {
   const [firstBlock, ...otherBlocks] = blocksAllowedInLook(look);
   if (!firstBlock) throw new Error(`Look ${look} allows no blocks`);
   const sceneDraftSchema = z.discriminatedUnion("block", [
-    draftSchemaForBlock(firstBlock),
-    ...otherBlocks.map(draftSchemaForBlock),
+    draftSchemaForBlock(firstBlock, beats),
+    ...otherBlocks.map((block) => draftSchemaForBlock(block, beats)),
   ]);
   const draftSchema = z.object({
     title: z.string().min(1).max(80),
@@ -47,7 +53,7 @@ export function createSceneDraftSchema(blocks: ReadonlyArray<BlockId>): z.ZodTyp
   if (!firstBlock) throw new Error("At least one block is required");
   const sceneDraftSchema = z.discriminatedUnion("block", [
     draftSchemaForBlock(firstBlock),
-    ...otherBlocks.map(draftSchemaForBlock),
+    ...otherBlocks.map((block) => draftSchemaForBlock(block)),
   ]);
   // Same narrowing caveat as createStoryboardDraftSchema.
   return z.object({ scene: sceneDraftSchema }) as unknown as z.ZodType<{ scene: SceneDraft }>;

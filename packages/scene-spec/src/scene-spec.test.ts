@@ -51,6 +51,24 @@ describe("createStoryboardDraftSchema", () => {
   });
 });
 
+describe("createStoryboardDraftSchema with beats", () => {
+  it("requires a beat from the template", () => {
+    const schema = createStoryboardDraftSchema("graphic", ["problem", "close"]);
+    const scenes = [
+      { block: "kinetic-headline", props: { lines: ["Hello there friend"], tone: "neutral" } },
+      { block: "title-card", props: { variant: "title", name: "Demo", tagline: "x" } },
+      { block: "end-card", props: { name: "Demo", tagline: "x", cta: "Try it" } },
+    ];
+    expect(schema.safeParse({ title: "Demo", scenes }).success).toBe(false);
+    const withBeats = scenes.map((scene) => ({ ...scene, beat: "close" }));
+    expect(schema.safeParse({ title: "Demo", scenes: withBeats }).success).toBe(true);
+    expect(
+      schema.safeParse({ title: "Demo", scenes: withBeats.map((scene) => ({ ...scene, beat: "other" })) })
+        .success,
+    ).toBe(false);
+  });
+});
+
 describe("collectClaims", () => {
   it("collects block claim fields and narration from every scene", () => {
     const claims = collectClaims(storyboardSchema.parse(fixtureStoryboardInput));

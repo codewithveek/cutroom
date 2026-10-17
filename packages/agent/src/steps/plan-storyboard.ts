@@ -1,4 +1,5 @@
 import type { CutroomLogger } from "@cutroom/observability";
+import { videoTypeTemplates } from "@cutroom/presets";
 import type { ModelClient, TokenUsage } from "@cutroom/providers";
 import type { SnapshotReader } from "@cutroom/repo-ingest";
 import {
@@ -35,7 +36,10 @@ export interface PlanStoryboardResult {
 /** Pipeline step 3: brief + beat template + look → validated, repaired Storyboard (FR-SB-1…6). */
 export async function planStoryboard(options: PlanStoryboardOptions): Promise<PlanStoryboardResult> {
   const result = await options.model.generateStructured({
-    schema: createStoryboardDraftSchema(options.look),
+    schema: createStoryboardDraftSchema(
+      options.look,
+      videoTypeTemplates[options.videoType].beats.map((beat) => beat.beat),
+    ),
     schemaName: "storyboard_draft",
     system: planStoryboardSystemPrompt,
     messages: [
