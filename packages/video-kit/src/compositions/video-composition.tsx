@@ -52,7 +52,7 @@ export function VideoComposition(props: VideoProps): React.ReactElement {
   const totalFrames = totalVideoFrames(voiceTimeline, props.openOnThumbnail);
   const timingsById = new Map(voiceTimeline.scenes.map((timing) => [timing.sceneId, timing]));
   const transitions = storyboard.scenes.map((scene, sceneIndex) =>
-    resolveSceneTransition(scene, look, sceneIndex === storyboard.scenes.length - 1),
+    resolveSceneTransition({ scene, look, isLastScene: sceneIndex === storyboard.scenes.length - 1 }),
   );
   const captionCues = props.burnCaptions ? buildCaptionCues({ timeline: voiceTimeline, introFrames }) : [];
   return (

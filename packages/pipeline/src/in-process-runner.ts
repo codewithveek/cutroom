@@ -7,7 +7,12 @@ import { type Storyboard, storyboardSchema } from "@cutroom/scene-spec";
 import { lookTokensById } from "@cutroom/video-kit";
 import { ulid } from "ulid";
 import { describeError } from "./describe-error";
-import type { ApproveStoryboardInput, PipelineRunner, UpdateStoryboardResult } from "./pipeline-runner";
+import type {
+  ApproveStoryboardInput,
+  PipelineRunner,
+  RegenerateSceneRequest,
+  UpdateStoryboardResult,
+} from "./pipeline-runner";
 import {
   latestStoryboardVersion,
   type RunEvent,
@@ -161,11 +166,8 @@ export class InProcessRunner implements PipelineRunner {
   }
 
   /** Re-runs generation for one scene with the others fixed, then versions and re-audits it (FR-SB-7). */
-  async regenerateScene(
-    runId: string,
-    sceneId: string,
-    instruction?: string,
-  ): Promise<UpdateStoryboardResult> {
+  async regenerateScene(runId: string, request: RegenerateSceneRequest): Promise<UpdateStoryboardResult> {
+    const { sceneId, instruction } = request;
     const run = await this.requireRun(runId);
     if (run.status !== "awaiting_review")
       throw new RunStateError(`Run ${runId} is ${run.status}; scenes can only be regenerated during review`);

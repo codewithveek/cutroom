@@ -54,7 +54,13 @@ interface Renderer {
   frameCount: number;
 }
 
-function addPad(renderer: Renderer, settings: BedSettings, secondsPerBeat: number): void {
+interface LayerOptions {
+  renderer: Renderer;
+  settings: BedSettings;
+  secondsPerBeat: number;
+}
+
+function addPad({ renderer, settings, secondsPerBeat }: LayerOptions): void {
   const chordSeconds = settings.beatsPerChord * secondsPerBeat;
   for (let frame = 0; frame < renderer.frameCount; frame += 1) {
     const time = frame / SAMPLE_RATE;
@@ -89,7 +95,7 @@ function addHit(renderer: Renderer, hit: HitOptions): void {
   }
 }
 
-function addRhythm(renderer: Renderer, settings: BedSettings, secondsPerBeat: number, seed: number): void {
+function addRhythm({ renderer, settings, secondsPerBeat, seed }: LayerOptions & { seed: number }): void {
   const random = createSeededRandom(seed);
   const totalEighths = Math.floor(renderer.frameCount / SAMPLE_RATE / (secondsPerBeat / 2));
   for (let eighth = 0; eighth < totalEighths; eighth += 1) {
@@ -142,7 +148,7 @@ export function synthesizeMusicBed(options: SynthesizeMusicBedOptions): PcmAudio
     frameCount,
   };
   const secondsPerBeat = 60 / settings.beatsPerMinute;
-  addPad(renderer, settings, secondsPerBeat);
-  addRhythm(renderer, settings, secondsPerBeat, options.seed);
+  addPad({ renderer, settings, secondsPerBeat });
+  addRhythm({ renderer, settings, secondsPerBeat, seed: options.seed });
   return normalizePeak({ sampleRate: SAMPLE_RATE, channels: [renderer.left, renderer.right] }, -3);
 }

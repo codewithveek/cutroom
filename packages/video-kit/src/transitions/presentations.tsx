@@ -13,11 +13,13 @@ export interface CutroomTransitionProps extends Record<string, unknown> {
 
 type PresentationComponentProps = TransitionPresentationComponentProps<CutroomTransitionProps>;
 
-function enteringStyle(
-  transition: TransitionId,
-  progress: number,
-  origin: readonly [number, number],
-): React.CSSProperties {
+interface StyleOptions {
+  transition: TransitionId;
+  progress: number;
+  origin: readonly [number, number];
+}
+
+function enteringStyle({ transition, progress, origin }: StyleOptions): React.CSSProperties {
   const originCss = `${origin[0] * 100}% ${origin[1] * 100}%`;
   switch (transition) {
     case "fade":
@@ -48,11 +50,7 @@ function enteringStyle(
   }
 }
 
-function exitingStyle(
-  transition: TransitionId,
-  progress: number,
-  origin: readonly [number, number],
-): React.CSSProperties {
+function exitingStyle({ transition, progress, origin }: StyleOptions): React.CSSProperties {
   const originCss = `${origin[0] * 100}% ${origin[1] * 100}%`;
   switch (transition) {
     case "focus":
@@ -88,8 +86,8 @@ function CutroomPresentation(props: PresentationComponentProps): React.ReactElem
   const { transition, origin, slabColor } = props.passedProps;
   const isEntering = props.presentationDirection === "entering";
   const style = isEntering
-    ? enteringStyle(transition, props.presentationProgress, origin)
-    : exitingStyle(transition, props.presentationProgress, origin);
+    ? enteringStyle({ transition, progress: props.presentationProgress, origin })
+    : exitingStyle({ transition, progress: props.presentationProgress, origin });
   return (
     <AbsoluteFill>
       <AbsoluteFill style={style}>{props.children}</AbsoluteFill>

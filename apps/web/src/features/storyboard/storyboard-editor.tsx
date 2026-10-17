@@ -77,7 +77,7 @@ export function StoryboardEditor(props: StoryboardEditorProps): React.ReactEleme
 
   const updateSelectedScene = (path: string, value: unknown) => {
     if (!selectedScene) return;
-    const updatedScene = setAtPath<Scene>(selectedScene, path, value);
+    const updatedScene = setAtPath<Scene>({ value: selectedScene, path, nextValue: value });
     setDraft({
       ...draft,
       scenes: draft.scenes.map((scene) => (scene.id === selectedScene.id ? updatedScene : scene)),
@@ -109,7 +109,7 @@ export function StoryboardEditor(props: StoryboardEditorProps): React.ReactEleme
             selectedSceneId={selectedScene?.id}
             onSelect={selectScene}
             onMove={(fromIndex, toIndex) =>
-              setDraft({ ...draft, scenes: moveItem(draft.scenes, fromIndex, toIndex) })
+              setDraft({ ...draft, scenes: moveItem({ items: draft.scenes, fromIndex, toIndex }) })
             }
             editable={editable}
           />
@@ -142,7 +142,11 @@ export function StoryboardEditor(props: StoryboardEditorProps): React.ReactEleme
               onChange={updateSelectedScene}
               onRegenerate={(instruction) =>
                 void runAction(() =>
-                  apiClient.regenerateScene(props.run.id, selectedScene.id, instruction || undefined),
+                  apiClient.regenerateScene({
+                    runId: props.run.id,
+                    sceneId: selectedScene.id,
+                    instruction: instruction || undefined,
+                  }),
                 )
               }
             />

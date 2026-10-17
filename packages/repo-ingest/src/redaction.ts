@@ -64,11 +64,15 @@ function looksLikePlaceholder(value: string): boolean {
   );
 }
 
-function replaceMatches(
-  content: string,
-  secretPattern: SecretPattern,
-  found: Array<{ type: string; line: number }>,
-): string {
+function replaceMatches({
+  content,
+  secretPattern,
+  found,
+}: {
+  content: string;
+  secretPattern: SecretPattern;
+  found: Array<{ type: string; line: number }>;
+}): string {
   return content.replace(secretPattern.pattern, (...args: unknown[]) => {
     const match = String(args[0]);
     const offset = args.find((arg, index) => index > 0 && typeof arg === "number");
@@ -91,6 +95,7 @@ function replaceMatches(
 export function redactSecrets(content: string): RedactionResult {
   const redactions: Array<{ type: string; line: number }> = [];
   let redacted = content;
-  for (const secretPattern of secretPatterns) redacted = replaceMatches(redacted, secretPattern, redactions);
+  for (const secretPattern of secretPatterns)
+    redacted = replaceMatches({ content: redacted, secretPattern, found: redactions });
   return { content: redacted, redactions: redactions.toSorted((left, right) => left.line - right.line) };
 }

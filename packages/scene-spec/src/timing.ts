@@ -38,11 +38,15 @@ export interface SolveTimelineOptions {
   source: VoiceTimeline["source"];
 }
 
-function solveSceneLines(
-  scene: TimedScene,
-  options: SolveTimelineOptions,
-  leadFrames: number,
-): VoiceLineTiming[] {
+function solveSceneLines({
+  scene,
+  options,
+  leadFrames,
+}: {
+  scene: TimedScene;
+  options: SolveTimelineOptions;
+  leadFrames: number;
+}): VoiceLineTiming[] {
   const lineTimings: VoiceLineTiming[] = [];
   let previousLineEnd: number | undefined;
   scene.narration.forEach((line, lineIndex) => {
@@ -71,7 +75,7 @@ export function solveTimeline(options: SolveTimelineOptions): VoiceTimeline {
   options.scenes.forEach((scene, sceneIndex) => {
     const transitionInFrames = sceneIndex === 0 ? 0 : options.transitionFrames;
     const leadFrames = sceneIndex === 0 ? FIRST_SCENE_LEAD_FRAMES : transitionInFrames;
-    const lines = solveSceneLines(scene, options, leadFrames);
+    const lines = solveSceneLines({ scene, options, leadFrames });
     const lastLine = lines.at(-1);
     const narrationEnd = lastLine ? lastLine.fromFrame + lastLine.frames : 0;
     const durationFrames = Math.max(

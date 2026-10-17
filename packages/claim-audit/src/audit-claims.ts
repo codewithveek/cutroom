@@ -31,11 +31,16 @@ function worstVerdict(verdicts: ReadonlyArray<ClaimVerdict>): ClaimVerdict {
   );
 }
 
-async function runDeterministicChecks(
-  claim: Claim,
-  context: AuditContext,
-  index: RepoTextIndex,
-): Promise<CheckOutcome[]> {
+interface ClaimCheckOptions {
+  claim: Claim;
+  index: RepoTextIndex;
+}
+
+async function runDeterministicChecks({
+  claim,
+  context,
+  index,
+}: ClaimCheckOptions & { context: AuditContext }): Promise<CheckOutcome[]> {
   return [
     ...checkQuotedLabels(claim, index),
     ...(await checkCodeExcerpt(claim, context)),
@@ -47,7 +52,11 @@ async function runDeterministicChecks(
 }
 
 /** Claims whose kind the deterministic checks fully decide never go to the model. */
-function needsJudgment(claim: Claim, outcomes: ReadonlyArray<CheckOutcome>, index: RepoTextIndex): boolean {
+function needsJudgment({
+  claim,
+  outcomes,
+  index,
+}: ClaimCheckOptions & { outcomes: ReadonlyArray<CheckOutcome> }): boolean {
   if (outcomes.some((outcome) => outcome.blocking)) return false;
   if (
     claim.kind === "code-excerpt" ||
@@ -121,9 +130,9 @@ export async function auditClaims(options: AuditClaimsOptions): Promise<AuditCla
   );
   const outcomesByClaim = new Map<string, CheckOutcome[]>();
   for (const claim of claims)
-    outcomesByClaim.set(claim.id, await runDeterministicChecks(claim, options, index));
+    outcomesByClaim.set(claim.id, await runDeterministicChecks({ claim, context: options, index }));
   const claimsForJudge = claims.filter((claim) =>
-    needsJudgment(claim, outcomesByClaim.get(claim.id) ?? [], index),
+    needsJudgment({ claim, outcomes: outcomesByClaim.get(claim.id) ?? [], index }),
   );
   const { judged, usage } =
     claimsForJudge.length > 0

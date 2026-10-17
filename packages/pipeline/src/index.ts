@@ -2,7 +2,12 @@ export { type CreatePipelineServicesOptions, createPipelineServices } from "./cr
 export { buildDeliveryNote } from "./delivery-note";
 export { type DescribedError, describeError, type ErrorCode, errorCodes } from "./describe-error";
 export { InProcessRunner, RunStateError } from "./in-process-runner";
-export type { ApproveStoryboardInput, PipelineRunner, UpdateStoryboardResult } from "./pipeline-runner";
+export type {
+  ApproveStoryboardInput,
+  PipelineRunner,
+  RegenerateSceneRequest,
+  UpdateStoryboardResult,
+} from "./pipeline-runner";
 export {
   type BundleFile,
   buildRenderJobBundle,

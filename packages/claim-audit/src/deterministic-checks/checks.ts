@@ -15,7 +15,15 @@ function lineNumberOf(content: string, index: number): number {
   return content.slice(0, index).split("\n").length;
 }
 
-function findInRepo(index: RepoTextIndex, needle: string, wholeToken: boolean): Evidence | undefined {
+function findInRepo({
+  index,
+  needle,
+  wholeToken,
+}: {
+  index: RepoTextIndex;
+  needle: string;
+  wholeToken: boolean;
+}): Evidence | undefined {
   const pattern = wholeToken
     ? new RegExp(`(?<![\\w.])${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w])`)
     : undefined;
@@ -35,7 +43,8 @@ export function checkQuotedLabels(claim: Claim, index: RepoTextIndex): CheckOutc
     (match) => match[1] ?? "",
   );
   return quoted.map((label) => {
-    const found = index.uiStrings.has(label) || findInRepo(index, label, false) !== undefined;
+    const found =
+      index.uiStrings.has(label) || findInRepo({ index, needle: label, wholeToken: false }) !== undefined;
     return {
       check: {
         check: "ui-label",
@@ -80,7 +89,8 @@ export function checkNumbers(claim: Claim, index: RepoTextIndex): CheckOutcome[]
       : [...claim.text.matchAll(/(?<![\w.])\d+(?:[.,]\d+)*(?![\w])/g)].map((match) => match[0]);
   return [...new Set(numbers)].map((numberText) => {
     const evidence =
-      findInRepo(index, numberText.replaceAll(",", ""), true) ?? findInRepo(index, numberText, true);
+      findInRepo({ index, needle: numberText.replaceAll(",", ""), wholeToken: true }) ??
+      findInRepo({ index, needle: numberText, wholeToken: true });
     return {
       check: {
         check: "number",
@@ -102,7 +112,10 @@ export function checkCommand(claim: Claim, index: RepoTextIndex): CheckOutcome[]
   if (claim.kind !== "command") return [];
   const isCommandLine = claim.fieldPath.endsWith(".command");
   const text = claim.text.trim();
-  const evidence = isCommandLine && index.commands.has(text) ? undefined : findInRepo(index, text, false);
+  const evidence =
+    isCommandLine && index.commands.has(text)
+      ? undefined
+      : findInRepo({ index, needle: text, wholeToken: false });
   const passed = (isCommandLine && index.commands.has(text)) || evidence !== undefined;
   return [
     {
@@ -123,7 +136,7 @@ export function checkCommand(claim: Claim, index: RepoTextIndex): CheckOutcome[]
 export function checkUrl(claim: Claim, index: RepoTextIndex): CheckOutcome[] {
   if (claim.kind !== "url") return [];
   const bare = claim.text.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const evidence = findInRepo(index, bare, false);
+  const evidence = findInRepo({ index, needle: bare, wholeToken: false });
   return [
     {
       check: {

@@ -69,7 +69,15 @@ function readFormat(buffer: Buffer, offset: number): WavFormat {
   };
 }
 
-function readSample(buffer: Buffer, offset: number, format: WavFormat): number {
+function readSample({
+  buffer,
+  offset,
+  format,
+}: {
+  buffer: Buffer;
+  offset: number;
+  format: WavFormat;
+}): number {
   if (format.audioFormat === 3 && format.bitsPerSample === 32) return buffer.readFloatLE(offset);
   if (format.audioFormat === 1 && format.bitsPerSample === 16) return buffer.readInt16LE(offset) / 32768;
   throw new WavDecodeError(
@@ -91,7 +99,7 @@ function readDataChunk(options: {
   for (let frameIndex = 0; frameIndex < frameCount; frameIndex += 1) {
     channels.forEach((channel, channelIndex) => {
       const sampleOffset = bodyOffset + (frameIndex * format.channelCount + channelIndex) * bytesPerSample;
-      channel[frameIndex] = readSample(buffer, sampleOffset, format);
+      channel[frameIndex] = readSample({ buffer, offset: sampleOffset, format });
     });
   }
   return { sampleRate: format.sampleRate, channels };

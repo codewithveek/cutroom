@@ -6,6 +6,11 @@ export interface ApproveStoryboardInput {
   overrides: ReadonlyArray<ClaimOverride>;
 }
 
+export interface RegenerateSceneRequest {
+  sceneId: string;
+  instruction?: string | undefined;
+}
+
 export interface UpdateStoryboardResult {
   versionId: string;
   version: number;
@@ -21,7 +26,7 @@ export interface PipelineRunner {
   approveStoryboard(runId: string, approval: ApproveStoryboardInput): Promise<void>;
   confirmEgress(runId: string, manifestSha256: string): Promise<void>;
   updateStoryboard(runId: string, storyboard: Storyboard): Promise<UpdateStoryboardResult>;
-  regenerateScene(runId: string, sceneId: string, instruction?: string): Promise<UpdateStoryboardResult>;
+  regenerateScene(runId: string, request: RegenerateSceneRequest): Promise<UpdateStoryboardResult>;
   getRun(runId: string): Promise<RunRecord | undefined>;
   listRuns(): Promise<RunRecord[]>;
   listEvents(runId: string): Promise<RunEvent[]>;

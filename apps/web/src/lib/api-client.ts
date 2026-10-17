@@ -22,7 +22,13 @@ export class ApiRequestError extends Error {
   }
 }
 
-async function request<Output>(path: string, schema: z.ZodType<Output>, init?: RequestInit): Promise<Output> {
+interface RequestOptions<Output> {
+  path: string;
+  schema: z.ZodType<Output>;
+  init?: RequestInit;
+}
+
+async function request<Output>({ path, schema, init }: RequestOptions<Output>): Promise<Output> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     headers: { ...(init?.body ? { "content-type": "application/json" } : {}), ...init?.headers },
@@ -52,27 +58,37 @@ export type LookSummary = z.infer<typeof lookSummarySchema>;
 /** Typed calls onto apps/api; every response is parsed with the shared contract. */
 export const apiClient = {
   createRun: (body: RunRequestInput) =>
-    request("/runs", runViewSchema, { method: "POST", body: JSON.stringify(body) }),
-  getRun: (runId: string) => request(`/runs/${runId}`, runViewSchema),
-  listRuns: () => request("/runs", z.object({ runs: z.array(runViewSchema) })),
+    request({ path: "/runs", schema: runViewSchema, init: { method: "POST", body: JSON.stringify(body) } }),
+  getRun: (runId: string) => request({ path: `/runs/${runId}`, schema: runViewSchema }),
+  listRuns: () => request({ path: "/runs", schema: z.object({ runs: z.array(runViewSchema) }) }),
   saveStoryboard: (runId: string, storyboard: Storyboard) =>
-    request(`/runs/${runId}/storyboard`, runViewSchema, {
-      method: "PUT",
-      body: JSON.stringify({ storyboard }),
+    request({
+      path: `/runs/${runId}/storyboard`,
+      schema: runViewSchema,
+      init: { method: "PUT", body: JSON.stringify({ storyboard }) },
     }),
   approve: (runId: string, body: ApproveRequest) =>
-    request(`/runs/${runId}/approve`, runViewSchema, { method: "POST", body: JSON.stringify(body) }),
-  regenerateScene: (runId: string, sceneId: string, instruction?: string) =>
-    request(`/runs/${runId}/scenes/${sceneId}/regenerate`, runViewSchema, {
-      method: "POST",
-      body: JSON.stringify(instruction ? { instruction } : {}),
+    request({
+      path: `/runs/${runId}/approve`,
+      schema: runViewSchema,
+      init: { method: "POST", body: JSON.stringify(body) },
+    }),
+  regenerateScene: (options: { runId: string; sceneId: string; instruction?: string | undefined }) =>
+    request({
+      path: `/runs/${options.runId}/scenes/${options.sceneId}/regenerate`,
+      schema: runViewSchema,
+      init: {
+        method: "POST",
+        body: JSON.stringify(options.instruction ? { instruction: options.instruction } : {}),
+      },
     }),
   confirmEgress: (runId: string, manifestSha256: string) =>
-    request(`/runs/${runId}/confirm-egress`, runViewSchema, {
-      method: "POST",
-      body: JSON.stringify({ manifestSha256 }),
+    request({
+      path: `/runs/${runId}/confirm-egress`,
+      schema: runViewSchema,
+      init: { method: "POST", body: JSON.stringify({ manifestSha256 }) },
     }),
-  listLooks: () => request("/looks", z.object({ looks: z.array(lookSummarySchema) })),
+  listLooks: () => request({ path: "/looks", schema: z.object({ looks: z.array(lookSummarySchema) }) }),
   assetUrl: (relativeUrl: string) => `${apiBaseUrl}${relativeUrl}`,
 } as const;
 

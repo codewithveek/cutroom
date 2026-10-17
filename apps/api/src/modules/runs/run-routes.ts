@@ -64,7 +64,10 @@ export const runRoutes: FastifyPluginAsyncZod<RunRoutesOptions> = async (app, op
       },
     },
     async (request) => {
-      await runner.regenerateScene(request.params.runId, request.params.sceneId, request.body.instruction);
+      await runner.regenerateScene(request.params.runId, {
+        sceneId: request.params.sceneId,
+        instruction: request.body.instruction,
+      });
       return toRunView(await requireRun(request.params.runId));
     },
   );

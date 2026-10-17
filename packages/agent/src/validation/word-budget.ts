@@ -23,7 +23,12 @@ function sceneLabel(scene: SceneDraft, index: number): string {
   return `scenes.${index} (${scene.block}${scene.beat ? `, beat ${scene.beat}` : ""})`;
 }
 
-function narrationIssues(scene: SceneDraft, index: number, beat: BeatTemplate): string[] {
+interface SceneIssueOptions {
+  scene: SceneDraft;
+  index: number;
+}
+
+function narrationIssues({ scene, index, beat }: SceneIssueOptions & { beat: BeatTemplate }): string[] {
   const issues: string[] = [];
   const words = narrationWordCount(scene);
   if (words > beat.narrationWords[1]) {
@@ -41,7 +46,7 @@ function narrationIssues(scene: SceneDraft, index: number, beat: BeatTemplate): 
   return issues;
 }
 
-function headlineIssues(scene: SceneDraft, index: number, videoType: VideoType): string[] {
+function headlineIssues({ scene, index, videoType }: SceneIssueOptions & { videoType: VideoType }): string[] {
   if (scene.block !== "kinetic-headline") return [];
   const [minimumWords, maximumWords] =
     videoType === "teaser" ? TEASER_HEADLINE_WORD_RANGE : HEADLINE_WORD_RANGE;
@@ -82,8 +87,8 @@ export function storyboardDraftIssues(draft: StoryboardDraft, videoType: VideoTy
   const issues = structureIssues(draft, videoType);
   draft.scenes.forEach((scene, index) => {
     const beat = beatFor(videoType, scene.beat);
-    if (beat) issues.push(...narrationIssues(scene, index, beat));
-    issues.push(...headlineIssues(scene, index, videoType));
+    if (beat) issues.push(...narrationIssues({ scene, index, beat }));
+    issues.push(...headlineIssues({ scene, index, videoType }));
   });
   return issues;
 }

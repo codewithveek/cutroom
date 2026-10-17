@@ -12,11 +12,15 @@ const DEFAULT_LINE_GAP_FRAMES = 14;
  * Each headline line lands with its narration line when one exists (FR-VO-6),
  * but always early enough to resolve before the hold.
  */
-function lineStartFrames(
-  lines: ReadonlyArray<string>,
-  narrationStarts: ReadonlyArray<number>,
-  resolveBy: number,
-): number[] {
+function lineStartFrames({
+  lines,
+  narrationStarts,
+  resolveBy,
+}: {
+  lines: ReadonlyArray<string>;
+  narrationStarts: ReadonlyArray<number>;
+  resolveBy: number;
+}): number[] {
   return lines.map((line, lineIndex) => {
     const preferredStart = narrationStarts[lineIndex] ?? lineIndex * DEFAULT_LINE_GAP_FRAMES;
     const latestStart = resolveBy - countRisingWords(line) * WORD_STAGGER_FRAMES - 16;
@@ -31,7 +35,7 @@ export function KineticHeadlineBlock(props: { scene: KineticHeadlineScene }): Re
   const { timing } = useSceneContext();
   const resolveBy = useResolveByFrame();
   const narrationStarts = timing.lines.map((lineTiming) => lineTiming.fromFrame);
-  const startFrames = lineStartFrames(lines, narrationStarts, resolveBy);
+  const startFrames = lineStartFrames({ lines, narrationStarts, resolveBy });
   const starColor =
     tone === "problem" ? look.colors.alarm : tone === "promise" ? look.colors.accent : look.colors.accent;
   const align = look.id === "graphic" ? "start" : "center";

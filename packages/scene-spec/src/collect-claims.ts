@@ -4,8 +4,12 @@ import type { Storyboard } from "./storyboard";
 
 type ClaimField = Omit<Claim, "id" | "sceneId">;
 
-function field(fieldPath: string, text: string, kind: ClaimKind = "text"): ClaimField {
-  return { fieldPath, text, kind };
+function field(fieldPath: string, text: string): ClaimField {
+  return { fieldPath, text, kind: "text" };
+}
+
+function typedField(kind: ClaimKind, claim: { fieldPath: string; text: string }): ClaimField {
+  return { ...claim, kind };
 }
 
 type ClaimFieldExtractor<Block extends BlockId> = (scene: SceneOfBlock<Block>) => ClaimField[];
@@ -18,7 +22,7 @@ const claimFieldExtractors: { [Block in BlockId]: ClaimFieldExtractor<Block> } =
   ],
   "kinetic-headline": (scene) => scene.props.lines.map((line, index) => field(`props.lines.${index}`, line)),
   "big-number": (scene) => [
-    field("props.value", String(scene.props.value), "number"),
+    typedField("number", { fieldPath: "props.value", text: String(scene.props.value) }),
     field("props.label", scene.props.label),
     field("props.line", scene.props.line),
   ],
@@ -29,7 +33,7 @@ const claimFieldExtractors: { [Block in BlockId]: ClaimFieldExtractor<Block> } =
     ]),
   "code-card": (scene) => [
     {
-      ...field("props.code", scene.props.code, "code-excerpt"),
+      ...typedField("code-excerpt", { fieldPath: "props.code", text: scene.props.code }),
       source: {
         filePath: scene.props.filePath,
         lineStart: scene.props.lineStart,
@@ -39,16 +43,19 @@ const claimFieldExtractors: { [Block in BlockId]: ClaimFieldExtractor<Block> } =
   ],
   terminal: (scene) =>
     scene.props.commands.flatMap((command, index) => [
-      field(`props.commands.${index}.command`, command.command, "command"),
+      typedField("command", { fieldPath: `props.commands.${index}.command`, text: command.command }),
       ...command.output.map((outputLine, outputIndex) =>
-        field(`props.commands.${index}.output.${outputIndex}`, outputLine, "command"),
+        typedField("command", {
+          fieldPath: `props.commands.${index}.output.${outputIndex}`,
+          text: outputLine,
+        }),
       ),
     ]),
   "word-slot": (scene) => scene.props.items.map((item, index) => field(`props.items.${index}`, item)),
   "end-card": (scene) => [
     field("props.tagline", scene.props.tagline),
     field("props.cta", scene.props.cta),
-    ...(scene.props.url ? [field("props.url", scene.props.url, "url")] : []),
+    ...(scene.props.url ? [typedField("url", { fieldPath: "props.url", text: scene.props.url })] : []),
   ],
 };
 
@@ -59,7 +66,9 @@ function blockClaimFields(scene: Scene): ClaimField[] {
 }
 
 function narrationClaimFields(scene: Scene): ClaimField[] {
-  return scene.narration.map((line, index) => field(`narration.${index}.text`, line.text, "narration"));
+  return scene.narration.map((line, index) =>
+    typedField("narration", { fieldPath: `narration.${index}.text`, text: line.text }),
+  );
 }
 
 export function collectSceneClaims(scene: Scene): Claim[] {

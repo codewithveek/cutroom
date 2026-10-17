@@ -11,11 +11,18 @@ import type { StepFunction } from "./step-context";
 /** The asset key the renderer stages the repo's logo under. */
 export const LOGO_ASSET_KEY = "logo";
 
-function chooseLook(
-  run: RunRecord,
-  snapshot: RepoSnapshot,
-  brief: ProductBrief,
-): { look: LookId; reason: string } {
+function chooseLook({
+  run,
+  snapshot,
+  brief,
+}: {
+  run: RunRecord;
+  snapshot: RepoSnapshot;
+  brief: ProductBrief;
+}): {
+  look: LookId;
+  reason: string;
+} {
   if (run.request.look) return { look: run.request.look, reason: "Chosen by the user" };
   const recommendation = recommendLook(run.request.videoType, {
     productName: brief.name,
@@ -36,7 +43,7 @@ export const planStep: StepFunction = async (context, run) => {
   if (run.storyboardVersions.length > 0) return { skipped: true };
   if (!run.brief) throw new MissingStepOutputError("The product brief is missing.");
   const { reader, logoFilePath } = await requireSnapshot(context);
-  const { look, reason } = chooseLook(run, reader.snapshot, run.brief);
+  const { look, reason } = chooseLook({ run, snapshot: reader.snapshot, brief: run.brief });
   const model = createRunModelClient(context, run);
   const brand = brandFromBrief({
     brief: run.brief,
