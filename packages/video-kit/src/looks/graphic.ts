@@ -1,0 +1,37 @@
+import type { LookTokens } from "./look-tokens";
+
+export const graphicLook: LookTokens = {
+  id: "graphic",
+  label: "Graphic",
+  summary: "Off-white grid, tight type and colour slabs cut on the beat.",
+  isDark: false,
+  background: "grid",
+  colors: {
+    ground: "#fafafa",
+    ink: "#0a0a0a",
+    inkMuted: "#6b6b6b",
+    accent: "#2f5bff",
+    alarm: "#ff3b30",
+    card: "#ffffff",
+    cardInk: "#0a0a0a",
+    cardBorder: "rgba(10,10,10,0.12)",
+    codeBackground: "#ffffff",
+  },
+  fonts: {
+    headline: { family: "Inter Tight", weight: 500 },
+    body: { family: "Inter Tight", weight: 400 },
+    number: { family: "Inter Tight", weight: 500 },
+    mono: { family: "Geist Mono", weight: 500 },
+  },
+  headlineSizePx: 150,
+  numberSizePx: 260,
+  headlineTracking: -0.055,
+  eyebrow: "none",
+  cardShadow: "0 0 0 2px #0a0a0a",
+  cardRadiusPx: 4,
+  transitions: { default: "slab", brandMoment: "cut", detail: "push", close: "zoom" },
+  crossfadeFrames: 12,
+  paceSeconds: [2, 4],
+  codeTheme: "github-light",
+  sound: { musicLed: true, suggestedBed: "upbeat" },
+};

@@ -1,0 +1,37 @@
+import type { LookTokens } from "./look-tokens";
+
+export const editorialLook: LookTokens = {
+  id: "editorial",
+  label: "Editorial",
+  summary: "Warm paper, white cards and big numbers. Music-led, magazine pacing.",
+  isDark: false,
+  background: "paper",
+  colors: {
+    ground: "#efeee9",
+    ink: "#161513",
+    inkMuted: "#6f6c64",
+    accent: "#ff5a1f",
+    alarm: "#d7362b",
+    card: "#ffffff",
+    cardInk: "#161513",
+    cardBorder: "rgba(22,21,19,0.06)",
+    codeBackground: "#ffffff",
+  },
+  fonts: {
+    headline: { family: "Plus Jakarta Sans", weight: 800 },
+    body: { family: "Plus Jakarta Sans", weight: 500 },
+    number: { family: "Plus Jakarta Sans", weight: 800 },
+    mono: { family: "Geist Mono", weight: 400 },
+  },
+  headlineSizePx: 112,
+  numberSizePx: 250,
+  headlineTracking: -0.035,
+  eyebrow: "none",
+  cardShadow: "0 24px 60px rgba(92,72,40,0.16), 0 2px 6px rgba(92,72,40,0.08)",
+  cardRadiusPx: 26,
+  transitions: { default: "focus", brandMoment: "circle", detail: "panel", close: "circle" },
+  crossfadeFrames: 14,
+  paceSeconds: [3, 5],
+  codeTheme: "github-light",
+  sound: { musicLed: true, suggestedBed: "upbeat" },
+};

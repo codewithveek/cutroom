@@ -1,0 +1,37 @@
+import type { LookTokens } from "./look-tokens";
+
+export const cinematicLook: LookTokens = {
+  id: "cinematic",
+  label: "Cinematic",
+  summary: "Near-black, low glow and lots of space. Slow focus pulls.",
+  isDark: true,
+  background: "cinematic-glow",
+  colors: {
+    ground: "#060607",
+    ink: "#ecebe6",
+    inkMuted: "#8b8a85",
+    accent: "#e8c27a",
+    alarm: "#ff6b5b",
+    card: "#111113",
+    cardInk: "#ecebe6",
+    cardBorder: "rgba(255,255,255,0.06)",
+    codeBackground: "#0d0d0f",
+  },
+  fonts: {
+    headline: { family: "Geist", weight: 600 },
+    body: { family: "Geist", weight: 400 },
+    number: { family: "Geist", weight: 500 },
+    mono: { family: "Geist Mono", weight: 400 },
+  },
+  headlineSizePx: 104,
+  numberSizePx: 200,
+  headlineTracking: -0.02,
+  eyebrow: "none",
+  cardShadow: "0 40px 120px rgba(0,0,0,0.7)",
+  cardRadiusPx: 16,
+  transitions: { default: "focus", brandMoment: "focus", detail: "fade", close: "focus" },
+  crossfadeFrames: 20,
+  paceSeconds: [5, 8],
+  codeTheme: "github-dark-dimmed",
+  sound: { musicLed: false, suggestedBed: "calm" },
+};

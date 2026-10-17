@@ -1,0 +1,37 @@
+import type { LookTokens } from "./look-tokens";
+
+export const studioLook: LookTokens = {
+  id: "studio",
+  label: "Studio",
+  summary: "Near-black with a soft glow; your app floats in a window. Voice first.",
+  isDark: true,
+  background: "studio-glow",
+  colors: {
+    ground: "#09090c",
+    ink: "#f5f5f7",
+    inkMuted: "#9a9aa6",
+    accent: "#7c5cff",
+    alarm: "#ff5d5d",
+    card: "#16161c",
+    cardInk: "#f5f5f7",
+    cardBorder: "rgba(255,255,255,0.08)",
+    codeBackground: "#101015",
+  },
+  fonts: {
+    headline: { family: "Inter", weight: 800 },
+    body: { family: "Inter", weight: 500 },
+    number: { family: "Inter", weight: 800 },
+    mono: { family: "Geist Mono", weight: 400 },
+  },
+  headlineSizePx: 104,
+  numberSizePx: 220,
+  headlineTracking: -0.025,
+  eyebrow: "uppercase-accent",
+  cardShadow: "0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06)",
+  cardRadiusPx: 22,
+  transitions: { default: "fade", brandMoment: "focus", detail: "panel", close: "fade" },
+  crossfadeFrames: 12,
+  paceSeconds: [5, 8],
+  codeTheme: "github-dark-dimmed",
+  sound: { musicLed: false, suggestedBed: "calm" },
+};
