@@ -85,6 +85,18 @@ importers:
         specifier: 4.23.15
         version: 4.23.15
 
+  packages/repo-ingest:
+    dependencies:
+      '@cutroom/scene-spec':
+        specifier: workspace:*
+        version: link:../scene-spec
+      ignore:
+        specifier: 7.0.12
+        version: 7.0.12
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
   packages/scene-spec:
     dependencies:
       zod:
@@ -1759,6 +1771,10 @@ packages:
     engines: {node: ^10 || ^12 || >= 14}
     peerDependencies:
       postcss: ^8.1.0
+
+  ignore@7.0.12:
+    resolution: {integrity: sha512-/8UvqAPU9DGTI9k4mxtf49U37Isfwr8Uts96+SBHIkFxPJnHS0Ew4f00sM4Scd8V8EjM0jUNtVDdv1kPdt35lg==}
+    engines: {node: '>= 4'}
 
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
@@ -4071,6 +4087,8 @@ snapshots:
   icss-utils@5.1.0(postcss@8.5.30):
     dependencies:
       postcss: 8.5.30
+
+  ignore@7.0.12: {}
 
   import-fresh@3.3.1:
     dependencies:
