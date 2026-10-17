@@ -1,4 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["vitest.config.ts", "evals/**/*.ts", "scripts/**/*.ts"]
+  "include": ["vitest.config.ts", "evals/**/*.ts", "scripts/**/*.ts"],
+  "exclude": ["evals/fixtures"]
 }

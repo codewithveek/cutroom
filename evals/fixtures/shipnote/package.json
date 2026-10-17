@@ -1,0 +1,14 @@
+{
+  "name": "shipnote",
+  "version": "1.3.0",
+  "description": "Release notes from your commits",
+  "type": "module",
+  "bin": { "shipnote": "./src/cli.ts" },
+  "scripts": {
+    "draft": "shipnote draft",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "commander": "^12.0.0"
+  }
+}
