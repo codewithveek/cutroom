@@ -48,7 +48,7 @@ export function SceneList(props: SceneListProps): React.ReactElement {
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm">{sceneHeadline(scene)}</span>
                   <span className="mt-1 flex items-center gap-2 text-[11px] text-ink-faint">
-                    <span className="font-mono">{scene.block}</span>
+                    <span className="whitespace-nowrap font-mono">{scene.block}</span>
                     {timing ? (
                       <span className="font-mono">{(timing.durationFrames / 30).toFixed(1)}s</span>
                     ) : null}

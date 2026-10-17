@@ -45,6 +45,12 @@ export function StoryboardEditor(props: StoryboardEditorProps): React.ReactEleme
     setDraft(saved?.storyboard);
   }, [saved?.storyboard]);
 
+  // Open on a resolved frame of the first scene rather than an empty frame 0.
+  useEffect(() => {
+    const timer = setTimeout(() => playerRef.current?.seekTo(45), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
   const dirty = useMemo(
     () => JSON.stringify(draft) !== JSON.stringify(saved?.storyboard),
     [draft, saved?.storyboard],
