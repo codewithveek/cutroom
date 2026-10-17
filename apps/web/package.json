@@ -1,0 +1,33 @@
+{
+  "name": "@cutroom/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "copy-fonts": "tsx scripts/copy-fonts.ts",
+    "dev": "pnpm copy-fonts && next dev",
+    "build": "pnpm copy-fonts && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cutroom/presets": "workspace:*",
+    "@cutroom/scene-spec": "workspace:*",
+    "@cutroom/video-kit": "workspace:*",
+    "@remotion/player": "4.0.536",
+    "geist": "1.8.1",
+    "lucide-react": "1.59.0",
+    "next": "16.4.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.536",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.2.3",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15"
+  }
+}
