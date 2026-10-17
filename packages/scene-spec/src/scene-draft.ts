@@ -11,7 +11,10 @@ function draftSchemaForBlock(blockId: BlockId) {
   return sceneSchemaByBlock[blockId].omit({ id: true, baseFrames: true, transitionOrigin: true });
 }
 
-export type SceneDraft = Omit<Scene, "id" | "baseFrames" | "transitionOrigin">;
+/** Omit that keeps a union discriminated. */
+type DistributiveOmit<Value, Keys extends PropertyKey> = Value extends unknown ? Omit<Value, Keys> : never;
+
+export type SceneDraft = DistributiveOmit<Scene, "id" | "baseFrames" | "transitionOrigin">;
 
 export interface StoryboardDraft {
   title: string;
