@@ -6,13 +6,19 @@ export {
   selectContext,
 } from "./context/repo-context";
 export { accuracyRules } from "./prompts/shared-rules";
+export { shipnoteBriefDraft, shipnoteStoryboardDraft } from "./shipnote-fixture-drafts";
 export {
   type AnalyzeProductOptions,
   type AnalyzeProductResult,
   analyzeProduct,
   type EvidenceReport,
 } from "./steps/analyze-product";
-export { assembleStoryboard, baseFramesFor, brandFromBrief } from "./steps/assemble-storyboard";
+export {
+  assembleStoryboard,
+  type BrandOverride,
+  baseFramesFor,
+  brandFromBrief,
+} from "./steps/assemble-storyboard";
 export {
   type PlanStoryboardOptions,
   type PlanStoryboardResult,

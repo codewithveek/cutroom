@@ -1,6 +1,10 @@
 import type { ProductBriefDraft, StoryboardDraft } from "@cutroom/scene-spec";
 
-/** What a good model answers for the shipnote fixture; evidence matches the fixture files. */
+/**
+ * What a good model answers for the shipnote fixture (evals/fixtures/shipnote). Used by tests,
+ * the scripted end-to-end run and demos without a GPU. Evidence matches the fixture files,
+ * except where a test needs a relocated or rejected excerpt.
+ */
 export const shipnoteBriefDraft: ProductBriefDraft = {
   name: "Shipnote",
   tagline: "Release notes from your commits",
@@ -29,6 +33,8 @@ export const shipnoteBriefDraft: ProductBriefDraft = {
           filePath: "src/write-changelog.ts",
           lineStart: 99,
           lineEnd: 100,
+          // A real line of the fixture (cited at the wrong lines on purpose), not a template.
+          // biome-ignore lint/suspicious/noTemplateCurlyInString: verbatim source code
           excerpt: 'await writeFile("CHANGELOG.md", `## ${version}\\n\\n${sections.join("\\n\\n")}\\n`);',
         },
       ],
@@ -83,15 +89,13 @@ export const shipnoteStoryboardDraft: StoryboardDraft = {
     },
     {
       beat: "moment",
-      block: "big-number",
+      block: "terminal",
       props: {
-        label: "Commit types",
-        value: 3,
-        format: "integer",
-        line: "feat, fix and *perf*",
-        limitState: false,
+        title: "~/my-app",
+        commands: [{ command: "npx shipnote draft", output: ["Wrote CHANGELOG.md"] }],
+        charsPerSecond: 18,
       },
-      narration: [{ text: "Three sections, straight from your history." }],
+      narration: [{ text: "Run the draft command in your repo." }],
     },
     {
       beat: "moment",

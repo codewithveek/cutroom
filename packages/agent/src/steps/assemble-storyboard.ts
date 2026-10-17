@@ -25,10 +25,16 @@ export function baseFramesFor(options: {
   return Math.round(seconds * FRAMES_PER_SECOND);
 }
 
+export type BrandOverride = { [Key in keyof Brand]?: Brand[Key] | undefined };
+
+function definedEntries(override: BrandOverride): Partial<Brand> {
+  return Object.fromEntries(Object.entries(override).filter((entry) => entry[1] !== undefined));
+}
+
 export function brandFromBrief(options: {
   brief: ProductBrief;
   hints: BrandHints;
-  override?: Partial<Brand>;
+  override?: BrandOverride;
 }): Brand {
   const url = options.hints.homepage?.replace(/^https?:\/\//, "").replace(/\/$/, "");
   return {
@@ -37,7 +43,7 @@ export function brandFromBrief(options: {
     ...(options.hints.accentColor ? { accentColor: options.hints.accentColor } : {}),
     ...(options.hints.fontFamily ? { fontFamily: options.hints.fontFamily } : {}),
     ...(url && url.length <= 80 ? { url } : {}),
-    ...options.override,
+    ...definedEntries(options.override ?? {}),
   };
 }
 
