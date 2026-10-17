@@ -1,7 +1,7 @@
+import { encodeWav } from "@cutroom/audio-io";
 import { describe, expect, it } from "vitest";
 import { synthesizeMusicBed } from "./music-bed";
 import { synthesizeWhoosh } from "./sound-effects";
-import { encodeWav } from "./wav";
 
 describe("generated audio", () => {
   it("is deterministic for a seed", () => {

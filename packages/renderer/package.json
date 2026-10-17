@@ -11,6 +11,7 @@
     "render:fixture": "tsx scripts/render-fixture.ts"
   },
   "dependencies": {
+    "@cutroom/audio-io": "workspace:*",
     "@cutroom/observability": "workspace:*",
     "@cutroom/scene-spec": "workspace:*",
     "@cutroom/video-kit": "workspace:*",

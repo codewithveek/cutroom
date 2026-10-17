@@ -1,6 +1,5 @@
+import { createSeededRandom, normalizePeak, type PcmAudio } from "@cutroom/audio-io";
 import type { MusicBed } from "@cutroom/scene-spec";
-import { createSeededRandom } from "./seeded-random";
-import { normalizePeak, type PcmAudio } from "./wav";
 
 const SAMPLE_RATE = 44_100;
 

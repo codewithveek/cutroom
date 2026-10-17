@@ -1,5 +1,6 @@
 import { mkdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { encodeWav } from "@cutroom/audio-io";
 import {
   type AspectRatio,
   buildCaptionCues,
@@ -15,7 +16,6 @@ import {
 import { audioAssetKeys } from "@cutroom/video-kit";
 import { synthesizeMusicBed } from "./audio/music-bed";
 import { synthesizeClick, synthesizeWhoosh } from "./audio/sound-effects";
-import { encodeWav } from "./audio/wav";
 import { buildWebVtt } from "./captions-vtt";
 import { embedCoverArt } from "./cover-art";
 import { type LoudnessMeasurement, normalizeLoudness } from "./loudness";

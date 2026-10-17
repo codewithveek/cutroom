@@ -1,5 +1,4 @@
-import { createSeededRandom } from "./seeded-random";
-import { normalizePeak, type PcmAudio } from "./wav";
+import { createSeededRandom, normalizePeak, type PcmAudio } from "@cutroom/audio-io";
 
 const SAMPLE_RATE = 44_100;
 
