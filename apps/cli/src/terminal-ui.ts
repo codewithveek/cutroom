@@ -8,6 +8,7 @@ const stepLabels: Readonly<Record<RunEvent["step"], string>> = {
   review: "Review",
   "synthesize-voice": "Synthesising the voice",
   render: "Rendering",
+  "quality-check": "Checking stills and audio",
   "finalize-deliverables": "Writing the delivery note",
 };
 

@@ -52,7 +52,7 @@ export function buildDeliveryNote(run: RunRecord): string {
   const claimResults = version?.claimResults ?? [];
   const look = run.look ? lookTokensById[run.look].label : "unknown";
   const files = run.assets
-    .filter((asset) => asset.kind !== "delivery-note")
+    .filter((asset) => asset.kind !== "delivery-note" && asset.kind !== "still")
     .map((asset) => {
       const duration = asset.durationMs ? ` · ${(asset.durationMs / 1000).toFixed(1)} s` : "";
       return `\`${path.basename(asset.filePath)}\` (${asset.kind}${asset.ratio ? ` ${asset.ratio}` : ""}${duration})`;
@@ -84,6 +84,8 @@ export function buildDeliveryNote(run: RunRecord): string {
     "",
     "## Licences",
     list(licences(run), "None."),
+    "",
+    `Quality stills (scene ends and transition midpoints) are in \`quality/\`: ${run.assets.filter((asset) => asset.kind === "still").length} frames.`,
     "",
     "## Judge by eye and ear before you post",
     list(

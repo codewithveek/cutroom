@@ -14,7 +14,7 @@ import { printEvent } from "../terminal-ui";
 
 function printDeliverables(run: RunRecord): void {
   console.log("\nDeliverables");
-  for (const asset of run.assets) {
+  for (const asset of run.assets.filter((candidate) => candidate.kind !== "still")) {
     const duration = asset.durationMs ? ` · ${(asset.durationMs / 1000).toFixed(1)} s` : "";
     console.log(
       `  ${asset.kind.padEnd(14)} ${asset.ratio?.padEnd(5) ?? "     "} ${asset.filePath}${duration}`,

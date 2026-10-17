@@ -11,6 +11,7 @@ const steps: ReadonlyArray<{ step: PipelineStep; label: string }> = [
   { step: "review", label: "Your review" },
   { step: "synthesize-voice", label: "Voice" },
   { step: "render", label: "Render" },
+  { step: "quality-check", label: "Quality check" },
   { step: "finalize-deliverables", label: "Delivery note" },
 ];
 

@@ -2,11 +2,23 @@ import path from "node:path";
 import type { StagedAsset } from "@cutroom/renderer";
 import { bundleVideoKit, produceDeliverables } from "@cutroom/renderer";
 import { ulid } from "ulid";
-import type { AssetRecord } from "../run-schema";
+import type { AssetRecord, RunRecord } from "../run-schema";
 import { dataPaths } from "../services";
 import { LOGO_ASSET_KEY } from "./plan-step";
 import { MissingStepOutputError, requireSnapshot } from "./run-resources";
-import type { StepFunction } from "./step-context";
+import type { StepContext, StepFunction } from "./step-context";
+
+/** Voice clips and the repo's logo: the local files a render of this run needs. */
+export async function localAssetsFor(context: StepContext, run: RunRecord): Promise<StagedAsset[]> {
+  const version = run.storyboardVersions.find((candidate) => candidate.id === run.approval?.versionId);
+  const { logoFilePath } = await requireSnapshot(context);
+  return [
+    ...run.voiceClips.map((clip) => ({ assetKey: clip.assetKey, filePath: clip.filePath })),
+    ...(logoFilePath && version?.storyboard.brand.logoAssetKey === LOGO_ASSET_KEY
+      ? [{ assetKey: LOGO_ASSET_KEY, filePath: logoFilePath }]
+      : []),
+  ];
+}
 
 /** Steps 6–7: every ratio, then loudness, captions, thumbnail and cover art. */
 export const renderStep: StepFunction = async (context, run) => {
@@ -17,14 +29,8 @@ export const renderStep: StepFunction = async (context, run) => {
   const version = run.storyboardVersions.find((candidate) => candidate.id === run.approval?.versionId);
   if (!version || !run.voiceTimeline)
     throw new MissingStepOutputError("Approve the storyboard and synthesise the voice first.");
-  const { logoFilePath } = await requireSnapshot(context);
   const { serveUrl } = await bundleVideoKit({ outDir: dataPaths(context.services.dataDirectory).bundle });
-  const localAssets: StagedAsset[] = [
-    ...run.voiceClips.map((clip) => ({ assetKey: clip.assetKey, filePath: clip.filePath })),
-    ...(logoFilePath && version.storyboard.brand.logoAssetKey === LOGO_ASSET_KEY
-      ? [{ assetKey: LOGO_ASSET_KEY, filePath: logoFilePath }]
-      : []),
-  ];
+  const localAssets = await localAssetsFor(context, run);
   const deliverables = await produceDeliverables({
     serveUrl,
     jobId: run.id,

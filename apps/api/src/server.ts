@@ -13,7 +13,10 @@ const logger = createLogger({ level: env.LOG_LEVEL, name: "cutroom-api" });
 const services = createPipelineServices({
   env,
   logger,
-  overrides: env.MODEL_PROVIDER === "scripted-shipnote" ? { modelTransportOverride: createShipnoteScriptedTransport() } : {},
+  overrides:
+    env.MODEL_PROVIDER === "scripted-shipnote"
+      ? { modelTransportOverride: createShipnoteScriptedTransport() }
+      : {},
 });
 const runner = new InProcessRunner(services);
 

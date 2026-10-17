@@ -3,6 +3,7 @@ import { auditStep } from "./steps/audit-step";
 import { finalizeStep } from "./steps/finalize-step";
 import { ingestStep } from "./steps/ingest-step";
 import { planStep } from "./steps/plan-step";
+import { qualityCheckStep } from "./steps/quality-check-step";
 import { renderStep } from "./steps/render-step";
 import { reviewStep } from "./steps/review-step";
 import type { StepDefinition } from "./steps/step-context";
@@ -17,5 +18,6 @@ export const pipelineSteps: ReadonlyArray<StepDefinition> = [
   { step: "review", status: "auditing", run: reviewStep },
   { step: "synthesize-voice", status: "voicing", run: voiceStep },
   { step: "render", status: "rendering", run: renderStep },
+  { step: "quality-check", status: "finalizing", run: qualityCheckStep },
   { step: "finalize-deliverables", status: "finalizing", run: finalizeStep },
 ];

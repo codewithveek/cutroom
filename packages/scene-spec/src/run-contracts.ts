@@ -53,6 +53,7 @@ export const pipelineStepSchema = z.enum([
   "review",
   "synthesize-voice",
   "render",
+  "quality-check",
   "finalize-deliverables",
 ]);
 export type PipelineStep = z.infer<typeof pipelineStepSchema>;

@@ -8,7 +8,9 @@ import { chromium } from "playwright";
 
 const [outDirectory = ".cutroom/screenshots", repoPath = "evals/fixtures/shipnote"] = process.argv.slice(2);
 await mkdir(outDirectory, { recursive: true });
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
+const browser = await chromium.launch({
+  executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+});
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 page.on("console", (message) => {
   if (message.type() === "error") console.error("browser:", message.text());

@@ -6,6 +6,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { apiClient, type RunView } from "@/lib/api-client";
+import { QualityReport } from "./quality-report";
 
 function latestRenderProgress(
   events: ReadonlyArray<RunEvent>,
@@ -117,6 +118,7 @@ export function RendersPanel(props: {
                   ) : null,
                 )}
               </div>
+              <QualityReport run={run} ratio={ratio} />
             </div>
           );
         })}
