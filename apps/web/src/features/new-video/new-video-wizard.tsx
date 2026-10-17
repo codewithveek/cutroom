@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Label, TextInput } from "@/components/ui/field";
+import { RadioCards } from "@/components/ui/radio-cards";
 import { apiClient } from "@/lib/api-client";
 import { classNames } from "@/lib/class-names";
 import { LookPicker } from "./look-picker";
@@ -26,29 +27,25 @@ function PresetPicker(props: {
   onChange: (presetId: PresetId) => void;
 }): React.ReactElement {
   return (
-    <div role="radiogroup" aria-label="Preset" className="grid gap-3 md:grid-cols-3">
-      {Object.values(presets).map((preset) => (
-        <button
-          key={preset.id}
-          type="button"
-          role="radio"
-          aria-checked={preset.id === props.value}
-          onClick={() => props.onChange(preset.id)}
-          className={classNames(
-            "rounded-lg border p-4 text-left transition-colors",
-            preset.id === props.value
-              ? "border-accent bg-accent/10"
-              : "border-line bg-panel hover:border-line-strong",
-          )}
-        >
-          <div className="text-sm font-medium">{preset.label}</div>
-          <p className="mt-1 text-xs leading-relaxed text-ink-muted">{preset.description}</p>
-          <p className="mt-2 font-mono text-[11px] text-ink-faint">
-            {preset.ratios.join(" · ")} · {preset.targetSeconds}s
-          </p>
-        </button>
-      ))}
-    </div>
+    <RadioCards
+      name="preset"
+      legend="Preset"
+      value={props.value}
+      onChange={props.onChange}
+      className="grid gap-3 md:grid-cols-3"
+      options={Object.values(presets).map((preset) => ({
+        value: preset.id,
+        content: (
+          <>
+            <span className="block text-sm font-medium">{preset.label}</span>
+            <span className="mt-1 block text-xs leading-relaxed text-ink-muted">{preset.description}</span>
+            <span className="mt-2 block font-mono text-[11px] text-ink-faint">
+              {preset.ratios.join(" · ")} · {preset.targetSeconds}s
+            </span>
+          </>
+        ),
+      }))}
+    />
   );
 }
 
@@ -63,7 +60,8 @@ function RatioChips(props: {
     if (next.length > 0) props.onChange(next);
   };
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Aspect ratios">
+    <fieldset className="flex flex-wrap gap-2">
+      <legend className="sr-only">Aspect ratios</legend>
       {ratioOptions.map((ratio) => (
         <button
           key={ratio}
@@ -80,7 +78,7 @@ function RatioChips(props: {
           {ratio}
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }
 

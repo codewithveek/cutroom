@@ -24,14 +24,19 @@ export function SideSheet(props: SideSheetProps): React.ReactElement | null {
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-black/50" role="presentation" onClick={onClose}>
+    <div className="fixed inset-0 z-40 flex justify-end">
+      <button
+        type="button"
+        aria-label="Close panel"
+        tabIndex={-1}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/50"
+      />
       <aside
         role="dialog"
         aria-modal="true"
         aria-label={props.title}
-        className="h-full w-full max-w-xl overflow-y-auto border-l border-line bg-panel p-6"
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
+        className="relative h-full w-full max-w-xl overflow-y-auto border-l border-line bg-panel p-6"
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold">{props.title}</h2>

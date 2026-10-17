@@ -39,6 +39,7 @@ export function EvidenceViewer(props: {
       {evidence ? (
         <pre className="overflow-x-auto rounded-lg border border-line bg-canvas p-4 font-mono text-xs leading-relaxed">
           {evidence.excerpt.split("\n").map((line, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: lines of a fixed excerpt
             <div key={`${index}-${line}`} className="flex gap-4">
               <span className="w-8 shrink-0 select-none text-right text-ink-faint">
                 {evidence.lineStart + index}

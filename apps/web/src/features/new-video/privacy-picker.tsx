@@ -1,7 +1,7 @@
 import type { PrivacyMode } from "@cutroom/scene-spec";
 import { Cloud, Laptop, Split } from "lucide-react";
 import type React from "react";
-import { classNames } from "@/lib/class-names";
+import { RadioCards } from "@/components/ui/radio-cards";
 
 interface PrivacyOption {
   mode: PrivacyMode;
@@ -41,34 +41,31 @@ export function PrivacyPicker(props: {
   onChange: (mode: PrivacyMode) => void;
 }): React.ReactElement {
   return (
-    <div role="radiogroup" aria-label="Privacy mode" className="grid gap-3 md:grid-cols-3">
-      {privacyOptions.map((option) => {
-        const selected = option.mode === props.value;
+    <RadioCards
+      name="privacy-mode"
+      legend="Privacy mode"
+      value={props.value}
+      onChange={props.onChange}
+      className="grid gap-3 md:grid-cols-3"
+      options={privacyOptions.map((option) => {
         const Icon = option.icon;
-        return (
-          <button
-            key={option.mode}
-            type="button"
-            role="radio"
-            aria-checked={selected}
-            onClick={() => props.onChange(option.mode)}
-            className={classNames(
-              "rounded-lg border p-4 text-left transition-colors",
-              selected ? "border-accent bg-accent/10" : "border-line bg-panel hover:border-line-strong",
-            )}
-          >
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Icon className="size-4 text-accent" />
-              {option.label}
-              {option.mode === "local" ? (
-                <span className="ml-auto text-[11px] text-ink-faint">default</span>
-              ) : null}
-            </div>
-            <p className="mt-2 text-xs leading-relaxed text-ink-muted">{option.sentence}</p>
-            <p className="mt-2 font-mono text-[11px] text-ink-faint">{option.providers}</p>
-          </button>
-        );
+        return {
+          value: option.mode,
+          content: (
+            <>
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <Icon className="size-4 text-accent" />
+                {option.label}
+                {option.mode === "local" ? (
+                  <span className="ml-auto text-[11px] text-ink-faint">default</span>
+                ) : null}
+              </span>
+              <span className="mt-2 block text-xs leading-relaxed text-ink-muted">{option.sentence}</span>
+              <span className="mt-2 block font-mono text-[11px] text-ink-faint">{option.providers}</span>
+            </>
+          ),
+        };
       })}
-    </div>
+    />
   );
 }

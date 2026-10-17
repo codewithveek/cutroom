@@ -23,6 +23,7 @@ function NarrationEditor(props: {
       <legend className="text-xs font-medium text-ink-muted">Narration</legend>
       {props.scene.narration.map((line, index) => (
         <div
+          // biome-ignore lint/suspicious/noArrayIndexKey: narration lines are edited by position
           key={`${props.scene.id}-narration-${index}`}
           className="space-y-2 rounded-md border border-line p-3"
         >

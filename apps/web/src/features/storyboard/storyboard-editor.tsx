@@ -43,7 +43,7 @@ export function StoryboardEditor(props: StoryboardEditorProps): React.ReactEleme
 
   useEffect(() => {
     setDraft(saved?.storyboard);
-  }, [saved?.versionId, saved?.storyboard]);
+  }, [saved?.storyboard]);
 
   const dirty = useMemo(
     () => JSON.stringify(draft) !== JSON.stringify(saved?.storyboard),

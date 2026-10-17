@@ -59,6 +59,7 @@ function ArrayField(props: SchemaFieldProps): React.ReactElement {
     <fieldset className="space-y-2 rounded-md border border-line p-3">
       <legend className="px-1 text-xs font-medium text-ink-muted">{props.label}</legend>
       {items.map((item, index) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: list items are edited by position
         <div key={`${props.path}.${index}`} className="flex items-start gap-2">
           <div className="flex-1">
             <SchemaField
