@@ -40,16 +40,30 @@ export async function runMake(flags: MakeFlags, env: CutroomEnv): Promise<number
   console.log(
     `Run ${runId} · ${request.videoType} · ${request.ratios.join(", ")} · ${request.privacyMode} mode`,
   );
-  let unsubscribe = runner.subscribe(runId, printEvent);
+  let storyboardPrinted = false;
+  const printStoryboardOnce = async () => {
+    const current = await runner.getRun(runId);
+    const latest = current ? latestStoryboardVersion(current) : undefined;
+    if (latest && !storyboardPrinted) {
+      storyboardPrinted = true;
+      printStoryboard(latest);
+    }
+  };
+  const onEvent = (event: Parameters<typeof printEvent>[0]) => {
+    printEvent(event);
+    // With --yes the run does not pause, so show what is about to be rendered as soon as it is audited.
+    if (event.step === "review" && event.kind === "completed") void printStoryboardOnce();
+  };
+  let unsubscribe = runner.subscribe(runId, onEvent);
   try {
     let run = await runner.waitForStatus(runId, ["awaiting_review", "awaiting_egress", "completed"]);
     const version = latestStoryboardVersion(run);
-    if (version) printStoryboard(version);
+    if (run.status === "awaiting_review") await printStoryboardOnce();
     if (run.status === "awaiting_review" && version) {
       unsubscribe();
       const approval = await promptForApproval(version);
       if (!approval) return 2;
-      unsubscribe = runner.subscribe(runId, printEvent);
+      unsubscribe = runner.subscribe(runId, onEvent);
       await runner.approveStoryboard(runId, approval);
       run = await runner.waitForStatus(runId, ["completed", "awaiting_egress"]);
     }
