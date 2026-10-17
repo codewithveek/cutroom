@@ -36,6 +36,7 @@ function buildProvider(options: CreateVoiceProviderOptions): VoiceProvider {
       if (!options.elevenLabsApiKey) throw new VoiceConfigurationError("ELEVENLABS_API_KEY is not set");
       return createElevenLabsProvider({ apiKey: options.elevenLabsApiKey });
     case "kokoro":
-      return createKokoroProvider({ ...options.kokoro, allowDownload: options.mode !== "local" });
+      // Only Cloud mode may fetch weights at run time; Local and Hybrid keep the voice on this machine.
+      return createKokoroProvider({ ...options.kokoro, allowDownload: options.mode === "cloud" });
   }
 }

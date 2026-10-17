@@ -4,6 +4,7 @@ import {
   lookIdSchema,
   productBriefSchema,
   runApprovalSchema,
+  runEgressSchema,
   runErrorSchema,
   runProvidersSchema,
   runRequestSchema,
@@ -63,6 +64,7 @@ export const runRecordSchema = z.object({
   brief: productBriefSchema.optional(),
   storyboardVersions: z.array(storyboardVersionSchema).default([]),
   approval: runApprovalSchema.optional(),
+  egress: runEgressSchema.optional(),
   voiceTimeline: voiceTimelineSchema.optional(),
   voiceClips: z
     .array(z.object({ assetKey: z.string(), filePath: z.string(), durationMs: z.number() }))

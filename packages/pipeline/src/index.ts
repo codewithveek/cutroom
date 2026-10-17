@@ -4,6 +4,28 @@ export { type DescribedError, describeError, type ErrorCode, errorCodes } from "
 export { InProcessRunner, RunStateError } from "./in-process-runner";
 export type { ApproveStoryboardInput, PipelineRunner, UpdateStoryboardResult } from "./pipeline-runner";
 export {
+  type BundleFile,
+  buildRenderJobBundle,
+  manifestSha256,
+  type RenderJobBundle,
+  RenderJobIntegrityError,
+  sha256Hex,
+  type UploadedFile,
+  verifyRenderJobUpload,
+} from "./remote-render/render-job-bundle";
+export {
+  createRenderJobClient,
+  type RemoteJobStatus,
+  RemoteRenderError,
+  type RenderJobClient,
+  remoteJobStatusSchema,
+} from "./remote-render/render-job-client";
+export {
+  extensionForContent,
+  RENDER_JOB_RETENTION_MS,
+  RenderJobWorker,
+} from "./remote-render/render-job-worker";
+export {
   type AssetRecord,
   latestStoryboardVersion,
   type PipelineStep,

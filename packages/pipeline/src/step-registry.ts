@@ -1,5 +1,6 @@
 import { analyzeStep } from "./steps/analyze-step";
 import { auditStep } from "./steps/audit-step";
+import { buildRenderJobStep } from "./steps/build-render-job-step";
 import { finalizeStep } from "./steps/finalize-step";
 import { ingestStep } from "./steps/ingest-step";
 import { planStep } from "./steps/plan-step";
@@ -17,6 +18,7 @@ export const pipelineSteps: ReadonlyArray<StepDefinition> = [
   { step: "audit-claims", status: "auditing", run: auditStep },
   { step: "review", status: "auditing", run: reviewStep },
   { step: "synthesize-voice", status: "voicing", run: voiceStep },
+  { step: "build-render-job", status: "voicing", run: buildRenderJobStep },
   { step: "render", status: "rendering", run: renderStep },
   { step: "quality-check", status: "finalizing", run: qualityCheckStep },
   { step: "finalize-deliverables", status: "finalizing", run: finalizeStep },

@@ -19,6 +19,7 @@ export interface UpdateStoryboardResult {
 export interface PipelineRunner {
   start(request: RunRequestInput): Promise<{ runId: string }>;
   approveStoryboard(runId: string, approval: ApproveStoryboardInput): Promise<void>;
+  confirmEgress(runId: string, manifestSha256: string): Promise<void>;
   updateStoryboard(runId: string, storyboard: Storyboard): Promise<UpdateStoryboardResult>;
   getRun(runId: string): Promise<RunRecord | undefined>;
   listRuns(): Promise<RunRecord[]>;

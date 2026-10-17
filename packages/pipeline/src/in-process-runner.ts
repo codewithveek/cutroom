@@ -25,6 +25,7 @@ export class RunStateError extends Error {
 }
 
 const terminalStatuses: ReadonlySet<RunStatus> = new Set(["completed", "failed"]);
+const pausedStatuses: ReadonlySet<RunStatus> = new Set(["awaiting_review", "awaiting_egress"]);
 
 function changedSceneIds(previous: Storyboard, next: Storyboard): string[] {
   const previousById = new Map(previous.scenes.map((scene) => [scene.id, JSON.stringify(scene)]));
@@ -107,6 +108,21 @@ export class InProcessRunner implements PipelineRunner {
     this.execute(runId);
   }
 
+  /** Hybrid: the user has seen the egress manifest and agrees to upload exactly that bundle. */
+  async confirmEgress(runId: string, manifestSha256: string): Promise<void> {
+    const run = await this.requireRun(runId);
+    if (run.status !== "awaiting_egress" || !run.egress)
+      throw new RunStateError(`Run ${runId} is not waiting for egress confirmation`);
+    if (run.egress.manifestSha256 !== manifestSha256)
+      throw new RunStateError("The manifest changed since you reviewed it");
+    await this.services.store.update(runId, (current) =>
+      current.egress
+        ? { ...current, egress: { ...current.egress, confirmedAt: new Date().toISOString() } }
+        : current,
+    );
+    this.execute(runId);
+  }
+
   async updateStoryboard(runId: string, storyboardInput: Storyboard): Promise<UpdateStoryboardResult> {
     const storyboard = storyboardSchema.parse(storyboardInput);
     const run = await this.requireRun(runId);
@@ -183,7 +199,7 @@ export class InProcessRunner implements PipelineRunner {
   }
 
   private isExecuting(runId: string, run: RunRecord): boolean {
-    return this.executing.has(runId) && !terminalStatuses.has(run.status) && run.status !== "awaiting_review";
+    return this.executing.has(runId) && !terminalStatuses.has(run.status) && !pausedStatuses.has(run.status);
   }
 
   private async requireRun(runId: string): Promise<RunRecord> {
@@ -258,7 +274,14 @@ export class InProcessRunner implements PipelineRunner {
       const usage = outcome.payload?.usage as { inputTokens: number; outputTokens: number } | undefined;
       await this.services.store.update(runId, (current) => ({
         ...current,
-        ...(outcome.paused ? { status: "awaiting_review" as const } : {}),
+        ...(outcome.paused
+          ? {
+              status:
+                definition.step === "build-render-job"
+                  ? ("awaiting_egress" as const)
+                  : ("awaiting_review" as const),
+            }
+          : {}),
         metrics: [
           ...current.metrics.filter((metric) => metric.step !== definition.step || outcome.skipped),
           ...(outcome.skipped
