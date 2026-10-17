@@ -19,11 +19,20 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
+    "@cutroom/agent": "workspace:*",
+    "@cutroom/claim-audit": "workspace:*",
+    "@cutroom/config": "workspace:*",
+    "@cutroom/pipeline": "workspace:*",
+    "@cutroom/providers": "workspace:*",
+    "@cutroom/repo-ingest": "workspace:*",
+    "@cutroom/scene-spec": "workspace:*",
+    "@cutroom/video-kit": "workspace:*",
     "@types/node": "22",
     "playwright": "1.56.1",
     "tsx": "4.23.15",
     "turbo": "2.11.9",
     "typescript": "5.9.3",
-    "vitest": "4.0.5"
+    "vitest": "4.0.5",
+    "zod": "4.6.7"
   }
 }

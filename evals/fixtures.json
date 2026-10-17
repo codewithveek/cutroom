@@ -1,0 +1,33 @@
+{
+  "fixtures": [
+    { "id": "shipnote", "kind": "cli", "source": { "kind": "path", "path": "evals/fixtures/shipnote" } },
+    {
+      "id": "vercel-serve",
+      "kind": "cli",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/vercel/serve",
+        "ref": "37b3a743fa90d0e11d7f5b5efe88c27017b7ee13"
+      }
+    },
+    {
+      "id": "fastify-demo",
+      "kind": "http-api",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/fastify/demo",
+        "ref": "5cd560125b3c2f0d42192bc7f493e8e3b9e75e52"
+      }
+    },
+    {
+      "id": "vercel-commerce",
+      "kind": "web-app",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/vercel/commerce",
+        "ref": "3761e52e60df9c6a316e067dbfd7032e494d3634"
+      }
+    },
+    { "id": "cutroom", "kind": "self", "source": { "kind": "path", "path": "." } }
+  ]
+}
