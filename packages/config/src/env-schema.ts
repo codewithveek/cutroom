@@ -10,6 +10,8 @@ export const envSchema = z.object({
 
   OLLAMA_HOST: z.url().default("http://127.0.0.1:11434"),
   MODEL_ID: z.string().min(1).default("gemma4:e4b"),
+  /** `scripted-shipnote` answers from a script for the shipnote fixture (demos and UI work without a GPU). */
+  MODEL_PROVIDER: z.enum(["auto", "scripted-shipnote"]).default("auto"),
   MODEL_CONTEXT_BUDGET_TOKENS: z.coerce.number().int().positive().default(24_000),
 
   OPENAI_COMPAT_BASE_URL: optionalUrl,

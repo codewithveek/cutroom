@@ -1,6 +1,6 @@
 import { loadEnv } from "@cutroom/config";
 import { createLogger, initTracing } from "@cutroom/observability";
-import { createPipelineServices, InProcessRunner } from "@cutroom/pipeline";
+import { createPipelineServices, createShipnoteScriptedTransport, InProcessRunner } from "@cutroom/pipeline";
 import { buildApp } from "./app";
 
 const env = loadEnv();
@@ -10,7 +10,11 @@ initTracing({
   tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
 });
 const logger = createLogger({ level: env.LOG_LEVEL, name: "cutroom-api" });
-const services = createPipelineServices({ env, logger });
+const services = createPipelineServices({
+  env,
+  logger,
+  overrides: env.MODEL_PROVIDER === "scripted-shipnote" ? { modelTransportOverride: createShipnoteScriptedTransport() } : {},
+});
 const runner = new InProcessRunner(services);
 
 // Durability for the in-process runner: runs interrupted by a restart continue from their last step.
