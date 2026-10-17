@@ -14,7 +14,7 @@
     "lint:fix": "biome check --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "cutroom": "pnpm --filter @cutroom/cli exec tsx src/main.ts",
+    "cutroom": "tsx apps/cli/src/main.ts",
     "eval": "tsx evals/run-evals.ts"
   },
   "devDependencies": {

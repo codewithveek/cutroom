@@ -1,0 +1,27 @@
+{
+  "name": "@cutroom/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "cutroom": "./src/main.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@cutroom/claim-audit": "workspace:*",
+    "@cutroom/config": "workspace:*",
+    "@cutroom/observability": "workspace:*",
+    "@cutroom/pipeline": "workspace:*",
+    "@cutroom/presets": "workspace:*",
+    "@cutroom/repo-ingest": "workspace:*",
+    "@cutroom/scene-spec": "workspace:*",
+    "@cutroom/voice": "workspace:*",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}
