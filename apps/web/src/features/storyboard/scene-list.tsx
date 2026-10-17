@@ -47,7 +47,7 @@ export function SceneList(props: SceneListProps): React.ReactElement {
                 <Icon className="mt-0.5 size-4 shrink-0 text-ink-muted" aria-hidden="true" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm">{sceneHeadline(scene)}</span>
-                  <span className="mt-1 flex items-center gap-2 text-[11px] text-ink-faint">
+                  <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-ink-faint">
                     <span className="whitespace-nowrap font-mono">{scene.block}</span>
                     {timing ? (
                       <span className="font-mono">{(timing.durationFrames / 30).toFixed(1)}s</span>
@@ -57,7 +57,7 @@ export function SceneList(props: SceneListProps): React.ReactElement {
                 </span>
               </button>
               {props.editable ? (
-                <span className="flex flex-col opacity-60 group-hover:opacity-100">
+                <span className="flex shrink-0 flex-col opacity-60 group-hover:opacity-100">
                   <button
                     type="button"
                     aria-label={`Move scene ${index + 1} up`}

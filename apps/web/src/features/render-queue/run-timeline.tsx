@@ -34,7 +34,7 @@ function summarise(events: ReadonlyArray<RunEvent>, step: PipelineStep): StepSum
   const durationMs =
     typeof finished?.payload.durationMs === "number" ? finished.payload.durationMs : undefined;
   const tokens = usage ? (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0) : undefined;
-  if (last.kind === "failed") return { state: "failed", detail: String(last.payload.message ?? "") };
+  if (last.kind === "failed") return { state: "failed", detail: "failed" };
   if (last.kind === "progress" && last.payload.awaitingReview)
     return { state: "waiting", detail: "Waiting for your approval" };
   if (last.kind === "completed") {
