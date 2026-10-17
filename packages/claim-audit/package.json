@@ -1,0 +1,19 @@
+{
+  "name": "@cutroom/claim-audit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cutroom/observability": "workspace:*",
+    "@cutroom/providers": "workspace:*",
+    "@cutroom/repo-ingest": "workspace:*",
+    "@cutroom/scene-spec": "workspace:*",
+    "zod": "4.6.7"
+  }
+}
