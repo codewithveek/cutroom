@@ -5,6 +5,7 @@ import { musicSelectionSchema } from "./music";
 import { presetIdSchema } from "./preset-id";
 import { aspectRatioSchema, lookIdSchema, privacyModeSchema, videoTypeSchema } from "./primitives";
 import { productBriefSchema } from "./product-brief";
+import { egressManifestSchema } from "./render-job";
 import { repoSourceSchema } from "./repo-source";
 import { storyboardSchema } from "./storyboard";
 import { voiceSelectionSchema } from "./voice-selection";
@@ -38,6 +39,7 @@ export const runStatusSchema = z.enum([
   "auditing",
   "awaiting_review",
   "voicing",
+  "awaiting_egress",
   "rendering",
   "finalizing",
   "completed",
@@ -52,6 +54,7 @@ export const pipelineStepSchema = z.enum([
   "audit-claims",
   "review",
   "synthesize-voice",
+  "build-render-job",
   "render",
   "quality-check",
   "finalize-deliverables",
@@ -82,6 +85,16 @@ export const runApprovalSchema = z.object({
   approvedAt: z.string(),
   auto: z.boolean(),
 });
+
+/** Hybrid mode: the bundle the user is asked to confirm before upload (FR-PRV-3). */
+export const runEgressSchema = z.object({
+  manifest: egressManifestSchema,
+  manifestSha256: z.string(),
+  bundleDirectory: z.string(),
+  confirmedAt: z.string().optional(),
+  remoteJobId: z.string().optional(),
+});
+export type RunEgress = z.infer<typeof runEgressSchema>;
 
 export const runProvidersSchema = z.object({
   modelProvider: z.string().optional(),
@@ -141,6 +154,7 @@ export const runViewSchema = z.object({
     }),
   ),
   approval: runApprovalSchema.optional(),
+  egress: runEgressSchema.omit({ bundleDirectory: true }).optional(),
   voiceTimeline: voiceTimelineSchema.optional(),
   providers: runProvidersSchema,
   metrics: z.array(stepMetricSchema),

@@ -12,6 +12,11 @@ export * from "./brand";
 export * from "./captions";
 export * from "./claims";
 export { collectClaims, collectSceneClaims } from "./collect-claims";
+export {
+  type BuildEgressManifestOptions,
+  buildEgressManifest,
+  canonicalManifestJson,
+} from "./egress-manifest";
 export * from "./evidence";
 export { fixtureStoryboardInput } from "./fixtures/fixture-storyboard";
 export * from "./music";
