@@ -1,8 +1,10 @@
 import { EventEmitter } from "node:events";
+import { regenerateScene } from "@cutroom/agent";
 import { assertApprovable } from "@cutroom/claim-audit";
 import { createStepLogger, withPipelineStepSpan } from "@cutroom/observability";
 import { type EgressGuard, installLocalEgressGuard } from "@cutroom/providers";
 import { type Storyboard, storyboardSchema } from "@cutroom/scene-spec";
+import { lookTokensById } from "@cutroom/video-kit";
 import { ulid } from "ulid";
 import { describeError } from "./describe-error";
 import type { ApproveStoryboardInput, PipelineRunner, UpdateStoryboardResult } from "./pipeline-runner";
@@ -17,6 +19,7 @@ import {
 import type { PipelineServices } from "./services";
 import { pipelineSteps } from "./step-registry";
 import { auditVersion } from "./steps/audit-step";
+import { createRunModelClient, requireSnapshot } from "./steps/run-resources";
 import type { StepContext, StepDefinition } from "./steps/step-context";
 import { RunNotFoundError } from "./store/run-store";
 
@@ -155,6 +158,32 @@ export class InProcessRunner implements PipelineRunner {
       previousResults: previous.claimResults,
     });
     return { versionId, version: previous.version + 1, claimResults: results };
+  }
+
+  /** Re-runs generation for one scene with the others fixed, then versions and re-audits it (FR-SB-7). */
+  async regenerateScene(
+    runId: string,
+    sceneId: string,
+    instruction?: string,
+  ): Promise<UpdateStoryboardResult> {
+    const run = await this.requireRun(runId);
+    if (run.status !== "awaiting_review")
+      throw new RunStateError(`Run ${runId} is ${run.status}; scenes can only be regenerated during review`);
+    const latest = latestStoryboardVersion(run);
+    if (!latest || !run.brief) throw new RunStateError("No storyboard to regenerate");
+    const context = this.createContext(runId, "plan-storyboard");
+    const { reader } = await requireSnapshot(context);
+    const { storyboard } = await regenerateScene({
+      storyboard: latest.storyboard,
+      sceneId,
+      brief: run.brief,
+      reader,
+      model: createRunModelClient(context, run),
+      paceSeconds: lookTokensById[latest.storyboard.look].paceSeconds,
+      targetSeconds: run.request.targetSeconds,
+      ...(instruction ? { instruction } : {}),
+    });
+    return this.updateStoryboard(runId, storyboard);
   }
 
   getRun(runId: string): Promise<RunRecord | undefined> {

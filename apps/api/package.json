@@ -9,6 +9,7 @@
     "start": "tsx src/server.ts"
   },
   "dependencies": {
+    "@cutroom/agent": "workspace:*",
     "@cutroom/claim-audit": "workspace:*",
     "@cutroom/config": "workspace:*",
     "@cutroom/observability": "workspace:*",

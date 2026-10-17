@@ -1,8 +1,9 @@
 "use client";
 
 import { type ClaimResult, type Scene, sceneSchemaByBlock, transitionSchema } from "@cutroom/scene-spec";
+import { RefreshCw } from "lucide-react";
 import type React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { VerdictBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,29 @@ export interface SceneInspectorProps {
   scene: Scene;
   claims: ReadonlyArray<ClaimResult>;
   editable: boolean;
+  busy: boolean;
   onChange: (path: string, value: unknown) => void;
+  onRegenerate: (instruction: string) => void;
+}
+
+function RegenerateControl(props: {
+  busy: boolean;
+  onRegenerate: (instruction: string) => void;
+}): React.ReactElement {
+  const [instruction, setInstruction] = useState("");
+  return (
+    <div className="flex gap-2">
+      <TextInput
+        aria-label="Direction for the new version"
+        placeholder="Optional direction, e.g. show the CLI"
+        value={instruction}
+        onChange={(event) => setInstruction(event.target.value)}
+      />
+      <Button size="md" onClick={() => props.onRegenerate(instruction.trim())} disabled={props.busy}>
+        <RefreshCw className="size-3.5" aria-hidden="true" /> Regenerate
+      </Button>
+    </div>
+  );
 }
 
 /** Props form generated from the block's schema, narration, transition and audit details. */
@@ -114,6 +137,7 @@ export function SceneInspector(props: SceneInspectorProps): React.ReactElement {
         </div>
         {props.scene.beat ? <div className="text-xs text-ink-muted">beat: {props.scene.beat}</div> : null}
       </div>
+      {props.editable ? <RegenerateControl busy={props.busy} onRegenerate={props.onRegenerate} /> : null}
       <fieldset disabled={!props.editable} className="space-y-6 disabled:opacity-70">
         <SchemaField
           schema={schema}

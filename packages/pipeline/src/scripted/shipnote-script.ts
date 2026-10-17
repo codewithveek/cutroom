@@ -67,6 +67,14 @@ function judgeFromSnippets(request: JsonCompletionRequest) {
   };
 }
 
+/** Answers a regenerate request with the fixture draft's scene for the same beat. */
+function regeneratedSceneFor(request: JsonCompletionRequest) {
+  const beat = request.messages[0]?.content.match(/\(beat "([^"]+)"\)/)?.[1];
+  const scenes = shipnoteStoryboardDraft.scenes.filter((scene) => scene.beat === beat);
+  const scene = scenes.at(-1) ?? shipnoteStoryboardDraft.scenes[0];
+  return { scene };
+}
+
 /**
  * A scripted model for the shipnote fixture: what a well-behaved Gemma answers, without a GPU.
  * The CI end-to-end test and `cutroom make --scripted` use it. Not for real repositories.
@@ -82,6 +90,8 @@ export function createShipnoteScriptedTransport(): JsonCompletionTransport {
         return shipnoteStoryboardDraft;
       case "claim_verdicts":
         return judgeFromSnippets(request);
+      case "scene_draft":
+        return regeneratedSceneFor(request);
       default:
         throw new Error(`The shipnote script has no answer for ${request.schemaName}`);
     }

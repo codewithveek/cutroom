@@ -62,6 +62,16 @@ export const apiClient = {
     }),
   approve: (runId: string, body: ApproveRequest) =>
     request(`/runs/${runId}/approve`, runViewSchema, { method: "POST", body: JSON.stringify(body) }),
+  regenerateScene: (runId: string, sceneId: string, instruction?: string) =>
+    request(`/runs/${runId}/scenes/${sceneId}/regenerate`, runViewSchema, {
+      method: "POST",
+      body: JSON.stringify(instruction ? { instruction } : {}),
+    }),
+  confirmEgress: (runId: string, manifestSha256: string) =>
+    request(`/runs/${runId}/confirm-egress`, runViewSchema, {
+      method: "POST",
+      body: JSON.stringify({ manifestSha256 }),
+    }),
   listLooks: () => request("/looks", z.object({ looks: z.array(lookSummarySchema) })),
   assetUrl: (relativeUrl: string) => `${apiBaseUrl}${relativeUrl}`,
 } as const;

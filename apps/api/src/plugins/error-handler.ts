@@ -1,3 +1,4 @@
+import { SceneNotFoundError } from "@cutroom/agent";
 import { ApprovalBlockedError } from "@cutroom/claim-audit";
 import { RunNotFoundError, RunStateError } from "@cutroom/pipeline";
 import type { FastifyError, FastifyInstance } from "fastify";
@@ -6,6 +7,7 @@ import { z } from "zod";
 
 export const apiErrorCodeSchema = z.enum([
   "validation_failed",
+  "unauthorized",
   "not_found",
   "conflict",
   "approval_blocked",
@@ -56,8 +58,9 @@ function mapError(error: FastifyError | Error): MappedError {
   }
   if (error instanceof ApiError)
     return { statusCode: error.statusCode, code: error.code, message: error.message };
-  if (error instanceof RunNotFoundError)
+  if (error instanceof RunNotFoundError || error instanceof SceneNotFoundError) {
     return { statusCode: 404, code: "not_found", message: error.message };
+  }
   if (error instanceof RunStateError) return { statusCode: 409, code: "conflict", message: error.message };
   if (error instanceof ApprovalBlockedError) {
     return {

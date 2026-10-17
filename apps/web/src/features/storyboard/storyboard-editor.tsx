@@ -138,7 +138,13 @@ export function StoryboardEditor(props: StoryboardEditorProps): React.ReactEleme
               scene={selectedScene}
               claims={claimResults.filter((claim) => claim.sceneId === selectedScene.id)}
               editable={editable}
+              busy={busy || dirty}
               onChange={updateSelectedScene}
+              onRegenerate={(instruction) =>
+                void runAction(() =>
+                  apiClient.regenerateScene(props.run.id, selectedScene.id, instruction || undefined),
+                )
+              }
             />
           ) : null}
         </div>

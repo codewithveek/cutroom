@@ -100,6 +100,21 @@ describe("runs", () => {
     expect(approve.json().error.code).toBe("approval_blocked");
     const events = await runner.listEvents(runId);
     expect(events.length).toBeGreaterThan(5);
+    const sceneId: string = edited.json().storyboard.storyboard.scenes[1].id;
+    const regenerated = await app.inject({
+      method: "POST",
+      url: `/runs/${runId}/scenes/${sceneId}/regenerate`,
+      payload: {},
+    });
+    expect(regenerated.statusCode).toBe(200);
+    expect(regenerated.json().storyboard.version).toBe(3);
+    expect(regenerated.json().storyboard.storyboard.scenes[1].id).toBe(sceneId);
+    const unknownScene = await app.inject({
+      method: "POST",
+      url: `/runs/${runId}/scenes/nope/regenerate`,
+      payload: {},
+    });
+    expect(unknownScene.statusCode).toBe(404);
   });
 });
 

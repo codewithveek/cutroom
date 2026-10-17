@@ -55,6 +55,34 @@ export const runRoutes: FastifyPluginAsyncZod<RunRoutesOptions> = async (app, op
     },
   );
 
+  app.post(
+    "/runs/:runId/scenes/:sceneId/regenerate",
+    {
+      schema: {
+        params: runParamsSchema.extend({ sceneId: z.string().min(1).max(64) }),
+        body: z.object({ instruction: z.string().max(300).optional() }).default({}),
+      },
+    },
+    async (request) => {
+      await runner.regenerateScene(request.params.runId, request.params.sceneId, request.body.instruction);
+      return toRunView(await requireRun(request.params.runId));
+    },
+  );
+
+  app.post(
+    "/runs/:runId/confirm-egress",
+    {
+      schema: {
+        params: runParamsSchema,
+        body: z.object({ manifestSha256: z.string().regex(/^[0-9a-f]{64}$/) }),
+      },
+    },
+    async (request) => {
+      await runner.confirmEgress(request.params.runId, request.body.manifestSha256);
+      return toRunView(await requireRun(request.params.runId));
+    },
+  );
+
   /** Server-sent events: the run timeline in the browser (FR-OBS-3). Replays history first. */
   app.get("/runs/:runId/events", { schema: { params: runParamsSchema } }, async (request, reply) => {
     const { runId } = request.params;
