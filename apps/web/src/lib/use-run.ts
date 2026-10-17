@@ -37,7 +37,8 @@ export function useRun(runId: string): RunState {
       setEvents((previous) =>
         previous.some((existing) => existing.id === event.id) ? previous : [...previous, event],
       );
-      if (event.kind !== "progress" || event.payload.awaitingReview) void refresh();
+      if (event.kind !== "progress" || event.payload.awaitingReview || event.payload.awaitingEgress)
+        void refresh();
     });
     return () => source.close();
   }, [runId, refresh]);

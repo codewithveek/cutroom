@@ -7,6 +7,7 @@ const stepLabels: Readonly<Record<RunEvent["step"], string>> = {
   "audit-claims": "Auditing every claim against the code",
   review: "Review",
   "synthesize-voice": "Synthesising the voice",
+  "build-render-job": "Packing the render bundle",
   render: "Rendering",
   "quality-check": "Checking stills and audio",
   "finalize-deliverables": "Writing the delivery note",

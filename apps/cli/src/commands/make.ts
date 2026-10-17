@@ -9,7 +9,7 @@ import {
 } from "@cutroom/pipeline";
 import { createSilentProvider } from "@cutroom/voice";
 import { buildRunRequest, type MakeFlags } from "../make-options";
-import { printStoryboard, promptForApproval } from "../review-prompt";
+import { printEgressManifest, printStoryboard, promptForApproval, promptForEgress } from "../review-prompt";
 import { printEvent } from "../terminal-ui";
 
 function printDeliverables(run: RunRecord): void {
@@ -42,7 +42,7 @@ export async function runMake(flags: MakeFlags, env: CutroomEnv): Promise<number
   );
   let unsubscribe = runner.subscribe(runId, printEvent);
   try {
-    let run = await runner.waitForStatus(runId, ["awaiting_review", "completed"]);
+    let run = await runner.waitForStatus(runId, ["awaiting_review", "awaiting_egress", "completed"]);
     const version = latestStoryboardVersion(run);
     if (version) printStoryboard(version);
     if (run.status === "awaiting_review" && version) {
@@ -51,7 +51,15 @@ export async function runMake(flags: MakeFlags, env: CutroomEnv): Promise<number
       if (!approval) return 2;
       unsubscribe = runner.subscribe(runId, printEvent);
       await runner.approveStoryboard(runId, approval);
+      run = await runner.waitForStatus(runId, ["completed", "awaiting_egress"]);
+    }
+    if (run.status === "awaiting_egress" && run.egress) {
+      printEgressManifest(run.egress);
+      if (!(await promptForEgress())) return 2;
+      await runner.confirmEgress(runId, run.egress.manifestSha256);
       run = await runner.waitForStatus(runId, ["completed"]);
+    } else if (run.egress) {
+      printEgressManifest(run.egress);
     }
     await runner.settled(runId);
     run = (await runner.getRun(runId)) ?? run;

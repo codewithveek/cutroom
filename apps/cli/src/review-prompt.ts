@@ -1,6 +1,6 @@
 import { createInterface } from "node:readline/promises";
 import { findApprovalBlockers, formatAuditTable } from "@cutroom/claim-audit";
-import type { ApproveStoryboardInput, StoryboardVersion } from "@cutroom/pipeline";
+import type { ApproveStoryboardInput, RunRecord, StoryboardVersion } from "@cutroom/pipeline";
 import type { ClaimOverride, Scene } from "@cutroom/scene-spec";
 
 function describeScene(scene: Scene): string {
@@ -59,6 +59,31 @@ export async function promptForApproval(
       .trim()
       .toLowerCase();
     return answer === "y" || answer === "yes" ? { versionId: version.id, overrides } : undefined;
+  } finally {
+    terminal.close();
+  }
+}
+
+export function printEgressManifest(egress: NonNullable<RunRecord["egress"]>): void {
+  console.log("\nHybrid mode: this bundle is all that will leave this machine.");
+  for (const file of egress.manifest.files)
+    console.log(`  ${file.path.padEnd(48)} ${file.kind.padEnd(11)} ${(file.bytes / 1024).toFixed(1)} KB`);
+  if (egress.manifest.codeExcerpts.length > 0) {
+    console.log("  Code shown on screen:");
+    for (const excerpt of egress.manifest.codeExcerpts)
+      console.log(`    ${excerpt.filePath}:${excerpt.lineStart}-${excerpt.lineEnd}`);
+  }
+  console.log(`  manifest sha256 ${egress.manifestSha256}\n`);
+}
+
+/** Hybrid: explicit consent before upload (FR-PRV-3). */
+export async function promptForEgress(): Promise<boolean> {
+  const terminal = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const answer = (await terminal.question("Upload exactly this bundle to the render API? [y/N] "))
+      .trim()
+      .toLowerCase();
+    return answer === "y" || answer === "yes";
   } finally {
     terminal.close();
   }

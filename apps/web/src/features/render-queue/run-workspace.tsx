@@ -6,6 +6,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { BriefPanel } from "@/features/product-brief/brief-panel";
 import { StoryboardEditor } from "@/features/storyboard/storyboard-editor";
 import { useRun } from "@/lib/use-run";
+import { EgressPanel } from "./egress-panel";
 import { RendersPanel } from "./renders-panel";
 import { RunTimeline } from "./run-timeline";
 
@@ -17,6 +18,7 @@ const statusLabels: Readonly<Record<string, string>> = {
   auditing: "Auditing claims",
   awaiting_review: "Ready for your review",
   voicing: "Synthesising voice",
+  awaiting_egress: "Confirm what leaves this machine",
   rendering: "Rendering",
   finalizing: "Finishing up",
   completed: "Done",
@@ -54,6 +56,7 @@ export function RunWorkspace(props: { runId: string }): React.ReactElement {
         </Card>
       </aside>
       <div className="min-w-0 space-y-5">
+        {run.egress && !run.egress.confirmedAt ? <EgressPanel run={run} onRunChange={replaceRun} /> : null}
         <RendersPanel run={run} events={events} />
         {run.storyboard ? <StoryboardEditor run={run} onRunChange={replaceRun} /> : null}
         {run.brief ? <BriefPanel brief={run.brief} /> : null}
