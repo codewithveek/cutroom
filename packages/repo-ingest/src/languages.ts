@@ -1,0 +1,52 @@
+const languageByExtension: Readonly<Record<string, string>> = {
+  ts: "ts",
+  tsx: "tsx",
+  mts: "ts",
+  cts: "ts",
+  js: "js",
+  jsx: "jsx",
+  mjs: "js",
+  cjs: "js",
+  json: "json",
+  jsonc: "json",
+  md: "md",
+  mdx: "md",
+  py: "python",
+  rb: "ruby",
+  go: "go",
+  rs: "rust",
+  java: "java",
+  kt: "kotlin",
+  swift: "swift",
+  c: "c",
+  h: "c",
+  cpp: "cpp",
+  hpp: "cpp",
+  cs: "csharp",
+  php: "php",
+  scala: "scala",
+  vue: "vue",
+  svelte: "svelte",
+  astro: "astro",
+  html: "html",
+  css: "css",
+  scss: "css",
+  sql: "sql",
+  sh: "sh",
+  bash: "sh",
+  zsh: "sh",
+  yml: "yaml",
+  yaml: "yaml",
+  toml: "toml",
+  prisma: "prisma",
+  graphql: "graphql",
+  proto: "proto",
+  dockerfile: "docker",
+};
+
+export function detectLanguage(relativePath: string): string {
+  const fileName = relativePath.split("/").pop() ?? relativePath;
+  if (fileName.toLowerCase() === "dockerfile") return "docker";
+  const extension = fileName.includes(".") ? (fileName.split(".").pop()?.toLowerCase() ?? "") : "";
+  return languageByExtension[extension] ?? "text";
+}
