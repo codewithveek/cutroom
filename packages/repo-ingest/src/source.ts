@@ -25,9 +25,21 @@ function runGit(args: ReadonlyArray<string>): Promise<void> {
     });
     child.on("error", (error) => reject(new SourceError(`Could not run git: ${error.message}`)));
     child.on("close", (exitCode) =>
-      exitCode === 0 ? resolve() : reject(new SourceError(`git clone failed: ${stderr.trim().slice(-400)}`)),
+      exitCode === 0
+        ? resolve()
+        : reject(new SourceError(`git ${args[0]} failed: ${stderr.trim().slice(-400)}`)),
     );
   });
+}
+
+const commitSha = /^[0-9a-f]{40}$/;
+
+/** A shallow fetch of one commit: how eval fixtures stay pinned (FR-EV-1). */
+async function cloneAtCommit(options: { url: string; sha: string; rootDirectory: string }): Promise<void> {
+  await runGit(["init", "--quiet", options.rootDirectory]);
+  await runGit(["-C", options.rootDirectory, "remote", "add", "origin", "--", options.url]);
+  await runGit(["-C", options.rootDirectory, "fetch", "--depth", "1", "--quiet", "origin", options.sha]);
+  await runGit(["-C", options.rootDirectory, "checkout", "--quiet", "FETCH_HEAD"]);
 }
 
 export interface ResolvedSource {
@@ -50,8 +62,21 @@ export async function resolveSource(source: RepoSource): Promise<ResolvedSource>
     throw new SourceError(`Unsupported git ref: ${source.ref}`);
   const workspace = await mkdtemp(path.join(tmpdir(), "cutroom-clone-"));
   const rootDirectory = path.join(workspace, "repo");
-  const branchArgs = source.ref ? ["--branch", source.ref] : [];
-  await runGit(["clone", "--depth", "1", "--single-branch", ...branchArgs, "--", source.url, rootDirectory]);
+  if (source.ref && commitSha.test(source.ref)) {
+    await cloneAtCommit({ url: source.url, sha: source.ref, rootDirectory });
+  } else {
+    const branchArgs = source.ref ? ["--branch", source.ref] : [];
+    await runGit([
+      "clone",
+      "--depth",
+      "1",
+      "--single-branch",
+      ...branchArgs,
+      "--",
+      source.url,
+      rootDirectory,
+    ]);
+  }
   const rootName = path.basename(source.url).replace(/\.git$/, "");
   return { rootDirectory, rootName, isTemporary: true };
 }
