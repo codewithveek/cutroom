@@ -42,6 +42,12 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
 
+  packages/scene-spec:
+    dependencies:
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
 packages:
 
   '@biomejs/biome@2.5.15':
