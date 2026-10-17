@@ -2,13 +2,12 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createModelClientFromTransport, createScriptedTransport } from "@cutroom/providers";
-import { ingestRepository, type SnapshotReader } from "@cutroom/repo-ingest";
+import { ingestRepository, type SnapshotReader, verifyEvidence } from "@cutroom/repo-ingest";
 import { beforeAll, describe, expect, it } from "vitest";
 import { analyzeProduct } from "./steps/analyze-product";
 import { brandFromBrief } from "./steps/assemble-storyboard";
 import { planStoryboard } from "./steps/plan-storyboard";
 import { shipnoteBriefDraft, shipnoteStoryboardDraft } from "./test-support/shipnote-drafts";
-import { verifyEvidence } from "./validation/verify-evidence";
 import { storyboardDraftIssues } from "./validation/word-budget";
 
 const shipnoteFixture = path.resolve(import.meta.dirname, "../../../evals/fixtures/shipnote");

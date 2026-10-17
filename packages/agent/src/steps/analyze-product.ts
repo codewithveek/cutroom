@@ -1,10 +1,10 @@
 import type { CutroomLogger } from "@cutroom/observability";
 import type { ModelClient, TokenUsage } from "@cutroom/providers";
 import type { SnapshotReader } from "@cutroom/repo-ingest";
+import { verifyEvidence } from "@cutroom/repo-ingest";
 import { type Evidence, type Feature, type ProductBrief, productBriefDraftSchema } from "@cutroom/scene-spec";
 import { estimateTokens, rankFilesForContext, selectContext } from "../context/repo-context";
 import { analyzeProductSystemPrompt, buildAnalyzeProductPrompt } from "../prompts/analyze-product-prompt";
-import { verifyEvidence } from "../validation/verify-evidence";
 import { renderDirectorySummaries, summarizeDirectories } from "./summarize-directories";
 
 /** Room for the system prompt, the facts block and the model's answer. */

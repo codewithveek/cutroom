@@ -1,4 +1,5 @@
 import type { BrandHints, SnapshotReader } from "@cutroom/repo-ingest";
+import { normalizeWhitespace } from "@cutroom/repo-ingest";
 import {
   type Brand,
   blockCatalog,
@@ -13,7 +14,6 @@ import {
   type VideoType,
 } from "@cutroom/scene-spec";
 import { ulid } from "ulid";
-import { normalizeWhitespace } from "../validation/verify-evidence";
 
 /** Minimum on-screen time before narration stretches it: the look's pace inside the block's range. */
 export function baseFramesFor(options: {

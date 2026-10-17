@@ -19,5 +19,4 @@ export {
   planStoryboard,
 } from "./steps/plan-storyboard";
 export { directorySummarySchema } from "./steps/summarize-directories";
-export { type EvidenceVerification, normalizeWhitespace, verifyEvidence } from "./validation/verify-evidence";
 export { storyboardDraftIssues } from "./validation/word-budget";

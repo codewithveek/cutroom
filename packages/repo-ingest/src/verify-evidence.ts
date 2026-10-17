@@ -1,5 +1,5 @@
-import type { SnapshotReader } from "@cutroom/repo-ingest";
 import type { Evidence } from "@cutroom/scene-spec";
+import type { SnapshotReader } from "./snapshot-reader";
 
 export function normalizeWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();

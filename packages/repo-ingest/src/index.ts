@@ -21,3 +21,4 @@ export {
 } from "./snapshot-schema";
 export { type RepoSource, repoSourceSchema, resolveSource, SourceError } from "./source";
 export { extractUiStrings } from "./ui-strings";
+export { type EvidenceVerification, normalizeWhitespace, verifyEvidence } from "./verify-evidence";
