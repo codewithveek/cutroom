@@ -23,6 +23,7 @@ export * from "./scene";
 export { createStoryboardDraftSchema, type SceneDraft, type StoryboardDraft } from "./scene-draft";
 export { parseStarredText, stripStars, type TextSegment } from "./starred-text";
 export * from "./storyboard";
+export { deriveThumbnailTitle } from "./thumbnail-title";
 export * from "./timing";
 export * from "./video-props";
 export * from "./voice-timeline";

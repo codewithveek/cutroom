@@ -75,3 +75,12 @@ describe("parseStarredText", () => {
     expect(stripStars("a *b* c *d")).toBe("a b c *d");
   });
 });
+
+describe("deriveThumbnailTitle", () => {
+  it("uses the name and a short promise, five words at most", async () => {
+    const { deriveThumbnailTitle } = await import("./thumbnail-title");
+    const title = deriveThumbnailTitle(storyboardSchema.parse(fixtureStoryboardInput));
+    expect(title).toEqual(["Shipnote", "Release notes from your"]);
+    expect(title.join(" ").split(" ").length).toBeLessThanOrEqual(5);
+  });
+});

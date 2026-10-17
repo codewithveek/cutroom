@@ -15,6 +15,8 @@ export const videoPropsSchema = z.object({
   /** 16:9 videos open on the thumbnail because feeds preview the first frame (FR-RD-4). */
   openOnThumbnail: z.boolean().default(false),
   burnCaptions: z.boolean().default(false),
+  /** Two-line thumbnail title for the 16:9 intro; derived from the storyboard when absent. */
+  thumbnailTitle: z.tuple([z.string().min(1), z.string().min(1)]).optional(),
 });
 export type VideoProps = z.infer<typeof videoPropsSchema>;
 export type VideoPropsInput = z.input<typeof videoPropsSchema>;
@@ -23,7 +25,7 @@ export const thumbnailPropsSchema = z.object({
   storyboard: storyboardSchema,
   ratio: aspectRatioSchema,
   /** Two lines, ≤ 5 words in total; the second line takes the accent. */
-  titleLines: z.tuple([z.string().min(1), z.string().min(1)]),
+  titleLines: z.tuple([z.string().min(1), z.string().min(1)]).optional(),
   assetUrls: z.record(z.string(), z.string()).default({}),
 });
 export type ThumbnailProps = z.infer<typeof thumbnailPropsSchema>;
