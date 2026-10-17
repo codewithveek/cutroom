@@ -115,9 +115,11 @@ describe("ollama transport", () => {
       contextTokens: 8192,
       fetchImplementation: async (_input, init) => {
         sentBody = JSON.parse(String(init?.body));
-        return new Response(
-          JSON.stringify({ message: { content: '{"ok":true}' }, prompt_eval_count: 12, eval_count: 5 }),
-        );
+        const chunks = [
+          { message: { content: '{"ok":' }, done: false },
+          { message: { content: "true}" }, done: true, prompt_eval_count: 12, eval_count: 5 },
+        ];
+        return new Response(chunks.map((chunk) => JSON.stringify(chunk)).join("\n"));
       },
     });
     const completion = await transport.complete({
@@ -129,7 +131,7 @@ describe("ollama transport", () => {
       maxOutputTokens: 100,
     });
     expect(completion).toEqual({ content: '{"ok":true}', usage: { inputTokens: 12, outputTokens: 5 } });
-    expect(sentBody).toMatchObject({ model: "gemma4:e4b", stream: false, format: { type: "object" } });
+    expect(sentBody).toMatchObject({ model: "gemma4:e4b", stream: true, format: { type: "object" } });
   });
 });
 

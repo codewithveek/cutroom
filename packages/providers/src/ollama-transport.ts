@@ -2,8 +2,10 @@ import { z } from "zod";
 import type { JsonCompletion, JsonCompletionRequest, JsonCompletionTransport } from "./model-client";
 import { networkScopeForUrl } from "./privacy-guard";
 
-const ollamaChatResponseSchema = z.object({
-  message: z.object({ content: z.string() }),
+const ollamaChatChunkSchema = z.object({
+  message: z.object({ content: z.string() }).optional(),
+  done: z.boolean().optional(),
+  error: z.string().optional(),
   prompt_eval_count: z.number().optional(),
   eval_count: z.number().optional(),
 });
@@ -16,6 +18,43 @@ export class ModelTransportError extends Error {
     super(message);
     this.status = status;
   }
+}
+
+interface StreamedChat {
+  content: string;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+/**
+ * Reads Ollama's NDJSON stream. Streaming matters on slow hardware: a non-streamed answer
+ * sends no headers until it is complete, and Node's fetch gives up after five minutes.
+ */
+export async function readOllamaStream(body: ReadableStream<Uint8Array>): Promise<StreamedChat> {
+  const decoder = new TextDecoder();
+  const reader = body.getReader();
+  const result: StreamedChat = { content: "", inputTokens: 0, outputTokens: 0 };
+  let buffered = "";
+  const absorbLine = (line: string) => {
+    if (!line.trim()) return;
+    const chunk = ollamaChatChunkSchema.parse(JSON.parse(line));
+    if (chunk.error) throw new ModelTransportError(`Ollama: ${chunk.error}`);
+    result.content += chunk.message?.content ?? "";
+    if (chunk.done) {
+      result.inputTokens = chunk.prompt_eval_count ?? 0;
+      result.outputTokens = chunk.eval_count ?? 0;
+    }
+  };
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffered += decoder.decode(value, { stream: true });
+    const lines = buffered.split("\n");
+    buffered = lines.pop() ?? "";
+    for (const line of lines) absorbLine(line);
+  }
+  absorbLine(buffered + decoder.decode());
+  return result;
 }
 
 export interface OllamaTransportOptions {
@@ -38,7 +77,7 @@ export function createOllamaTransport(options: OllamaTransportOptions): JsonComp
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           model: options.modelId,
-          stream: false,
+          stream: true,
           format: request.jsonSchema,
           messages: [{ role: "system", content: request.system }, ...request.messages],
           options: {
@@ -54,10 +93,11 @@ export function createOllamaTransport(options: OllamaTransportOptions): JsonComp
           response.status,
         );
       }
-      const body = ollamaChatResponseSchema.parse(await response.json());
+      if (!response.body) throw new ModelTransportError("Ollama returned an empty body");
+      const streamed = await readOllamaStream(response.body);
       return {
-        content: body.message.content,
-        usage: { inputTokens: body.prompt_eval_count ?? 0, outputTokens: body.eval_count ?? 0 },
+        content: streamed.content,
+        usage: { inputTokens: streamed.inputTokens, outputTokens: streamed.outputTokens },
       };
     },
   };
