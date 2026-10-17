@@ -22,6 +22,17 @@ export {
   produceDeliverables,
   type RatioDeliverable,
 } from "./produce-deliverables";
+export {
+  type AudioReport,
+  analyseAudio,
+  audioReportSchema,
+  parseEbur128Timeline,
+  planQualityStills,
+  type QualityCheckOptions,
+  type QualityCheckResult,
+  qualityCheck,
+  type StillPlan,
+} from "./quality-check";
 export { type RenderRatioOptions, renderRatio, renderStills, renderThumbnail } from "./render-ratio";
 export { type StagedAsset, stageAssets } from "./stage-assets";
 export { nextVersionedPath } from "./versioned-path";

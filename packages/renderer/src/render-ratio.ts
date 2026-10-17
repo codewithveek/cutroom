@@ -92,6 +92,8 @@ export interface RenderStillsOptions {
   frames: ReadonlyArray<number>;
   outputPathForFrame: (frame: number) => string;
   browserExecutable: string | null;
+  /** 0.5 renders half-size JPEG previews. */
+  scale?: number;
 }
 
 /** Stills at chosen frames of the full composition (quality checks and contract tests). */
@@ -113,6 +115,9 @@ export async function renderStills(options: RenderStillsOptions): Promise<string
       inputProps,
       frame: Math.min(frame, composition.durationInFrames - 1),
       output,
+      imageFormat: output.endsWith(".png") ? "png" : "jpeg",
+      ...(output.endsWith(".png") ? {} : { jpegQuality: 80 }),
+      scale: options.scale ?? 1,
       browserExecutable: options.browserExecutable,
       logLevel: "error",
     });
