@@ -1,0 +1,26 @@
+{
+  "name": "@cutroom/voice",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "download-model": "tsx scripts/download-model.ts"
+  },
+  "dependencies": {
+    "@cutroom/audio-io": "workspace:*",
+    "@cutroom/config": "workspace:*",
+    "@cutroom/observability": "workspace:*",
+    "@cutroom/providers": "workspace:*",
+    "@cutroom/scene-spec": "workspace:*",
+    "@huggingface/transformers": "3.8.1",
+    "kokoro-js": "1.2.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}
