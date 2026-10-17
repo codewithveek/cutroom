@@ -8,6 +8,7 @@ export {
   ingestRepository,
 } from "./ingest-repository";
 export { detectLanguage } from "./languages";
+export { type LoadedSnapshot, loadSnapshot } from "./load-snapshot";
 export { extractReadmeCommands, type ReadmeCommand } from "./readme-commands";
 export { isSecretFile, type RedactionResult, redactSecrets } from "./redaction";
 export { PathOutsideSnapshotError, resolveInside, SnapshotReader } from "./snapshot-reader";
