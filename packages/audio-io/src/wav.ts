@@ -77,7 +77,12 @@ function readSample(buffer: Buffer, offset: number, format: WavFormat): number {
   );
 }
 
-function readDataChunk(options: { buffer: Buffer; bodyOffset: number; chunkSize: number; format: WavFormat }): PcmAudio {
+function readDataChunk(options: {
+  buffer: Buffer;
+  bodyOffset: number;
+  chunkSize: number;
+  format: WavFormat;
+}): PcmAudio {
   const { buffer, bodyOffset, format } = options;
   const bytesPerSample = format.bitsPerSample / 8;
   const availableBytes = Math.min(options.chunkSize, buffer.length - bodyOffset);

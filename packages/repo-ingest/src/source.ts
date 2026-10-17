@@ -2,13 +2,9 @@ import { spawn } from "node:child_process";
 import { mkdtemp, realpath, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { z } from "zod";
+import type { RepoSource } from "@cutroom/scene-spec";
 
-export const repoSourceSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("path"), path: z.string().min(1) }),
-  z.object({ kind: z.literal("git"), url: z.string().min(1), ref: z.string().min(1).optional() }),
-]);
-export type RepoSource = z.infer<typeof repoSourceSchema>;
+export { type RepoSource, repoSourceSchema } from "@cutroom/scene-spec";
 
 export class SourceError extends Error {
   override readonly name = "SourceError";

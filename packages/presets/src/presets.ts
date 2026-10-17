@@ -3,20 +3,14 @@ import {
   aspectRatioSchema,
   lookIdSchema,
   musicSelectionSchema,
+  type PresetId,
+  presetIdSchema,
   videoTypeSchema,
   voiceSelectionSchema,
 } from "@cutroom/scene-spec";
 import { z } from "zod";
 
-export const presetIdSchema = z.enum([
-  "launch-editorial",
-  "api-launch-graphic",
-  "tutorial-studio",
-  "teaser-cinematic",
-  "explainer-editorial",
-  "social-cutdown-vertical",
-]);
-export type PresetId = z.infer<typeof presetIdSchema>;
+export { type PresetId, presetIdSchema } from "@cutroom/scene-spec";
 
 export const presetSchema = z.object({
   id: presetIdSchema,

@@ -15,7 +15,9 @@ function floatWav(samples: Float32Array, sampleRate: number): Buffer {
   buffer.writeUInt16LE(32, 34);
   buffer.write("data", 36, "ascii");
   buffer.writeUInt32LE(samples.length * 4, 40);
-  samples.forEach((sample, index) => buffer.writeFloatLE(sample, 44 + index * 4));
+  samples.forEach((sample, index) => {
+    buffer.writeFloatLE(sample, 44 + index * 4);
+  });
   return buffer;
 }
 
