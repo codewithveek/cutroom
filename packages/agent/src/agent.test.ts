@@ -8,6 +8,7 @@ import { shipnoteBriefDraft, shipnoteStoryboardDraft } from "./shipnote-fixture-
 import { analyzeProduct } from "./steps/analyze-product";
 import { brandFromBrief } from "./steps/assemble-storyboard";
 import { planStoryboard } from "./steps/plan-storyboard";
+import { regenerateScene } from "./steps/regenerate-scene";
 import { storyboardDraftIssues } from "./validation/word-budget";
 
 const shipnoteFixture = path.resolve(import.meta.dirname, "../../../evals/fixtures/shipnote");
@@ -137,5 +138,57 @@ describe("planStoryboard", () => {
       "export function groupCommits(commits: Commit[]) {\n  return Object.groupBy(commits, (commit) => commit.type);\n}",
     );
     expect(storyboard.scenes[0]?.baseFrames).toBe(90);
+  });
+});
+
+describe("regenerateScene", () => {
+  it("rewrites one scene, keeps its id and neighbours, and repairs over-budget narration", async () => {
+    const { brief } = await analyzeProduct({
+      reader,
+      model: createModelClientFromTransport(createScriptedTransport(() => shipnoteBriefDraft)),
+      contextBudgetTokens: 24_000,
+    });
+    const planned = await planStoryboard({
+      brief,
+      reader,
+      model: createModelClientFromTransport(createScriptedTransport(() => shipnoteStoryboardDraft)),
+      videoType: "launch",
+      look: "editorial",
+      paceSeconds: [3, 5],
+      targetSeconds: 45,
+      brand: brandFromBrief({ brief, hints: reader.snapshot.brandHints }),
+      seed: 1,
+    });
+    const target = planned.storyboard.scenes[5];
+    if (!target) throw new Error("fixture drift");
+    const tooLong = {
+      text: "This narration runs much longer than the moment beat could ever allow at a normal speaking pace today.",
+    };
+    const replacement = {
+      block: "kinetic-headline",
+      props: { lines: ["Every release gets *its notes*"], tone: "promise" },
+      narration: [{ text: "Every release gets its notes." }],
+    };
+    const transport = createScriptedTransport((_request, callIndex) => ({
+      scene: callIndex === 0 ? { ...replacement, narration: [tooLong] } : replacement,
+    }));
+    const result = await regenerateScene({
+      storyboard: planned.storyboard,
+      sceneId: target.id,
+      brief,
+      reader,
+      model: createModelClientFromTransport(transport),
+      paceSeconds: [3, 5],
+      targetSeconds: 45,
+      instruction: "focus on every release",
+    });
+    expect(result.attempts).toBe(2);
+    expect(result.storyboard.scenes[5]?.id).toBe(target.id);
+    expect(result.storyboard.scenes[5]?.beat).toBe(target.beat);
+    expect(result.storyboard.scenes[5]?.narration[0]?.text).toBe("Every release gets its notes.");
+    expect(result.storyboard.scenes.filter((_, index) => index !== 5)).toEqual(
+      planned.storyboard.scenes.filter((_, index) => index !== 5),
+    );
+    expect(transport.requests[0]?.messages[0]?.content).toContain("focus on every release");
   });
 });

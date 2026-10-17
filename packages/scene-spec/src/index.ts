@@ -28,7 +28,12 @@ export * from "./render-job";
 export * from "./repo-source";
 export * from "./run-contracts";
 export * from "./scene";
-export { createStoryboardDraftSchema, type SceneDraft, type StoryboardDraft } from "./scene-draft";
+export {
+  createSceneDraftSchema,
+  createStoryboardDraftSchema,
+  type SceneDraft,
+  type StoryboardDraft,
+} from "./scene-draft";
 export { parseStarredText, stripStars, type TextSegment } from "./starred-text";
 export * from "./storyboard";
 export { deriveThumbnailTitle } from "./thumbnail-title";

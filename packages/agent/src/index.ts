@@ -14,6 +14,7 @@ export {
   type EvidenceReport,
 } from "./steps/analyze-product";
 export {
+  assembleScene,
   assembleStoryboard,
   type BrandOverride,
   baseFramesFor,
@@ -24,5 +25,6 @@ export {
   type PlanStoryboardResult,
   planStoryboard,
 } from "./steps/plan-storyboard";
+export { type RegenerateSceneOptions, regenerateScene, SceneNotFoundError } from "./steps/regenerate-scene";
 export { directorySummarySchema } from "./steps/summarize-directories";
 export { storyboardDraftIssues } from "./validation/word-budget";

@@ -40,3 +40,15 @@ export function createStoryboardDraftSchema(look: LookId): z.ZodType<StoryboardD
   // the dynamic list of options, so the cast is confined to this one place.
   return draftSchema as unknown as z.ZodType<StoryboardDraft>;
 }
+
+/** One scene's draft schema, limited to the given blocks (FR-SB-7: regenerate one scene). */
+export function createSceneDraftSchema(blocks: ReadonlyArray<BlockId>): z.ZodType<{ scene: SceneDraft }> {
+  const [firstBlock, ...otherBlocks] = blocks;
+  if (!firstBlock) throw new Error("At least one block is required");
+  const sceneDraftSchema = z.discriminatedUnion("block", [
+    draftSchemaForBlock(firstBlock),
+    ...otherBlocks.map(draftSchemaForBlock),
+  ]);
+  // Same narrowing caveat as createStoryboardDraftSchema.
+  return z.object({ scene: sceneDraftSchema }) as unknown as z.ZodType<{ scene: SceneDraft }>;
+}

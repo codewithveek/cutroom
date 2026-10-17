@@ -10,6 +10,7 @@ import {
   type SceneDraft,
   type Storyboard,
   type StoryboardDraft,
+  sceneSchema,
   storyboardSchema,
   type VideoType,
 } from "@cutroom/scene-spec";
@@ -63,6 +64,24 @@ async function snapCodeToSource(scene: SceneDraft, reader: SnapshotReader): Prom
   return { ...scene, props: { ...scene.props, code: exactLines } };
 }
 
+export interface AssembleSceneOptions {
+  draftScene: SceneDraft;
+  paceSeconds: readonly [number, number];
+  reader: SnapshotReader;
+  /** Keep an existing id (scene regeneration); a new ULID otherwise. */
+  sceneId?: string;
+}
+
+/** One draft scene → a Scene with an id, base frames and exact code bytes. */
+export async function assembleScene(options: AssembleSceneOptions): Promise<Scene> {
+  const snapped = await snapCodeToSource(options.draftScene, options.reader);
+  return sceneSchema.parse({
+    ...snapped,
+    id: options.sceneId ?? ulid(),
+    baseFrames: baseFramesFor({ block: snapped.block, paceSeconds: options.paceSeconds }),
+  });
+}
+
 export interface AssembleStoryboardOptions {
   draft: StoryboardDraft;
   videoType: VideoType;
@@ -78,12 +97,9 @@ export interface AssembleStoryboardOptions {
 export async function assembleStoryboard(options: AssembleStoryboardOptions): Promise<Storyboard> {
   const scenes: Scene[] = [];
   for (const draftScene of options.draft.scenes) {
-    const snapped = await snapCodeToSource(draftScene, options.reader);
-    scenes.push({
-      ...snapped,
-      id: ulid(),
-      baseFrames: baseFramesFor({ block: snapped.block, paceSeconds: options.paceSeconds }),
-    } as Scene);
+    scenes.push(
+      await assembleScene({ draftScene, paceSeconds: options.paceSeconds, reader: options.reader }),
+    );
   }
   return storyboardSchema.parse({
     id: options.storyboardId ?? ulid(),
