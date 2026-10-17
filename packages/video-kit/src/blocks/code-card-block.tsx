@@ -26,7 +26,15 @@ function lineRevealStart(options: LineRevealOptions): number {
 }
 
 /** For `type` reveals: how many characters of the whole excerpt are visible. */
-function visibleCharacterCount(frame: number, totalCharacters: number, revealWindowFrames: number): number {
+function visibleCharacterCount({
+  frame,
+  totalCharacters,
+  revealWindowFrames,
+}: {
+  frame: number;
+  totalCharacters: number;
+  revealWindowFrames: number;
+}): number {
   const progress = progressBetween({
     frame,
     startFrame: FIRST_LINE_FRAME,
@@ -64,8 +72,17 @@ export function CodeCardBlock(props: { scene: CodeCardScene }): React.ReactEleme
   const revealWindowFrames = Math.max(10, Math.min(resolveBy - FIRST_LINE_FRAME - 10, 90));
   const lineLengths = tokenLines.map((line) => line.reduce((sum, token) => sum + token.content.length, 0));
   const totalCharacters = lineLengths.reduce((sum, length) => sum + length, 0);
-  let typedBudget = reveal === "type" ? visibleCharacterCount(frame, totalCharacters, revealWindowFrames) : 0;
+  let typedBudget =
+    reveal === "type" ? visibleCharacterCount({ frame, totalCharacters, revealWindowFrames }) : 0;
   const gutterDigits = String(lineStart + tokenLines.length).length;
+  const longestLine = Math.max(1, ...lineLengths);
+  const cardWidth =
+    (shape.isStacked ? shape.width - shape.paddingX * 2 : shape.width * 0.78) - 64 * sizes.scale;
+  // Monospace glyphs are ~0.6em wide: shrink until the longest line fits, but stay legible.
+  const codeFontSize = Math.max(
+    shape.minTextPx * 0.75,
+    Math.min(sizes.code, cardWidth / ((longestLine + gutterDigits + 2) * 0.6)),
+  );
   return (
     <BlockFrame>
       <FadeRise startFrame={0} distancePx={50} style={{ width: shape.isStacked ? "100%" : "78%" }}>
@@ -76,7 +93,7 @@ export function CodeCardBlock(props: { scene: CodeCardScene }): React.ReactEleme
               padding: `${28 * sizes.scale}px ${32 * sizes.scale}px`,
               fontFamily: look.fonts.mono.family,
               fontWeight: look.fonts.mono.weight,
-              fontSize: sizes.code,
+              fontSize: codeFontSize,
               lineHeight: 1.55,
               fontVariantLigatures: "none",
               whiteSpace: "pre",

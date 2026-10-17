@@ -13,7 +13,15 @@ const SLOT_START_FRAME = 10;
 const STEP_TRAVEL_FRAMES = 10;
 
 /** Fractional slot position: integer while holding an item, between items while stepping. */
-export function slotPosition(frame: number, itemCount: number, resolveBy: number): number {
+export function slotPosition({
+  frame,
+  itemCount,
+  resolveBy,
+}: {
+  frame: number;
+  itemCount: number;
+  resolveBy: number;
+}): number {
   const stepFrames = Math.max(
     STEP_TRAVEL_FRAMES + 6,
     (resolveBy - SLOT_START_FRAME) / Math.max(1, itemCount),
@@ -40,9 +48,14 @@ export function WordSlotBlock(props: { scene: WordSlotScene }): React.ReactEleme
   const shape = useFrameShape();
   const sizes = useTypeSizes();
   const resolveBy = useResolveByFrame();
-  const position = slotPosition(frame, items.length, resolveBy);
-  const lineHeight = sizes.headline * 1.2;
+  const position = slotPosition({ frame, itemCount: items.length, resolveBy });
   const longestItemCharacters = Math.max(...items.map((item) => item.length));
+  // Stacked frames give the slot the full width; shrink the type until the longest item fits.
+  const availableWidth = shape.width - shape.paddingX * 2;
+  const fontSize = shape.isStacked
+    ? Math.max(shape.minTextPx, Math.min(sizes.headline, availableWidth / (longestItemCharacters * 0.6)))
+    : sizes.headline;
+  const lineHeight = fontSize * 1.2;
   // Roughly 0.6em per character keeps the longest item on one line without measuring text.
   const slotWidth = shape.isStacked ? "100%" : `${longestItemCharacters * 0.6}em`;
   return (
@@ -55,9 +68,10 @@ export function WordSlotBlock(props: { scene: WordSlotScene }): React.ReactEleme
           gap: sizes.headline * 0.35,
           fontFamily: look.fonts.headline.family,
           fontWeight: look.fonts.headline.weight,
-          fontSize: sizes.headline,
+          fontSize,
           letterSpacing: `${look.headlineTracking}em`,
           color: look.colors.ink,
+          width: shape.isStacked ? "100%" : undefined,
         }}
       >
         <FadeRise startFrame={0} distancePx={24} style={{ whiteSpace: "nowrap", flexShrink: 0 }}>
