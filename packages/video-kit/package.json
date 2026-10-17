@@ -1,0 +1,34 @@
+{
+  "name": "@cutroom/video-kit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "studio": "remotion studio src/remotion-entry.ts"
+  },
+  "dependencies": {
+    "@cutroom/scene-spec": "workspace:*",
+    "@remotion/fonts": "4.0.536",
+    "@remotion/shapes": "4.0.536",
+    "@remotion/transitions": "4.0.536",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.536",
+    "shiki": "4.5.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@fontsource/geist": "5.3.0",
+    "@fontsource/geist-mono": "5.3.0",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/inter-tight": "5.3.0",
+    "@fontsource/plus-jakarta-sans": "5.3.0",
+    "@remotion/cli": "4.0.536",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.2.3"
+  }
+}
