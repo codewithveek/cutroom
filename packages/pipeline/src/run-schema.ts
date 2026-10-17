@@ -2,7 +2,6 @@ import {
   aspectRatioSchema,
   claimResultSchema,
   lookIdSchema,
-  pipelineStepSchema,
   productBriefSchema,
   runApprovalSchema,
   runErrorSchema,
