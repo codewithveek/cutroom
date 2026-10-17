@@ -38,8 +38,15 @@ export function ThumbnailFrame(props: ThumbnailFrameProps): React.ReactElement {
   const shape = useFrameShape();
   const scene = pickThumbnailScene(props.storyboard);
   const isWide = shape.layout === "wide";
-  const titleSize = Math.round(look.headlineSizePx * 1.15 * shape.typeScale);
-  const previewScale = isWide ? 0.5 : 0.6;
+  const previewScale = isWide ? 0.46 : 0.6;
+  const titleColumnWidth = isWide
+    ? shape.width * (1 - previewScale) - shape.paddingX * 2.6
+    : shape.width - shape.paddingX * 2;
+  const longestLineCharacters = Math.max(...props.titleLines.map((line) => line.length));
+  // About 0.55em per character for bold display type; shrink until the longest line fits.
+  const titleSize = Math.round(
+    Math.min(look.headlineSizePx * 1.15 * shape.typeScale, titleColumnWidth / (longestLineCharacters * 0.55)),
+  );
   return (
     <AbsoluteFill>
       <LookBackground />
@@ -70,6 +77,7 @@ export function ThumbnailFrame(props: ThumbnailFrameProps): React.ReactElement {
               letterSpacing: `${look.headlineTracking}em`,
               lineHeight: 1.02,
               color: look.colors.ink,
+              whiteSpace: "nowrap",
             }}
           >
             <div>{props.titleLines[0]}</div>

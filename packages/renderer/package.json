@@ -1,0 +1,27 @@
+{
+  "name": "@cutroom/renderer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "render:fixture": "tsx scripts/render-fixture.ts"
+  },
+  "dependencies": {
+    "@cutroom/observability": "workspace:*",
+    "@cutroom/scene-spec": "workspace:*",
+    "@cutroom/video-kit": "workspace:*",
+    "@remotion/bundler": "4.0.536",
+    "@remotion/renderer": "4.0.536",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.536",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}

@@ -42,6 +42,15 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
 
+  packages/presets:
+    dependencies:
+      '@cutroom/scene-spec':
+        specifier: workspace:*
+        version: link:../scene-spec
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
   packages/renderer:
     dependencies:
       '@cutroom/observability':
@@ -71,6 +80,10 @@ importers:
       zod:
         specifier: 4.6.7
         version: 4.6.7
+    devDependencies:
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
 
   packages/scene-spec:
     dependencies:
