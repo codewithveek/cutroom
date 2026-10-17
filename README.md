@@ -48,6 +48,18 @@ No GPU handy? Try the whole pipeline on the bundled fixture with a scripted mode
 pnpm cutroom make --repo evals/fixtures/shipnote --yes --scripted
 ```
 
+### Hybrid mode
+
+Analysis, audit, review and voice stay on your machine; only the approved render bundle is uploaded to a render host, after you confirm its manifest (every file, every code excerpt shown on screen, and a SHA-256 the host re-verifies).
+
+```bash
+# on the render host (any machine with ffmpeg and Chromium)
+RENDER_API_TOKEN=<secret> pnpm --filter @cutroom/api start
+# on your laptop
+RENDER_API_BASE_URL=https://render.example.com RENDER_API_TOKEN=<secret> \
+  pnpm cutroom make --repo . --privacy hybrid
+```
+
 ### Web app
 
 ```bash
@@ -89,11 +101,21 @@ evals/      fixtures (shipnote) and the eval harness
 docs/       architecture, decisions (ADRs), progress
 ```
 
+## Evals
+
+```bash
+pnpm eval --models gemma4:e2b,gemma4:e4b                 # every pinned fixture, per model
+pnpm eval --fixtures shipnote,vercel-serve
+```
+
+Results land in `evals/results/<date>-<model>.json` and `.md`: evidence validity, storyboard first-try validity, repair attempts, claim verdicts and time per step.
+
 ## Development
 
 ```bash
 pnpm typecheck && pnpm lint && pnpm test
-pnpm --filter @cutroom/renderer render:fixture     # every look × 16:9 and 9:16 from a hand-written storyboard
+pnpm --filter @cutroom/renderer render:fixture       # every look × 16:9 and 9:16 from a hand-written storyboard
+pnpm --filter @cutroom/renderer render:block-stills  # every block × allowed look × ratio, as contact sheets
 ```
 
 The test suite includes the CI-safe "repo in, MP4 out" run: the in-process pipeline on the fixture repo with a scripted model and the egress guard on.

@@ -32,7 +32,9 @@ Each package exposes one `src/index.ts`; deep imports are blocked by Biome.
 | 4 | `audit-claims` | claim results on the latest version | the version is audited |
 | – | `review` | `run.approval` | approved (or `autoApprove` with no unsupported claims) |
 | 5 | `synthesize-voice` | `run.voiceTimeline`, clips in the voice cache | the timeline and clips exist |
-| 6–7 | `render` | MP4 + VTT per ratio, thumbnail PNG/JPG | every ratio has a video |
+| 5b | `build-render-job` (Hybrid) | bundle + egress manifest; pauses in `awaiting_egress` | not Hybrid, or confirmed |
+| 6–7 | `render` | MP4 + VTT per ratio, thumbnail PNG/JPG (local, or remote in Hybrid) | every ratio has a video |
+| 8 | `quality-check` | stills at scene ends and transition midpoints, audio report | an audio report exists |
 | 7b | `finalize-deliverables` | `delivery-note.md` | a note exists |
 
 Steps emit `started` / `progress` / `completed` / `failed` events, appended to `events.jsonl` and pushed to SSE subscribers. The API resumes any run it finds mid-flight on boot.
@@ -44,6 +46,10 @@ Steps emit `started` / `progress` / `completed` / `failed` events, appended to `
 - In Local mode the CLI installs `installLocalEgressGuard`, which patches `fetch` and `http(s).request` to reject any non-loopback host for the duration of the run. The end-to-end test runs with it on.
 - Kokoro runs with `allowRemoteModels = false` in Local mode; `cutroom setup` downloads the weights once beforehand.
 
+## Hybrid mode
+
+`build-render-job` (5b) packs the bundle and pauses in `awaiting_egress`; after `confirmEgress` the render step uploads it with the bearer-token client, polls `GET /render-jobs/:jobId` and downloads the outputs. The render host's `RenderJobWorker` re-verifies every hash and the manifest before rendering, and sweeps finished jobs after 24 h. The quality check then runs locally on the downloaded files. See ADR 0010.
+
 ## What is not built yet
 
-Temporal workflow and worker, Postgres/Drizzle persistence, Hybrid mode's egress manifest and remote render API, the eval harness, screen capture and `screenshot-window`, pgvector retrieval, quality-check stills and audio report, scene regeneration, zip upload. See `docs/progress.md`.
+Temporal workflow and worker, Postgres/Drizzle persistence, screen capture and `screenshot-window`, pgvector retrieval, zip upload, cloud deploy. See `docs/progress.md`.

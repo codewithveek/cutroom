@@ -32,3 +32,19 @@ One line per completed item, with the date. Milestones follow PRD §13.
 ## M5 · Web app (Week-2 thin cut, plus most of the full editor)
 - 2026-10-17 · `apps/api`: Fastify + Zod type provider, POST/GET runs, SSE events with replay, PUT storyboard (versioned, re-audited), approve (409 `approval_blocked`), range-served assets, one error envelope; resumes interrupted runs on boot
 - 2026-10-17 · `apps/web`: wizard (source, privacy, preset, live look previews, ratios, brand accent), run timeline with durations and tokens, brief with evidence viewer, storyboard editor (scene list with reorder and audit badges, `@remotion/player` preview with ratio switcher, schema-generated props form, narration text/say, transitions, apply suggestion, override dialog), renders with players and downloads, delivery note, library
+
+## M6 · Hybrid + production polish (partial)
+- 2026-10-17 · Hybrid mode: `build-render-job` step, egress manifest with hash, `awaiting_egress` pause and `confirmEgress`, bearer-token upload client (the only external role allowed), remote render API on the API server (`POST /render-jobs`, status, file download) that re-verifies hashes and the manifest, 24 h sweep; CLI prompt and web egress panel; end-to-end test with a live render host (ADR 0010)
+- 2026-10-17 · Sentry agent tracing: a span per pipeline step and per model call with gen_ai model, token and validation attributes (enabled when `SENTRY_DSN` is set)
+- 2026-10-17 · Eval harness: `pnpm eval` over five fixtures pinned by commit (shipnote, vercel/serve, fastify/demo, vercel/commerce, Cutroom itself), JSON + markdown table per model; `--scripted` self-test
+
+## M7 · P1 features (partial)
+- 2026-10-17 · Brand extraction (accent from Tailwind/CSS variables, font, logo copied into the snapshot and used by title and end cards)
+- 2026-10-17 · Quality check: stills at every scene end and transition midpoint, audio report (peak, RMS, energy below 250 Hz, loudness per second); surfaced in the CLI, delivery note and web renders panel
+- 2026-10-17 · Regenerate one scene with the others as fixed context (agent, runner, `POST /runs/:runId/scenes/:sceneId/regenerate`, inspector button with an optional direction)
+- 2026-10-17 · Contract check script: every block in every allowed look × ratio (`pnpm --filter @cutroom/renderer render:block-stills`)
+
+## Not built yet
+- Temporal workflow + worker and the Drizzle/Postgres store (behind `PipelineRunner` / `RunStore`; ADR 0006)
+- Screen capture + `screenshot-window`, `diagram-flow`, pgvector retrieval, zip upload, brief editing, uploaded music
+- Cloud deploy on Render / DigitalOcean and the .tech domain
