@@ -31,6 +31,14 @@ export function toRunView(run: RunRecord) {
       createdAt: version.createdAt,
     })),
     approval: run.approval,
+    egress: run.egress
+      ? {
+          manifest: run.egress.manifest,
+          manifestSha256: run.egress.manifestSha256,
+          ...(run.egress.confirmedAt ? { confirmedAt: run.egress.confirmedAt } : {}),
+          ...(run.egress.remoteJobId ? { remoteJobId: run.egress.remoteJobId } : {}),
+        }
+      : undefined,
     voiceTimeline: run.voiceTimeline,
     providers: run.providers,
     metrics: run.metrics,

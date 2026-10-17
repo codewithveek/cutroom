@@ -18,6 +18,7 @@
     "@cutroom/video-kit": "workspace:*",
     "@cutroom/voice": "workspace:*",
     "@fastify/cors": "11.3.1",
+    "@fastify/multipart": "10.1.4",
     "fastify": "5.12.7",
     "fastify-type-provider-zod": "7.0.0",
     "ulid": "3.0.2",

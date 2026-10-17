@@ -1,6 +1,11 @@
 import { loadEnv } from "@cutroom/config";
 import { createLogger, initTracing } from "@cutroom/observability";
-import { createPipelineServices, createShipnoteScriptedTransport, InProcessRunner } from "@cutroom/pipeline";
+import {
+  createPipelineServices,
+  createShipnoteScriptedTransport,
+  InProcessRunner,
+  RenderJobWorker,
+} from "@cutroom/pipeline";
 import { buildApp } from "./app";
 
 const env = loadEnv();
@@ -38,5 +43,23 @@ for (const run of await services.store.list()) {
   }
 }
 
-const app = await buildApp({ env, runner, store: services.store, logger: true });
+const renderJobWorker = env.RENDER_API_TOKEN
+  ? new RenderJobWorker({
+      dataDirectory: services.dataDirectory,
+      browserExecutable: services.browserExecutable,
+      logger,
+    })
+  : undefined;
+if (renderJobWorker) {
+  // Remote bundles are deleted 24 h after their job finishes (FR-PRV-6).
+  setInterval(() => void renderJobWorker.sweep(), 60 * 60 * 1000).unref();
+}
+
+const app = await buildApp({
+  env,
+  runner,
+  store: services.store,
+  ...(renderJobWorker ? { renderJobWorker } : {}),
+  logger: true,
+});
 await app.listen({ host: env.API_HOST, port: env.API_PORT });
