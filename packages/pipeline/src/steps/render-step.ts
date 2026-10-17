@@ -4,7 +4,11 @@ import type { StagedAsset } from "@cutroom/renderer";
 import { bundleVideoKit, produceDeliverables } from "@cutroom/renderer";
 import { aspectRatioSchema, renderJobSchema } from "@cutroom/scene-spec";
 import { ulid } from "ulid";
-import { createRenderJobClient } from "../remote-render/render-job-client";
+import {
+  createRenderJobClient,
+  type RemoteJobStatus,
+  type RenderJobClient,
+} from "../remote-render/render-job-client";
 import type { AssetRecord, RunRecord } from "../run-schema";
 import { dataPaths } from "../services";
 import { LOGO_ASSET_KEY } from "./plan-step";
@@ -23,12 +27,81 @@ export async function localAssetsFor(context: StepContext, run: RunRecord): Prom
   ];
 }
 
+/** Hybrid: upload the confirmed bundle, wait for the remote render, download the files. */
+async function renderRemotely(context: StepContext, run: RunRecord): Promise<AssetRecord[]> {
+  const { env } = context.services;
+  if (!run.egress?.confirmedAt) throw new MissingStepOutputError("Confirm the egress manifest first.");
+  if (!env.RENDER_API_BASE_URL || !env.RENDER_API_TOKEN) {
+    throw new MissingStepOutputError("Hybrid mode needs RENDER_API_BASE_URL and RENDER_API_TOKEN.");
+  }
+  const client = createRenderJobClient({
+    baseUrl: env.RENDER_API_BASE_URL,
+    token: env.RENDER_API_TOKEN,
+    mode: run.request.privacyMode,
+  });
+  const bundleDirectory = run.egress.bundleDirectory;
+  const job = renderJobSchema.parse(
+    JSON.parse(await readFile(path.join(bundleDirectory, "render-job.json"), "utf8")),
+  );
+  const remoteJobId = run.egress.remoteJobId ?? (await client.upload({ job, bundleDirectory }));
+  await context.updateRun((current) =>
+    current.egress ? { ...current, egress: { ...current.egress, remoteJobId } } : current,
+  );
+  for (;;) {
+    const status = await client.status(remoteJobId);
+    context.progress({ remoteJobId, stage: status.status, progress: status.progress ?? 0 });
+    if (status.status === "failed")
+      throw new MissingStepOutputError(`Remote render failed: ${status.error ?? "unknown error"}`);
+    if (status.status === "completed")
+      return downloadRemoteOutputs({ context, run, client, remoteJobId, outputs: status.outputs });
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+}
+
+interface DownloadRemoteOutputsOptions {
+  context: StepContext;
+  run: RunRecord;
+  client: RenderJobClient;
+  remoteJobId: string;
+  outputs: RemoteJobStatus["outputs"];
+}
+
+async function downloadRemoteOutputs(options: DownloadRemoteOutputsOptions): Promise<AssetRecord[]> {
+  const outputDirectory = path.join(options.context.runDirectory, "deliverables");
+  await mkdir(outputDirectory, { recursive: true });
+  const timeline = options.run.voiceTimeline;
+  const records: AssetRecord[] = [];
+  for (const output of options.outputs) {
+    const filePath = path.join(outputDirectory, output.fileName);
+    const content = await options.client.download(options.remoteJobId, output.fileName);
+    await writeFile(filePath, content);
+    const ratio = aspectRatioSchema.safeParse(output.ratio);
+    records.push({
+      id: ulid(),
+      kind: output.kind,
+      ...(ratio.success ? { ratio: ratio.data } : {}),
+      version: 1,
+      filePath,
+      bytes: content.length,
+      ...(output.kind === "video" && timeline
+        ? { durationMs: Math.round((timeline.totalFrames / timeline.fps) * 1000) }
+        : {}),
+    });
+  }
+  return records;
+}
+
 /** Steps 6–7: every ratio, then loudness, captions, thumbnail and cover art. */
 export const renderStep: StepFunction = async (context, run) => {
   const renderedRatios = new Set(
     run.assets.filter((asset) => asset.kind === "video").map((asset) => asset.ratio),
   );
   if (run.request.ratios.every((ratio) => renderedRatios.has(ratio))) return { skipped: true };
+  if (run.request.privacyMode === "hybrid") {
+    const assets = await renderRemotely(context, run);
+    await context.updateRun((current) => ({ ...current, assets: [...current.assets, ...assets] }));
+    return { payload: { remote: true, files: assets.length } };
+  }
   const version = run.storyboardVersions.find((candidate) => candidate.id === run.approval?.versionId);
   if (!version || !run.voiceTimeline)
     throw new MissingStepOutputError("Approve the storyboard and synthesise the voice first.");
