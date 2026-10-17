@@ -5,7 +5,13 @@
  */
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { type AspectRatio, aspectRatioSchema, type LookId, lookIdSchema } from "@cutroom/scene-spec";
+import {
+  type AspectRatio,
+  aspectRatioSchema,
+  blockCatalog,
+  type LookId,
+  lookIdSchema,
+} from "@cutroom/scene-spec";
 import { createPreviewVideoProps, fixtureStoryboard } from "@cutroom/video-kit";
 import { bundleVideoKit, produceDeliverables, resolveBrowserExecutable } from "../src/index";
 
@@ -24,7 +30,10 @@ const { serveUrl } = await bundleVideoKit({ outDir: cacheDirectory });
 const browserExecutable = resolveBrowserExecutable(process.env.BROWSER_EXECUTABLE);
 
 for (const look of looks) {
-  const storyboard = { ...fixtureStoryboard, look };
+  const scenes = fixtureStoryboard.scenes.filter((scene) =>
+    blockCatalog[scene.block].allowedLooks.includes(look),
+  );
+  const storyboard = { ...fixtureStoryboard, look, scenes };
   const { voiceTimeline } = createPreviewVideoProps(storyboard);
   const startedAt = Date.now();
   const deliverables = await produceDeliverables({
