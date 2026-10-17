@@ -1,0 +1,26 @@
+# Local services. The Week-2 build persists runs to the data directory, so Postgres and Temporal
+# are optional today; they back the Drizzle store and the Temporal runner (PRD M4).
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: cutroom
+      POSTGRES_PASSWORD: cutroom
+      POSTGRES_DB: cutroom
+    ports: ["5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+
+  temporal:
+    image: temporalio/temporal:latest
+    command: ["server", "start-dev", "--ip", "0.0.0.0"]
+    ports: ["7233:7233", "8233:8233"]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes: ["ollama-models:/root/.ollama"]
+    profiles: ["ollama"]
+
+volumes:
+  postgres-data:
+  ollama-models:
