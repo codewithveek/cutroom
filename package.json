@@ -20,6 +20,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@types/node": "22",
+    "playwright": "1.56.1",
     "tsx": "4.23.15",
     "turbo": "2.11.9",
     "typescript": "5.9.3",
