@@ -26,4 +26,5 @@ export * from "./storyboard";
 export { deriveThumbnailTitle } from "./thumbnail-title";
 export * from "./timing";
 export * from "./video-props";
+export * from "./voice-selection";
 export * from "./voice-timeline";
