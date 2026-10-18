@@ -1,8 +1,9 @@
 "use client";
 
-import type { RunEvent } from "@cutroom/scene-spec";
+import type { ProductBrief, RunEvent } from "@cutroom/scene-spec";
 import type React from "react";
 import { SideSheet } from "@/components/ui/side-sheet";
+import { BriefEditor } from "@/features/product-brief/brief-editor";
 import { BriefPanel } from "@/features/product-brief/brief-panel";
 import { RendersPanel } from "@/features/render-queue/renders-panel";
 import { RunTimeline } from "@/features/render-queue/run-timeline";
@@ -15,6 +16,9 @@ export function EditorSheets(props: {
   events: ReadonlyArray<RunEvent>;
   sheet: EditorSheet | undefined;
   onClose: () => void;
+  /** Present while the run is in review: saving the brief re-plans the storyboard. */
+  onSaveBrief?: ((brief: ProductBrief) => void) | undefined;
+  busy?: boolean;
 }): React.ReactElement {
   const { run } = props;
   return (
@@ -40,7 +44,19 @@ export function EditorSheets(props: {
         </div>
       </SideSheet>
       <SideSheet title="Product brief" open={props.sheet === "brief"} onClose={props.onClose}>
-        {run.brief ? <BriefPanel brief={run.brief} /> : null}
+        {run.brief && props.onSaveBrief && run.status === "awaiting_review" ? (
+          <div className="space-y-6">
+            <BriefEditor
+              key={run.storyboard?.versionId}
+              brief={run.brief}
+              busy={props.busy ?? false}
+              onSave={props.onSaveBrief}
+            />
+            <BriefPanel brief={run.brief} />
+          </div>
+        ) : run.brief ? (
+          <BriefPanel brief={run.brief} />
+        ) : null}
       </SideSheet>
       <SideSheet title="Renders" open={props.sheet === "renders"} onClose={props.onClose}>
         <RendersPanel run={run} events={props.events} />

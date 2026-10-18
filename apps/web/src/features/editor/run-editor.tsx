@@ -372,7 +372,14 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
           </button>
         </div>
       ) : null}
-      <EditorSheets run={run} events={props.events} sheet={sheet} onClose={() => setSheet(undefined)} />
+      <EditorSheets
+        run={run}
+        events={props.events}
+        sheet={sheet}
+        onClose={() => setSheet(undefined)}
+        busy={busy}
+        onSaveBrief={(brief) => void runAction(() => apiClient.updateBrief(run.id, brief))}
+      />
       <OverridesSheet
         open={sheet === "overrides"}
         onClose={() => setSheet(undefined)}

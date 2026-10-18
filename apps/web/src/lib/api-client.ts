@@ -1,6 +1,7 @@
 import {
   type ApproveRequest,
   apiErrorEnvelopeSchema,
+  type ProductBrief,
   type RunRequestInput,
   type RunSettingsUpdate,
   type RunView,
@@ -95,6 +96,12 @@ export const apiClient = {
       path: `/runs/${runId}/confirm-egress`,
       schema: runViewSchema,
       init: { method: "POST", body: JSON.stringify({ manifestSha256 }) },
+    }),
+  updateBrief: (runId: string, brief: ProductBrief) =>
+    request({
+      path: `/runs/${runId}/brief`,
+      schema: runViewSchema,
+      init: { method: "PUT", body: JSON.stringify({ brief }) },
     }),
   updateSettings: (runId: string, settings: RunSettingsUpdate) =>
     request({
