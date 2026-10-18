@@ -51,6 +51,9 @@ One line per completed item, with the date. Milestones follow PRD §13.
 - 2026-10-18 · Read-only Playwright screen capture with redaction and real element boxes; `screenshot-window` block; capture step after ingest; App screens in the wizard; `--app-url`/`--routes`
 - 2026-10-18 · Semantic code retrieval for the claim judge: Ollama or offline hashing embeddings, pgvector index synced by content hash (`EMBEDDINGS`)
 
+- 2026-10-18 · Watermark: a "created with cutroom" badge (Cutroom mark, bottom right) on every ratio, in local, Hybrid and quality-check renders and the editor preview; `--watermark`; `--direction` on the CLI
+- 2026-10-18 · Ollama calls send `think: false`, so gemma4 honours the JSON schema (ADR 0014)
+
 ## Deploy
 - 2026-10-18 · `cutroom-node` (API/worker) and `cutroom-web` images, both start without network access; single-host compose stack (Postgres + pgvector, Temporal, Caddy TLS), Render blueprint, vLLM script for Gemma; Temporal Cloud via API key (docs/deploy.md)
 
