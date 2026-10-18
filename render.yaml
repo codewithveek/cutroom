@@ -1,0 +1,57 @@
+# Render blueprint (render.com/docs/blueprint-spec): the web app, and the API with its own disk.
+# The API runs pipeline steps in-process (RUNNER=in-process) because steps share working files on
+# disk, and a Render disk belongs to one service. For the Temporal worker split, use the single-host
+# stack in deploy/docker-compose.cloud.yml (docs/deploy.md).
+services:
+  - type: web
+    name: cutroom-api
+    runtime: docker
+    dockerfilePath: ./deploy/node-services.Dockerfile
+    dockerCommand: cutroom-service api
+    healthCheckPath: /health
+    disk:
+      name: cutroom-data
+      mountPath: /data
+      sizeGB: 20
+    envVars:
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: "10000"
+      - key: RUN_STORE
+        value: postgres
+      - key: RUNNER
+        value: in-process
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cutroom-db
+          property: connectionString
+      - key: WEB_ORIGIN
+        sync: false
+      - key: MODEL_PROVIDER
+        value: auto
+      - key: OPENAI_COMPAT_BASE_URL
+        sync: false
+      - key: OPENAI_COMPAT_API_KEY
+        sync: false
+      - key: OPENAI_COMPAT_MODEL_ID
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+
+  - type: web
+    name: cutroom-web
+    runtime: docker
+    dockerfilePath: ./deploy/web.Dockerfile
+    envVars:
+      # Read at build time (Render passes environment variables to the Docker build as build args).
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+
+databases:
+  # Render Postgres supports pgvector; migration 0000 creates the extension.
+  - name: cutroom-db
+    databaseName: cutroom
+    user: cutroom
