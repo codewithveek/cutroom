@@ -53,6 +53,18 @@ One line per completed item, with the date. Milestones follow PRD §13.
 
 - 2026-10-18 · Watermark: a "created with cutroom" badge (Cutroom mark, bottom right) on every ratio, in local, Hybrid and quality-check renders and the editor preview; `--watermark`; `--direction` on the CLI
 - 2026-10-18 · Ollama calls send `think: false`, so gemma4 honours the JSON schema (ADR 0014)
+- 2026-10-18 · Watermark toggle in the new-video wizard
+- 2026-10-18 · Captured screens reach the storyboard: `screenshot-window` in launch/feature-drop moments and tutorial steps, at least one when screens were captured
+
+## Real-model run on Cutroom itself (gemma4:e4b, 4-core CPU)
+Cutroom made its own demo video (16:9 + 9:16, watermarked). The run surfaced and fixed:
+- 2026-10-18 · Capture waits for `load`, not network idle, so pages with an open event stream are captured
+- 2026-10-18 · Directory summaries get 2,048 output tokens (were cut off at 1,200) and stop once the analysis budget is full
+- 2026-10-18 · Word-budget repairs quote the headline and say how many words to cut or add
+- 2026-10-18 · The claim judge keeps returned verdicts and re-asks only for claims it left out
+- 2026-10-18 · An edit whose audit failed can no longer be approved, and its empty results are never carried over
+- 2026-10-18 · API answers model failures with `model_output_invalid` / `model_unavailable`, not `internal`
+- 2026-10-18 · `docs/architecture.md` said eight blocks (there are ten); the judge had accepted the stale number
 
 ## Deploy
 - 2026-10-18 · `cutroom-node` (API/worker) and `cutroom-web` images, both start without network access; single-host compose stack (Postgres + pgvector, Temporal, Caddy TLS), Render blueprint, vLLM script for Gemma; Temporal Cloud via API key (docs/deploy.md)
