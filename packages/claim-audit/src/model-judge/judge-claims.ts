@@ -33,7 +33,13 @@ For each claim, decide using ONLY the evidence snippets and the verified brief y
 For every weak or unsupported claim, give a precise rewrite the evidence does support ("across borders", not "globally"). Keep rewrites as short as the original.
 Cite evidence as file path, start line, end line and a verbatim excerpt from the snippets. Return JSON only, matching the schema.`;
 
-const CLAIMS_PER_CALL = 10;
+/**
+ * Five claims a call: each verdict can quote three 400-character excerpts, so ten overflowed the
+ * output budget and the JSON was cut off mid-string (gemma4:e4b on Cutroom's own repository).
+ */
+const CLAIMS_PER_CALL = 5;
+/** Room for five verdicts with three escaped excerpts each, plus reasons and rewrites. */
+const JUDGE_MAX_OUTPUT_TOKENS = 4096;
 /** Calls per batch: the first for every claim, the rest only for claims still without a verdict. */
 const JUDGE_ROUNDS_PER_BATCH = 3;
 const SNIPPETS_PER_CLAIM = 4;
@@ -160,7 +166,7 @@ async function judgeBatch({ options, batch, judged }: JudgeBatchOptions): Promis
         : [`verdicts: give a verdict for each claim id listed (${[...batchIds].join(", ")})`],
     operation: "audit-claims",
     temperature: 0.1,
-    maxOutputTokens: 2500,
+    maxOutputTokens: JUDGE_MAX_OUTPUT_TOKENS,
   });
   for (const verdict of result.output.verdicts) {
     if (!batchIds.has(verdict.claimId)) continue;
