@@ -26,11 +26,17 @@ Rules:
 - Placeholder data (names, amounts) is fine; placeholder features are not.
 - Return JSON only, matching the schema.`;
 
-function describeBeatPlan(template: VideoTypeTemplate, look: LookId): string {
-  const allowedBlocks = new Set(blocksAllowedInLook(look));
-  return template.beats
+function describeBeatPlan(options: {
+  template: VideoTypeTemplate;
+  look: LookId;
+  hasScreens: boolean;
+}): string {
+  const allowedBlocks = new Set(blocksAllowedInLook(options.look));
+  return options.template.beats
     .map((beat, index) => {
-      const blocks = beat.blocks.filter((block) => allowedBlocks.has(block));
+      const blocks = beat.blocks.filter(
+        (block) => allowedBlocks.has(block) && (options.hasScreens || block !== "screenshot-window"),
+      );
       const count =
         beat.sceneCount[0] === beat.sceneCount[1]
           ? `${beat.sceneCount[0]}`
@@ -97,14 +103,15 @@ export interface PlanStoryboardPromptOptions {
 
 export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions): string {
   const template = videoTypeTemplates[options.videoType];
+  const hasScreens = (options.screens?.length ?? 0) > 0;
   return [
     `Write a ${template.label.toLowerCase()} storyboard of about ${options.targetSeconds} seconds in the ${options.look} look.`,
     "",
     "## Beat plan",
-    describeBeatPlan(template, options.look),
+    describeBeatPlan({ template, look: options.look, hasScreens }),
     "",
     "## Blocks available in this look",
-    describeBlocks(options.look, (options.screens?.length ?? 0) > 0),
+    describeBlocks(options.look, hasScreens),
     "",
     "## Product brief (verified)",
     describeBrief(options.brief),
@@ -114,8 +121,12 @@ export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions):
     "",
     "## Commands you may show in terminal",
     describeCommands(options.snapshot),
-    ...(options.screens && options.screens.length > 0
-      ? ["", "## Captured screens you may show in screenshot-window", describeScreens(options.screens)]
+    ...(options.screens && hasScreens
+      ? [
+          "",
+          "## Captured screens of the running app (show at least one in a screenshot-window scene)",
+          describeScreens(options.screens),
+        ]
       : []),
     ...(options.direction
       ? [

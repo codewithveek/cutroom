@@ -59,7 +59,7 @@ export const videoTypeTemplates: Readonly<Record<VideoType, VideoTypeTemplate>> 
       {
         beat: "moment",
         sceneCount: [3, 4],
-        blocks: ["code-card", "terminal", "big-number", "word-slot", "kinetic-headline"],
+        blocks: ["code-card", "terminal", "big-number", "word-slot", "kinetic-headline", "screenshot-window"],
         narrationWords: [10, 16],
         guidance:
           "One product moment per scene, each backed by evidence: a real code excerpt, a real command, a real number.",
@@ -90,7 +90,7 @@ export const videoTypeTemplates: Readonly<Record<VideoType, VideoTypeTemplate>> 
       {
         beat: "moment",
         sceneCount: [2, 3],
-        blocks: ["code-card", "terminal", "big-number", "feature-cards"],
+        blocks: ["code-card", "terminal", "big-number", "feature-cards", "screenshot-window"],
         narrationWords: [10, 16],
         guidance: "Show the feature working, from real code or commands.",
       },
@@ -116,7 +116,7 @@ export const videoTypeTemplates: Readonly<Record<VideoType, VideoTypeTemplate>> 
       {
         beat: "step",
         sceneCount: [3, 6],
-        blocks: ["terminal", "code-card"],
+        blocks: ["terminal", "code-card", "screenshot-window"],
         narrationWords: [10, 16],
         guidance: "One action per scene, in order, using real commands and real code.",
       },

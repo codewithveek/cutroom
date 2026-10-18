@@ -35,3 +35,19 @@ export function screenIssues(options: {
   });
   return issues;
 }
+
+/**
+ * Captured screens are the most convincing proof a video can show, so a storyboard planned with
+ * them uses at least one, when the video type has a beat that takes a screenshot-window.
+ */
+export function missingScreenIssues(options: {
+  scenes: ReadonlyArray<SceneDraft>;
+  screens: ReadonlyArray<CapturedScreen>;
+  beatsWithScreens: ReadonlyArray<string>;
+}): string[] {
+  if (options.screens.length === 0 || options.beatsWithScreens.length === 0) return [];
+  if (options.scenes.some((scene) => scene.block === "screenshot-window")) return [];
+  return [
+    `Screens of the running app were captured (${options.screens.map((screen) => screen.id).join(", ")}); show at least one in a screenshot-window scene in the ${options.beatsWithScreens.join(" or ")} beat, replacing another scene there.`,
+  ];
+}

@@ -13,7 +13,7 @@ import {
   type VideoType,
 } from "@cutroom/scene-spec";
 import { buildPlanStoryboardPrompt, planStoryboardSystemPrompt } from "../prompts/plan-storyboard-prompt";
-import { screenIssues } from "../screens/screen-views";
+import { missingScreenIssues, screenIssues } from "../screens/screen-views";
 import { storyboardDraftIssues } from "../validation/word-budget";
 import { assembleStoryboard } from "./assemble-storyboard";
 
@@ -68,6 +68,13 @@ export async function planStoryboard(options: PlanStoryboardOptions): Promise<Pl
     validate: (draft) => [
       ...storyboardDraftIssues(draft, options.videoType),
       ...screenIssues({ scenes: draft.scenes, screens }),
+      ...missingScreenIssues({
+        scenes: draft.scenes,
+        screens,
+        beatsWithScreens: videoTypeTemplates[options.videoType].beats
+          .filter((beat) => beat.blocks.includes("screenshot-window"))
+          .map((beat) => beat.beat),
+      }),
     ],
     operation: "plan-storyboard",
     temperature: 0.5,

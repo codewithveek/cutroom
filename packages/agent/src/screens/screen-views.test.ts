@@ -1,54 +1,52 @@
-import type { CapturedScreen, SceneDraft } from "@cutroom/scene-spec";
+import type { CapturedScreen } from "@cutroom/scene-spec";
 import { describe, expect, it } from "vitest";
-import { describeScreens, screenIssues } from "./screen-views";
+import { shipnoteStoryboardDraft } from "../shipnote-fixture-drafts";
+import { missingScreenIssues } from "./screen-views";
 
-const capturedScreen: CapturedScreen = {
+const screen: CapturedScreen = {
   id: "screen-1",
   route: "/",
-  title: "Shipnote · changelog preview",
+  title: "Shipnote",
   width: 1440,
   height: 900,
   fileName: "screen-1.png",
-  targets: [{ text: "Write CHANGELOG.md", box: { x: 288, y: 450, width: 144, height: 45 } }],
+  targets: [],
   redactions: 0,
 };
 
-function screenshotScene(props: { screenId: string; focusText?: string }): SceneDraft {
-  return {
-    beat: "moment",
-    block: "screenshot-window",
-    props,
-    narration: [{ text: "Write the changelog in one click." }],
-  };
-}
-
-describe("describeScreens", () => {
-  it("lists each screen with the element texts the planner may focus", () => {
-    const description = describeScreens([capturedScreen]);
-    expect(description).toContain("screen-1");
-    expect(description).toContain('"Write CHANGELOG.md"');
+describe("missingScreenIssues", () => {
+  it("asks for a screenshot-window when screens were captured and none is used", () => {
+    const issues = missingScreenIssues({
+      scenes: shipnoteStoryboardDraft.scenes,
+      screens: [screen],
+      beatsWithScreens: ["moment"],
+    });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toContain("screen-1");
+    expect(issues[0]).toContain("moment beat");
   });
 
-  it("tells the planner not to use the block when nothing was captured", () => {
-    expect(describeScreens([])).toContain("do not use screenshot-window");
-  });
-});
-
-describe("screenIssues", () => {
-  it("accepts a captured screen and one of its real elements", () => {
-    const scenes = [screenshotScene({ screenId: "screen-1", focusText: "Write CHANGELOG.md" })];
-    expect(screenIssues({ scenes, screens: [capturedScreen] })).toEqual([]);
-  });
-
-  it("rejects a screen that was not captured", () => {
-    const scenes = [screenshotScene({ screenId: "screen-4" })];
-    const [issue] = screenIssues({ scenes, screens: [capturedScreen] });
-    expect(issue).toContain("scenes.0.props.screenId");
-  });
-
-  it("rejects focus text that is not on the screen, so the camera never points at invented UI", () => {
-    const scenes = [screenshotScene({ screenId: "screen-1", focusText: "Publish to Slack" })];
-    const [issue] = screenIssues({ scenes, screens: [capturedScreen] });
-    expect(issue).toContain("scenes.0.props.focusText");
+  it("is satisfied by one screenshot scene, and silent without screens or a beat that takes one", () => {
+    const withScreen = [
+      ...shipnoteStoryboardDraft.scenes,
+      { beat: "moment", block: "screenshot-window" as const, props: { screenId: "screen-1" }, narration: [] },
+    ];
+    expect(
+      missingScreenIssues({ scenes: withScreen, screens: [screen], beatsWithScreens: ["moment"] }),
+    ).toEqual([]);
+    expect(
+      missingScreenIssues({
+        scenes: shipnoteStoryboardDraft.scenes,
+        screens: [],
+        beatsWithScreens: ["moment"],
+      }),
+    ).toEqual([]);
+    expect(
+      missingScreenIssues({
+        scenes: shipnoteStoryboardDraft.scenes,
+        screens: [screen],
+        beatsWithScreens: [],
+      }),
+    ).toEqual([]);
   });
 });
