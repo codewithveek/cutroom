@@ -72,7 +72,6 @@ export function RendersPanel(props: {
                 ) : null}
               </div>
               {video ? (
-                // biome-ignore lint/a11y/useMediaCaption: captions are attached as a track below
                 <video
                   controls
                   src={apiClient.assetUrl(video.url)}

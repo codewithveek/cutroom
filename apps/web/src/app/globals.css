@@ -1,37 +1,52 @@
 @import "tailwindcss";
 
-/* Dark-first, one accent; status colours carry the claim audit (PRD §9). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Warm dark editor palette with one orange accent; status colours carry the claim audit (PRD §9). */
 @theme {
-  --color-canvas: #0a0a0c;
-  --color-panel: #111114;
-  --color-panel-raised: #17171b;
-  --color-line: #26262c;
-  --color-line-strong: #34343c;
-  --color-ink: #ededf0;
-  --color-ink-muted: #9b9ba6;
-  --color-ink-faint: #6b6b76;
-  --color-accent: #7c5cff;
-  --color-accent-strong: #9a80ff;
+  --color-canvas: #0b0b0c;
+  --color-panel: #151517;
+  --color-panel-raised: #1d1d20;
+  --color-panel-hover: #252529;
+  --color-line: #27272b;
+  --color-line-strong: #38383e;
+  --color-ink: #f3f3f4;
+  --color-ink-muted: #a3a3ab;
+  --color-ink-faint: #6e6e77;
+  --color-accent: #ff7a1a;
+  --color-accent-strong: #ff9447;
+  --color-accent-soft: #ff7a1a24;
+  --color-on-accent: #170a00;
   --color-supported: #3ccf7f;
   --color-weak: #f2b13c;
   --color-unsupported: #ff5d5d;
+  --color-caption: #c4605f;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset, 0 12px 32px -16px rgb(0 0 0 / 0.6);
 }
 
 @layer base {
   :root[data-theme="light"] {
-    --color-canvas: #fafafa;
+    --color-canvas: #efefec;
     --color-panel: #ffffff;
-    --color-panel-raised: #f4f4f6;
-    --color-line: #e4e4e8;
-    --color-line-strong: #d0d0d6;
-    --color-ink: #121216;
-    --color-ink-muted: #5c5c66;
-    --color-ink-faint: #8a8a94;
+    --color-panel-raised: #f5f5f2;
+    --color-panel-hover: #ebebe7;
+    --color-line: #e3e3df;
+    --color-line-strong: #cfcfca;
+    --color-ink: #17171a;
+    --color-ink-muted: #5c5c64;
+    --color-ink-faint: #8b8b93;
+    --color-accent: #f06a0a;
+    --color-accent-strong: #d95c00;
+    --color-accent-soft: #f06a0a1f;
+    --color-on-accent: #ffffff;
+    --color-caption: #d9706f;
+    --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -16px rgb(0 0 0 / 0.18);
+    color-scheme: light;
   }
 
-  html {
+  :root {
     color-scheme: dark;
   }
 
@@ -47,6 +62,15 @@
     outline-offset: 2px;
   }
 
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -57,4 +81,10 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+@utility panel {
+  border-radius: 1rem;
+  background: var(--color-panel);
+  box-shadow: var(--shadow-panel);
 }

@@ -2,9 +2,12 @@ import {
   type ApproveRequest,
   apiErrorEnvelopeSchema,
   type RunRequestInput,
+  type RunSettingsUpdate,
   type RunView,
   runViewSchema,
   type Storyboard,
+  systemStatusSchema,
+  voiceOptionSchema,
 } from "@cutroom/scene-spec";
 import { z } from "zod";
 
@@ -88,6 +91,15 @@ export const apiClient = {
       schema: runViewSchema,
       init: { method: "POST", body: JSON.stringify({ manifestSha256 }) },
     }),
+  updateSettings: (runId: string, settings: RunSettingsUpdate) =>
+    request({
+      path: `/runs/${runId}/settings`,
+      schema: runViewSchema,
+      init: { method: "PATCH", body: JSON.stringify(settings) },
+    }),
+  systemStatus: () => request({ path: "/system/status", schema: systemStatusSchema }),
+  listVoices: () => request({ path: "/voices", schema: z.object({ voices: z.array(voiceOptionSchema) }) }),
+  voiceSampleUrl: (voiceId: string) => `${apiBaseUrl}/voices/${voiceId}/sample`,
   listLooks: () => request({ path: "/looks", schema: z.object({ looks: z.array(lookSummarySchema) }) }),
   assetUrl: (relativeUrl: string) => `${apiBaseUrl}${relativeUrl}`,
 } as const;
