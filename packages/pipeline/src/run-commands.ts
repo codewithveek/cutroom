@@ -108,6 +108,8 @@ export class RunCommands {
     if (!version) throw new RunStateError(`Unknown storyboard version ${approval.versionId}`);
     if (version.id !== latestStoryboardVersion(run)?.id)
       throw new RunStateError("Only the latest storyboard version can be approved");
+    // An edit whose audit failed is stored unaudited; its empty results must not read as "all clear".
+    if (!version.audited) throw new RunStateError("This storyboard version has not been audited yet");
     assertApprovable(version.claimResults, approval.overrides);
     const overrideReasons = new Map(
       approval.overrides.map((override) => [override.claimId, override.reason]),
@@ -171,12 +173,17 @@ export class RunCommands {
         },
       ],
     }));
+    // Carry results over only from a version whose audit finished; otherwise check every scene.
     const { results } = await auditVersion({
       context: this.executor.createContext(runId, "audit-claims"),
       run: updated,
       versionId,
-      sceneIds: changedSceneIds(previous.storyboard, storyboard),
-      previousResults: previous.claimResults,
+      ...(previous.audited
+        ? {
+            sceneIds: changedSceneIds(previous.storyboard, storyboard),
+            previousResults: previous.claimResults,
+          }
+        : {}),
     });
     return { versionId, version: previous.version + 1, claimResults: results };
   }
