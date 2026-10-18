@@ -82,16 +82,17 @@ export async function analyzeProduct(options: AnalyzeProductOptions): Promise<An
   let summarizedDirectories: string[] = [];
   if (directSelection.omittedPaths.length > 0) {
     const omitted = new Set(directSelection.omittedPaths);
+    const remainingBudget = Math.floor(contentBudget * 0.3);
     const summaries = await summarizeDirectories({
       reader,
       model,
       files: rankedFiles.filter((file) => omitted.has(file.path)),
       budgetTokensPerCall: contentBudget,
+      renderedBudgetTokens: remainingBudget,
       ...(options.cacheDirectory ? { cacheDirectory: options.cacheDirectory } : {}),
     });
     usage.inputTokens += summaries.usage.inputTokens;
     usage.outputTokens += summaries.usage.outputTokens;
-    const remainingBudget = Math.floor(contentBudget * 0.3);
     const kept = summaries.directories.filter(
       (_, index, all) => estimateTokens(renderDirectorySummaries(all.slice(0, index + 1))) <= remainingBudget,
     );

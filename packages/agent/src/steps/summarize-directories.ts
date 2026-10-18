@@ -16,11 +16,22 @@ export const directorySummarySchema = z.object({
 });
 export type DirectorySummary = z.infer<typeof directorySummarySchema>;
 
+/**
+ * Room for the largest answer the schema allows: a 600-character summary and eight 400-character
+ * code excerpts run to ~1,500 tokens with JSON escaping; at 1,200 they were cut off mid-string.
+ */
+const SUMMARY_MAX_OUTPUT_TOKENS = 2048;
+
 export interface SummarizeDirectoriesOptions {
   reader: SnapshotReader;
   model: ModelClient;
   files: ReadonlyArray<SnapshotFile>;
   budgetTokensPerCall: number;
+  /**
+   * Stop once the rendered summaries pass this many tokens. Callers keep only the prefix that
+   * fits, so later directories would be summarised (minutes each on a CPU) and then dropped.
+   */
+  renderedBudgetTokens?: number;
   cacheDirectory?: string;
 }
 
@@ -73,6 +84,7 @@ export async function summarizeDirectories(
     const cached = cachePath ? await readCachedSummary(cachePath) : undefined;
     if (cached) {
       directories.push({ directory, summary: cached, cached: true });
+      if (exceedsRenderedBudget(directories, options.renderedBudgetTokens)) break;
       continue;
     }
     const selection = await selectContext({
@@ -88,7 +100,7 @@ export async function summarizeDirectories(
       messages: [{ role: "user", content: `Directory: ${directory}\n\n${selection.rendered}` }],
       operation: "summarize-directory",
       temperature: 0.2,
-      maxOutputTokens: 1200,
+      maxOutputTokens: SUMMARY_MAX_OUTPUT_TOKENS,
     });
     usage.inputTokens += result.usage.inputTokens;
     usage.outputTokens += result.usage.outputTokens;
@@ -97,8 +109,19 @@ export async function summarizeDirectories(
       await writeFile(cachePath, JSON.stringify(result.output));
     }
     directories.push({ directory, summary: result.output, cached: false });
+    if (exceedsRenderedBudget(directories, options.renderedBudgetTokens)) break;
   }
   return { directories, usage };
+}
+
+function exceedsRenderedBudget(
+  directories: ReadonlyArray<SummarizedDirectory>,
+  renderedBudgetTokens: number | undefined,
+): boolean {
+  return (
+    renderedBudgetTokens !== undefined &&
+    estimateTokens(renderDirectorySummaries(directories)) > renderedBudgetTokens
+  );
 }
 
 export function renderDirectorySummaries(directories: ReadonlyArray<SummarizedDirectory>): string {
