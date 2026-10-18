@@ -1,4 +1,6 @@
 import type { RepoSnapshot } from "@cutroom/repo-ingest";
+import { parseDirection } from "@cutroom/scene-spec";
+import { describeDirection, directionRule } from "./direction-block";
 import { accuracyRules } from "./shared-rules";
 
 export const analyzeProductSystemPrompt = `You are the product analyst inside Cutroom, a tool that turns a codebase into a product video.
@@ -6,6 +8,7 @@ You read a repository and write a product brief a copywriter can trust.
 
 Rules:
 - ${accuracyRules}
+- ${directionRule} With a direction, list the features it points at first.
 - Features are things a user can do with the product, phrased verb-first ("Draft release notes", not "Release note drafting").
 - Each feature cites 1–4 evidence excerpts (file path, start line, end line, excerpt of at most 400 characters).
 - Audience and problem describe who would use this and the pain it removes, based on the README and code; stay concrete.
@@ -49,6 +52,8 @@ export interface AnalyzeProductPromptOptions {
   snapshot: RepoSnapshot;
   renderedFiles: string;
   directorySummaries: string;
+  /** The user's steer, already redacted; it orders the features, never adds one (E1-1). */
+  direction?: string | undefined;
 }
 
 export function buildAnalyzeProductPrompt(options: AnalyzeProductPromptOptions): string {
@@ -63,5 +68,6 @@ export function buildAnalyzeProductPrompt(options: AnalyzeProductPromptOptions):
     options.renderedFiles,
     "",
     "Return 3–6 features. Name the product as the repository names it.",
+    ...describeDirection(parseDirection(options.direction)),
   ].join("\n");
 }

@@ -13,6 +13,7 @@ export const analyzeStep: StepFunction = async (context, run) => {
     contextBudgetTokens: context.services.env.MODEL_CONTEXT_BUDGET_TOKENS,
     cacheDirectory: summaryCacheDirectory(context),
     logger: context.logger,
+    direction: run.request.direction,
   });
   await context.updateRun((current) => ({
     ...current,

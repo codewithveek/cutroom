@@ -9,11 +9,13 @@ import {
   createStoryboardDraftSchema,
   type LookId,
   type ProductBrief,
+  parseDirection,
   type Storyboard,
   type VideoType,
 } from "@cutroom/scene-spec";
 import { buildPlanStoryboardPrompt, planStoryboardSystemPrompt } from "../prompts/plan-storyboard-prompt";
 import { missingScreenIssues, screenIssues } from "../screens/screen-views";
+import { directionPhraseIssues } from "../validation/direction-phrases";
 import { storyboardDraftIssues } from "../validation/word-budget";
 import { assembleStoryboard } from "./assemble-storyboard";
 
@@ -68,6 +70,7 @@ export async function planStoryboard(options: PlanStoryboardOptions): Promise<Pl
     validate: (draft) => [
       ...storyboardDraftIssues(draft, options.videoType),
       ...screenIssues({ scenes: draft.scenes, screens }),
+      ...directionPhraseIssues({ scenes: draft.scenes, direction: parseDirection(options.direction) }),
       ...missingScreenIssues({
         scenes: draft.scenes,
         screens,

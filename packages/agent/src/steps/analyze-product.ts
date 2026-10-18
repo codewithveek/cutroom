@@ -1,7 +1,7 @@
 import type { CutroomLogger } from "@cutroom/observability";
 import type { ModelClient, TokenUsage } from "@cutroom/providers";
 import type { SnapshotReader } from "@cutroom/repo-ingest";
-import { verifyEvidence } from "@cutroom/repo-ingest";
+import { redactSecrets, verifyEvidence } from "@cutroom/repo-ingest";
 import { type Evidence, type Feature, type ProductBrief, productBriefDraftSchema } from "@cutroom/scene-spec";
 import { estimateTokens, rankFilesForContext, selectContext } from "../context/repo-context";
 import { analyzeProductSystemPrompt, buildAnalyzeProductPrompt } from "../prompts/analyze-product-prompt";
@@ -16,6 +16,8 @@ export interface AnalyzeProductOptions {
   contextBudgetTokens: number;
   cacheDirectory?: string;
   logger?: CutroomLogger;
+  /** The user's steer; redacted here before the model sees it. */
+  direction?: string | undefined;
 }
 
 export interface EvidenceReport {
@@ -114,6 +116,7 @@ export async function analyzeProduct(options: AnalyzeProductOptions): Promise<An
           snapshot: reader.snapshot,
           renderedFiles: directSelection.rendered,
           directorySummaries,
+          direction: options.direction ? redactSecrets(options.direction).content : undefined,
         }),
       },
     ],

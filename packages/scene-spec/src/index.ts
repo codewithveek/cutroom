@@ -16,6 +16,7 @@ export * from "./captions";
 export * from "./capture-contracts";
 export * from "./claims";
 export { collectClaims, collectSceneClaims } from "./collect-claims";
+export * from "./direction";
 export {
   type BuildEgressManifestOptions,
   buildEgressManifest,

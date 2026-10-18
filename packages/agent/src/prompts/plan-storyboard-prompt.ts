@@ -7,15 +7,18 @@ import {
   isSourceCodePath,
   type LookId,
   type ProductBrief,
+  parseDirection,
   type VideoType,
 } from "@cutroom/scene-spec";
 import { describeScreens } from "../screens/screen-views";
+import { describeDirection, directionRule } from "./direction-block";
 import { accuracyRules } from "./shared-rules";
 
 export const planStoryboardSystemPrompt = `You are the scriptwriter and motion designer inside Cutroom. You turn a verified product brief into a storyboard: a list of scenes, each one block from a fixed library with its props and narration.
 
 Rules:
 - ${accuracyRules}
+- ${directionRule}
 - Follow the beat plan exactly: every scene has a "beat" from the plan, in order, using a block the beat allows.
 - Narration is spoken at 2.5 words per second. Respect each beat's word budget; shorter is fine.
 - Headlines are 4–9 words. One coloured phrase per line, wrapped in *stars*: the problem in a problem headline, the promise in a promise headline, never both.
@@ -132,13 +135,6 @@ export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions):
           describeScreens(options.screens),
         ]
       : []),
-    ...(options.direction
-      ? [
-          "",
-          "## Direction from the user",
-          "Follow it where it does not conflict with the rules, the beat plan or the evidence:",
-          options.direction,
-        ]
-      : []),
+    ...describeDirection(parseDirection(options.direction)),
   ].join("\n");
 }
