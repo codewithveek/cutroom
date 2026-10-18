@@ -1,3 +1,5 @@
+import { countWords } from "./count-words";
+import { spokenText } from "./narration";
 import { FRAMES_PER_SECOND } from "./primitives";
 import type { Scene } from "./scene";
 import type { SceneTiming, VoiceLineTiming, VoiceTimeline } from "./voice-timeline";
@@ -12,10 +14,6 @@ export const FIRST_SCENE_LEAD_FRAMES = 10;
 export const THUMBNAIL_HOLD_FRAMES = 25;
 export const THUMBNAIL_FADE_FRAMES = 10;
 const MINIMUM_LINE_FRAMES = 15;
-
-export function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter(Boolean).length;
-}
 
 export function estimateNarrationFrames(text: string): number {
   const seconds = countWords(text) / NARRATION_WORDS_PER_SECOND;
@@ -108,7 +106,7 @@ export function estimateTimeline(options: EstimateTimelineOptions): VoiceTimelin
     source: "estimate",
     lineAudio: (sceneId, lineIndex) => {
       const line = scenesById.get(sceneId)?.narration[lineIndex];
-      return { frames: line ? estimateNarrationFrames(line.say ?? line.text) : MINIMUM_LINE_FRAMES };
+      return { frames: line ? estimateNarrationFrames(spokenText(line)) : MINIMUM_LINE_FRAMES };
     },
   });
 }
@@ -120,3 +118,5 @@ export function introFramesFor(openOnThumbnail: boolean): number {
 export function totalVideoFrames(timeline: VoiceTimeline, openOnThumbnail: boolean): number {
   return timeline.totalFrames + introFramesFor(openOnThumbnail);
 }
+
+export { countWords };

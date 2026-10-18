@@ -2,6 +2,7 @@ import {
   FRAMES_PER_SECOND,
   type Storyboard,
   solveTimeline,
+  spokenText,
   type VoiceSelection,
   type VoiceTimeline,
 } from "@cutroom/scene-spec";
@@ -42,7 +43,7 @@ export async function synthesizeNarration(options: SynthesizeNarrationOptions): 
   for (const scene of options.storyboard.scenes) {
     for (const [lineIndex, line] of scene.narration.entries()) {
       const clip = await options.voice.synthesize({
-        text: line.say ?? line.text,
+        text: spokenText(line),
         voiceId: options.selection.voiceId,
         speed: options.selection.speed,
       });

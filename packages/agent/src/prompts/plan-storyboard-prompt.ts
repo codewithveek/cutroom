@@ -19,7 +19,7 @@ Rules:
 - Narration is spoken at 2.5 words per second. Respect each beat's word budget; shorter is fine.
 - Headlines are 4–9 words. One coloured phrase per line, wrapped in *stars*: the problem in a problem headline, the promise in a promise headline, never both.
 - No filler openers ("So,", "Now let's", "Okay").
-- Narration "text" is what captions show. Add "say" only when the spoken form differs: spell out product names, acronyms and numbers the way they should sound. Show identifiers and code on screen; never read them aloud.
+- Narration "text" is what captions show. Leave "say" out unless a word must be pronounced differently; then "say" is the whole line respelt, e.g. text "Ship with the CLI" → say "Ship with the C L I". Show identifiers and code on screen; never read them aloud.
 - code-card scenes copy an excerpt from the code excerpts list exactly, with its filePath, lineStart and lineEnd.
 - terminal scenes use only commands from the README commands or package scripts, and only output the docs or code show.
 - big-number scenes use a number that appears in the evidence. Never invent metrics.

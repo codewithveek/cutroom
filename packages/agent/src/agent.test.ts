@@ -104,6 +104,22 @@ describe("storyboardDraftIssues", () => {
     expect(issues).toContain("The last scene must be an end-card.");
   });
 
+  it('flags a "say" that is not the line read aloud', () => {
+    const [problem, ...rest] = shipnoteStoryboardDraft.scenes;
+    if (!problem) throw new Error("fixture drift");
+    const placeholder = {
+      ...shipnoteStoryboardDraft,
+      scenes: [
+        { ...problem, narration: [{ text: "Release notes eat an afternoon.", say: "spoken" }] },
+        ...rest,
+      ],
+    };
+    const issues = storyboardDraftIssues(placeholder, "launch");
+    expect(
+      issues.some((issue) => issue.includes('narration.0.say: "spoken" is not this line read aloud')),
+    ).toBe(true);
+  });
+
   it("names how many words to cut from a long headline", () => {
     const [problem, ...rest] = shipnoteStoryboardDraft.scenes;
     if (problem?.block !== "kinetic-headline") throw new Error("fixture drift");

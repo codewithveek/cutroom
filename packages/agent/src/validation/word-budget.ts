@@ -1,6 +1,7 @@
 import { type BeatTemplate, videoTypeTemplates } from "@cutroom/presets";
 import {
   countWords,
+  isPlausibleSpokenForm,
   type SceneDraft,
   type StoryboardDraft,
   stripStars,
@@ -37,6 +38,11 @@ function narrationIssues({ scene, index, beat }: SceneIssueOptions & { beat: Bea
     );
   }
   scene.narration.forEach((line, lineIndex) => {
+    if (line.say !== undefined && !isPlausibleSpokenForm(line)) {
+      issues.push(
+        `scenes.${index}.narration.${lineIndex}.say: "${line.say}" is not this line read aloud; leave "say" out, or write the whole line as it should sound.`,
+      );
+    }
     if (fillerOpeners.test(line.text.trim())) {
       issues.push(
         `scenes.${index}.narration.${lineIndex}: drop the filler opener ("${line.text.split(/[\s,]/)[0]}").`,
