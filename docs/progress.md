@@ -44,6 +44,9 @@ One line per completed item, with the date. Milestones follow PRD §13.
 - 2026-10-17 · Regenerate one scene with the others as fixed context (agent, runner, `POST /runs/:runId/scenes/:sceneId/regenerate`, inspector button with an optional direction)
 - 2026-10-17 · Contract check script: every block in every allowed look × ratio (`pnpm --filter @cutroom/renderer render:block-stills`)
 
+## Distribution
+- 2026-10-18 · Publishable `cutroom` npm package: esbuild bundle with a dependency check, prebuilt Remotion bundle, `cutroom demo` with the bundled fixture, ffmpeg/Ollama preflight; tarball installed in an empty directory renders 16:9 + 9:16 (ADR 0011)
+
 ## Not built yet
 - Temporal workflow + worker and the Drizzle/Postgres store (behind `PipelineRunner` / `RunStore`; ADR 0006)
 - Screen capture + `screenshot-window`, `diagram-flow`, pgvector retrieval, zip upload, brief editing, uploaded music

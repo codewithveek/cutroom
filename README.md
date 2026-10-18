@@ -29,7 +29,17 @@ Gemma does the reasoning and Kokoro does the voice, so in **Local mode** the who
 
 Pricing hypothesis: free and open source for self-hosted / Local mode; a ~$19/month hosted plan for GPU rendering, ElevenLabs voices and team presets; per-seat licensing for agencies.
 
-## Quick start (Local mode)
+## Install from npm
+
+```bash
+npx cutroom demo                   # films a bundled sample repo with a scripted model: needs only Node 22 and ffmpeg
+npx cutroom setup                  # once: the Kokoro voice model
+npx cutroom make --repo .          # needs Ollama with gemma4:e4b
+```
+
+See [`apps/cli/README.md`](apps/cli/README.md) for every flag.
+
+## Quick start from source (Local mode)
 
 Requirements: Node 22, pnpm 10, ffmpeg, and [Ollama](https://ollama.com).
 
