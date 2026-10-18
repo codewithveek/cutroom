@@ -26,6 +26,7 @@ export const makeFlagsSchema = z.object({
   seed: z.coerce.number().int().nonnegative().default(1),
   appUrl: z.url().optional(),
   routes: z.string().optional(),
+  watermark: z.boolean().default(false),
 });
 export type MakeFlags = z.infer<typeof makeFlagsSchema>;
 
@@ -73,6 +74,7 @@ export function buildRunRequest(flags: MakeFlags, source?: RunRequestInput["sour
     privacyMode: flags.privacy,
     autoApprove: flags.yes,
     seed: flags.seed,
+    watermark: flags.watermark,
     ...(flags.appUrl ? { capture: captureFor(flags) } : {}),
   };
 }

@@ -13,7 +13,7 @@ Usage:
   ${productBrand.cliName} make --repo <path|git-url|app.zip> [--preset launch-editorial] [--ratios 16:9,9:16]
                 [--privacy local|hybrid|cloud] [--look editorial] [--type launch] [--seconds 45]
                 [--voice af_heart] [--music upbeat|calm|none] [--yes] [--silent] [--scripted]
-                [--app-url http://localhost:3000 --routes /,/settings]
+                [--app-url http://localhost:3000 --routes /,/settings] [--watermark]
   ${productBrand.cliName} demo [--ratios 16:9,9:16] [--voice af_heart]
                Film the bundled demo repo with a scripted model: no Ollama or GPU needed
                (silent unless --voice is given, which needs \`setup\` first)
@@ -23,7 +23,8 @@ Usage:
   --silent    no voiceover (timing still follows the narration)
   --scripted  use the scripted model for the shipnote fixture (no Ollama needed)
   --app-url   capture screens of the running app (read-only) for window scenes
-  --routes    comma-separated routes to capture on --app-url (default /)`;
+  --routes    comma-separated routes to capture on --app-url (default /)
+  --watermark a "created with cutroom" badge in the bottom-right corner`;
 
 const entryDirectory = import.meta.dirname;
 
@@ -46,6 +47,7 @@ function parseMakeFlags(args: ReadonlyArray<string>): MakeFlags {
       yes: { type: "boolean", default: false },
       silent: { type: "boolean", default: false },
       scripted: { type: "boolean", default: false },
+      watermark: { type: "boolean", default: false },
     },
   });
   return makeFlagsSchema.parse({ ...values, appUrl: values["app-url"] });

@@ -32,6 +32,7 @@ Everything lives in `CUTROOM_DATA_DIR` (default `.cutroom` in the current direct
 | `--privacy` | `local` (default), `hybrid`, `cloud` |
 | `--look`, `--type`, `--seconds`, `--voice`, `--music` | Override the preset |
 | `--yes` | Approve when no claim is unsupported |
+| `--watermark` | A "created with cutroom" badge in the bottom-right corner |
 | `--silent` | No voiceover |
 
 Model and voice settings come from environment variables: `OLLAMA_HOST`, `MODEL_ID`, `KOKORO_DTYPE`, `ELEVENLABS_API_KEY` (Cloud mode), `RENDER_API_BASE_URL` and `RENDER_API_TOKEN` (Hybrid mode).
