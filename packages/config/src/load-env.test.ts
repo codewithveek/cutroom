@@ -24,4 +24,12 @@ describe("parseEnv", () => {
       expect((error as InvalidConfigError).issues[0]).toContain("API_PORT");
     }
   });
+
+  it("requires a database for the Postgres store and the Temporal runner", () => {
+    expect(() => parseEnv({ RUN_STORE: "postgres" })).toThrow(/DATABASE_URL/);
+    expect(() => parseEnv({ RUNNER: "temporal", DATABASE_URL: "postgres://x" })).toThrow(/RUN_STORE/);
+    expect(parseEnv({ RUNNER: "temporal", RUN_STORE: "postgres", DATABASE_URL: "postgres://x" }).RUNNER).toBe(
+      "temporal",
+    );
+  });
 });
