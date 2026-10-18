@@ -1,10 +1,13 @@
 "use client";
 
 import type { MusicSelection } from "@cutroom/scene-spec";
+import { Upload } from "lucide-react";
 import type React from "react";
+import { useRef } from "react";
 import { Label } from "@/components/ui/field";
 import { NarrationEditor } from "@/features/storyboard/scene-fields";
 import { apiClient } from "@/lib/api-client";
+import { isEnabled } from "@/lib/capabilities";
 import { classNames } from "@/lib/class-names";
 import { useEditor } from "../editor-context";
 import { EditorPanel } from "../editor-panel";
@@ -18,6 +21,46 @@ const musicChoices: ReadonlyArray<{ id: string; label: string; music: MusicSelec
 
 function musicId(music: MusicSelection): string {
   return music.kind === "generated" ? music.bed : music.kind;
+}
+
+/** The user's own track: transcoded on the server and mixed under the voice like the generated beds. */
+function MusicUpload(props: { locked: boolean }): React.ReactElement {
+  const editor = useEditor();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { music } = editor.run.request;
+  const uploaded = music.kind === "uploaded";
+  return (
+    <div
+      className={classNames(
+        "flex items-center gap-2.5 rounded-xl border p-2.5",
+        uploaded ? "border-accent/60 bg-accent-soft" : "border-dashed border-line-strong",
+      )}
+    >
+      <Upload className="size-4 shrink-0 text-ink-muted" aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate text-sm">
+        {uploaded ? (music.fileName ?? "Your track") : "Use your own track"}
+      </span>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.opus,.flac"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (file) void editor.runAction(() => apiClient.uploadMusic(editor.run.id, file));
+        }}
+      />
+      <button
+        type="button"
+        disabled={props.locked}
+        onClick={() => inputRef.current?.click()}
+        className="shrink-0 rounded-lg bg-panel-raised px-2.5 py-1 text-xs font-medium text-ink hover:bg-panel-hover disabled:opacity-50"
+      >
+        {uploaded ? "Replace" : "Upload"}
+      </button>
+    </div>
+  );
 }
 
 /** Music bed and voice speed for the run, and the selected scene's narration (captions + spoken form). */
@@ -51,8 +94,10 @@ export function AudioPanel(): React.ReactElement {
             </button>
           ))}
         </div>
+        {isEnabled("musicUpload") ? <MusicUpload locked={settingsLocked} /> : null}
         <p className="text-[11px] text-ink-faint">
-          Generated in code (no licence needed), ducked under the voice.
+          Generated beds need no licence; for your own track, you hold the rights. Either way it is ducked
+          under the voice.
         </p>
       </section>
       <section className="space-y-2">

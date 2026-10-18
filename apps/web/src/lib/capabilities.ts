@@ -12,8 +12,8 @@ export const capabilities = {
   generatedMedia: false,
   /** Cloned or custom voices beyond the Kokoro catalogue and ElevenLabs. */
   voiceCloning: false,
-  /** Uploaded music beds (the contract has `music.kind = "uploaded"`; no upload flow yet). */
-  musicUpload: false,
+  /** The user's own music track (POST /runs/:id/music). */
+  musicUpload: true,
   /** Free-form timing edits. Off by design while narration drives timing (product invariant). */
   manualTiming: false,
 } as const;

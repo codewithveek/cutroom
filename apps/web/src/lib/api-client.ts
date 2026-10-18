@@ -109,6 +109,15 @@ export const apiClient = {
       schema: runViewSchema,
       init: { method: "PATCH", body: JSON.stringify(settings) },
     }),
+  uploadMusic: (runId: string, file: File) => {
+    const form = new FormData();
+    form.append("track", file);
+    return request({
+      path: `/runs/${runId}/music`,
+      schema: runViewSchema,
+      init: { method: "POST", body: form },
+    });
+  },
   uploadArchive: (file: File) => {
     const form = new FormData();
     form.append("archive", file);

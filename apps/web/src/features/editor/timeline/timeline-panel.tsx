@@ -350,8 +350,8 @@ export function TimelinePanel(props: { compact?: boolean }): React.ReactElement 
                     className="absolute inset-y-0 left-0 flex items-center rounded-lg border border-dashed border-line-strong px-2 text-[11px] text-ink-faint"
                     style={{ width: frames * pixelsPerFrame }}
                   >
-                    {music.kind === "generated" ? `${music.bed} bed` : "Uploaded bed"} · mixed and ducked at
-                    render
+                    {music.kind === "generated" ? `${music.bed} bed` : (music.fileName ?? "Your track")} ·
+                    ducked under the voice
                   </span>
                 )}
               </div>
