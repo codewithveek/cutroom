@@ -36,6 +36,7 @@ export function PreviewStage(props: { playerRef: (player: PlayerRef | null) => v
           voiceTimeline={editor.timeline}
           assetUrls={assetUrls}
           burnCaptions={editor.burnCaptions}
+          watermark={editor.run.request.watermark}
           controls={false}
           className="size-full"
         />

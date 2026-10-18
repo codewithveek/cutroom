@@ -16,6 +16,8 @@ export interface PreviewPropsOptions {
   assetUrls?: Readonly<Record<string, string>>;
   /** Defaults to the renderer's rule: burned in for 9:16 and 1:1. */
   burnCaptions?: boolean | undefined;
+  /** The run's "created with Cutroom" badge; off for thumbnails and galleries. */
+  watermark?: boolean | undefined;
 }
 
 /** The exact props the renderer passes to VideoComposition, built for the browser preview. */
@@ -36,5 +38,6 @@ export function previewVideoProps(options: PreviewPropsOptions): VideoProps {
     assetUrls: { ...options.assetUrls },
     openOnThumbnail: false,
     burnCaptions: options.burnCaptions ?? (ratio === "9:16" || ratio === "1:1"),
+    watermark: options.watermark ?? false,
   };
 }

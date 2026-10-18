@@ -24,6 +24,7 @@ export interface StoryboardPlayerProps {
   voiceTimeline?: VoiceTimeline | undefined;
   assetUrls?: Readonly<Record<string, string>> | undefined;
   burnCaptions?: boolean | undefined;
+  watermark?: boolean | undefined;
   autoPlay?: boolean;
   loop?: boolean;
   controls?: boolean;
@@ -42,8 +43,9 @@ export const StoryboardPlayer = forwardRef<PlayerRef, StoryboardPlayerProps>(
           voiceTimeline,
           ...(props.assetUrls ? { assetUrls: props.assetUrls } : {}),
           burnCaptions: props.burnCaptions,
+          watermark: props.watermark,
         }),
-      [storyboard, ratio, voiceTimeline, props.assetUrls, props.burnCaptions],
+      [storyboard, ratio, voiceTimeline, props.assetUrls, props.burnCaptions, props.watermark],
     );
     const size = frameSizeByRatio[ratio];
     return (
