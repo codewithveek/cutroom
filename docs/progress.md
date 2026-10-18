@@ -44,6 +44,16 @@ One line per completed item, with the date. Milestones follow PRD §13.
 - 2026-10-17 · Regenerate one scene with the others as fixed context (agent, runner, `POST /runs/:runId/scenes/:sceneId/regenerate`, inspector button with an optional direction)
 - 2026-10-17 · Contract check script: every block in every allowed look × ratio (`pnpm --filter @cutroom/renderer render:block-stills`)
 
+- 2026-10-18 · Zip sources: safe extraction (no zip slip, symlinks or size bombs), `POST /uploads`, drop a .zip in the composer, `--repo app.zip`
+- 2026-10-18 · Edit the brief during review and re-plan from it; edited evidence is re-verified against the snapshot
+- 2026-10-18 · Uploaded music track (transcoded to WAV) in local and Hybrid renders, from the Audio panel or `POST /runs/:id/music`
+- 2026-10-18 · `diagram-flow` block, audited node labels, in the explainer template
+- 2026-10-18 · Read-only Playwright screen capture with redaction and real element boxes; `screenshot-window` block; capture step after ingest; App screens in the wizard; `--app-url`/`--routes`
+- 2026-10-18 · Semantic code retrieval for the claim judge: Ollama or offline hashing embeddings, pgvector index synced by content hash (`EMBEDDINGS`)
+
+## Deploy
+- 2026-10-18 · `cutroom-node` (API/worker) and `cutroom-web` images, both start without network access; single-host compose stack (Postgres + pgvector, Temporal, Caddy TLS), Render blueprint, vLLM script for Gemma; Temporal Cloud via API key (docs/deploy.md)
+
 ## Distribution
 - 2026-10-18 · Publishable `cutroom` npm package: esbuild bundle with a dependency check, prebuilt Remotion bundle, `cutroom demo` with the bundled fixture, ffmpeg/Ollama preflight; tarball installed in an empty directory renders 16:9 + 9:16 (ADR 0011)
 
@@ -61,6 +71,5 @@ One line per completed item, with the date. Milestones follow PRD §13.
 - 2026-10-18 · `@cutroom/temporal`: `produceVideoWorkflow` (PRD retries/timeouts, heartbeats, review/egress signals, `getRunStatus` query), activities on the step executor, `TemporalRunner`; `apps/worker`; API picks the runner from `RUNNER`
 - 2026-10-18 · Acceptance: `scripts/check-durability.ts` kills the worker mid-render; a new worker finishes the run (CI job `durability`)
 
-## Not built yet
-- Screen capture + `screenshot-window`, `diagram-flow`, pgvector retrieval, zip upload, brief editing, uploaded music
-- Cloud deploy on Render / DigitalOcean and the .tech domain
+## Not done yet
+- Deploying to the .tech domain (needs the Droplet or Render account and DNS)

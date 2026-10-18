@@ -68,6 +68,7 @@ ollama pull <gemma-tag>              # tag recorded in docs/decisions/
 pnpm dev                             # web + api + worker
 pnpm typecheck && pnpm lint && pnpm test
 pnpm cutroom make --repo <path> --preset launch-editorial --ratios 16:9,9:16 --privacy local
+docker compose -f deploy/docker-compose.cloud.yml --env-file deploy/cloud.env up -d --build   # cloud stack (docs/deploy.md)
 pnpm eval
 ```
 

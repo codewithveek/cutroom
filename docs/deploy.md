@@ -1,0 +1,73 @@
+# Deploying Cutroom
+
+Two images cover every service:
+
+| Image | Dockerfile | Runs |
+| --- | --- | --- |
+| `cutroom-node` | `deploy/node-services.Dockerfile` | `api` or `worker` (the argument to `cutroom-service`). Node 22, ffmpeg, Chrome Headless Shell downloaded at build time. Runs migrations first when `RUN_STORE=postgres`. |
+| `cutroom-web` | `deploy/web.Dockerfile` | The Next.js app. `NEXT_PUBLIC_API_URL` is inlined at build time, so pass the API's public URL as a build arg. |
+
+Neither image downloads anything when it starts.
+
+The API and the worker share files on disk (snapshots, voice WAVs, renders), so they need the same
+volume at `CUTROOM_DATA_DIR` (`/data` in the image). That decides the two layouts below.
+
+## Option A · One host (DigitalOcean Droplet)
+
+Everything in `deploy/docker-compose.cloud.yml`: web, API, worker, Postgres with pgvector, a Temporal
+dev server and Caddy with automatic HTTPS for `CUTROOM_DOMAIN` and `api.CUTROOM_DOMAIN`.
+
+1. Point `A` records for `cutroom.tech` and `api.cutroom.tech` (or your domain) at the Droplet.
+2. On the Droplet, from a clone of the repo:
+
+   ```bash
+   cp deploy/cloud.env.example deploy/cloud.env   # set CUTROOM_DOMAIN, POSTGRES_PASSWORD, the model
+   docker compose -f deploy/docker-compose.cloud.yml --env-file deploy/cloud.env up -d --build
+   ```
+
+3. Check `https://api.<domain>/health` returns `{"status":"ok"}`, then open `https://<domain>`.
+
+Runs go through Temporal (`RUNNER=temporal`), so a worker restart mid-render resumes the run.
+
+### Temporal Cloud instead of the bundled server
+
+Set `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE` and `TEMPORAL_API_KEY` in `cloud.env`. An API key
+switches the connection to TLS. Then start without the dev server:
+
+```bash
+docker compose -f deploy/docker-compose.cloud.yml --env-file deploy/cloud.env up -d --build --scale temporal=0
+```
+
+## Option B · Render (render.yaml)
+
+`render.yaml` is a blueprint for the web app, the API with a 20 GB disk, and Render Postgres (which
+supports pgvector). A Render disk belongs to one service, so the API runs steps itself
+(`RUNNER=in-process`) and there is no separate worker. Use Option A when you want the durable
+Temporal split.
+
+Fill in the `sync: false` values in the dashboard when you create the blueprint:
+
+- `WEB_ORIGIN`: the web service's URL (CORS).
+- `NEXT_PUBLIC_API_URL`: the API service's URL. Render passes it to the Docker build.
+- The model: `OPENAI_COMPAT_BASE_URL`, `OPENAI_COMPAT_API_KEY`, `OPENAI_COMPAT_MODEL_ID`.
+
+## The model in Cloud mode
+
+Cloud mode reaches Gemma through an OpenAI-compatible endpoint. `deploy/gemma-vllm.sh` serves it
+with vLLM on a GPU Droplet:
+
+```bash
+GEMMA_MODEL=google/<gemma instruct checkpoint> HF_TOKEN=... VLLM_API_KEY=... sh deploy/gemma-vllm.sh
+```
+
+Then set `OPENAI_COMPAT_BASE_URL=http://<gpu droplet private IP>:8000/v1`,
+`OPENAI_COMPAT_API_KEY=<VLLM_API_KEY>` and `OPENAI_COMPAT_MODEL_ID=<GEMMA_MODEL>`.
+
+For a GPU-free demo, `MODEL_PROVIDER=scripted-shipnote` answers from a script written for the
+shipnote fixture, so only that fixture produces a video.
+
+## Uploads
+
+Hybrid render bundles (200 MB), zip archives (100 MB) and music tracks (30 MB) go to the API. The
+bundled Caddyfile allows request bodies up to 210 MB and turns off buffering for the server-sent run
+events. Configure the same limits on any other proxy you put in front of the API.
