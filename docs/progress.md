@@ -55,7 +55,12 @@ One line per completed item, with the date. Milestones follow PRD §13.
 - 2026-10-18 · Library and Activity with filters and search, Styles gallery (hover to play each look), Settings (toolchain, model, voices, privacy, appearance)
 - 2026-10-18 · Capability flags for designed-but-off features (script source, screen capture, generated media, voice cloning, music upload, manual timing)
 
+## M4 · Durable pipeline (ADR 0013)
+- 2026-10-18 · Shared `StepExecutor` + `RunCommands` for both runners; local event bus
+- 2026-10-18 · `@cutroom/db`: Drizzle schema for PRD §8.6 (incl. pgvector `code_chunks`), migrations, `PostgresRunStore` (row locks, LISTEN/NOTIFY events), integration tests against Postgres in CI
+- 2026-10-18 · `@cutroom/temporal`: `produceVideoWorkflow` (PRD retries/timeouts, heartbeats, review/egress signals, `getRunStatus` query), activities on the step executor, `TemporalRunner`; `apps/worker`; API picks the runner from `RUNNER`
+- 2026-10-18 · Acceptance: `scripts/check-durability.ts` kills the worker mid-render; a new worker finishes the run (CI job `durability`)
+
 ## Not built yet
-- Temporal workflow + worker and the Drizzle/Postgres store (behind `PipelineRunner` / `RunStore`; ADR 0006)
 - Screen capture + `screenshot-window`, `diagram-flow`, pgvector retrieval, zip upload, brief editing, uploaded music
 - Cloud deploy on Render / DigitalOcean and the .tech domain

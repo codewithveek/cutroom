@@ -70,6 +70,19 @@ RENDER_API_BASE_URL=https://render.example.com RENDER_API_TOKEN=<secret> \
   pnpm cutroom make --repo . --privacy hybrid
 ```
 
+### Durable runs (Temporal + Postgres)
+
+By default the API runs steps itself and keeps runs in `.cutroom/`. For durability, run the workflow on a worker:
+
+```bash
+docker compose up -d                      # Postgres (+pgvector) and a Temporal dev server
+export DATABASE_URL=postgres://cutroom:cutroom@127.0.0.1:5432/cutroom RUN_STORE=postgres RUNNER=temporal
+pnpm --filter @cutroom/db migrate
+pnpm --filter @cutroom/worker start       # executes pipeline steps as Temporal activities
+pnpm --filter @cutroom/api dev            # records actions and signals the workflow
+pnpm tsx scripts/check-durability.ts      # kills the worker mid-render and checks the run still completes
+```
+
 ### Web app
 
 ```bash

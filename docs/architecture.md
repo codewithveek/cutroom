@@ -16,6 +16,9 @@ This is the as-built companion to PRD §8. Where the build differs from the PRD,
 | `@cutroom/voice` | Kokoro / ElevenLabs / silent voices, per-line cache, narration synthesis feeding the timing solver. | audio-io, providers |
 | `@cutroom/renderer` | Bundle once, `renderMedia` per ratio, two-pass loudnorm, WebVTT, thumbnail stills, MP4 cover art, versioned outputs, generated music beds and SFX. | video-kit, audio-io |
 | `@cutroom/pipeline` | Run record and store, `PipelineRunner` interface, the idempotent steps, `InProcessRunner`, delivery note, scripted fixture model. | everything above |
+| `@cutroom/db` | Drizzle schema and migrations for the PRD §8.6 tables, `PostgresRunStore` (row-locked updates, LISTEN/NOTIFY events). | pipeline |
+| `@cutroom/temporal` | `produceVideoWorkflow`, activities on the shared step executor, `TemporalRunner`, worker factory. See ADR 0013. | pipeline |
+| `apps/worker` | Temporal worker process: polls the pipeline task queue. | temporal, db |
 | `apps/cli` | `cutroom make`, `cutroom setup`. | pipeline |
 | `apps/api` | Fastify + `fastify-type-provider-zod`: runs, run settings, SSE events, range-served assets and preview media, system status, voices with samples, one error envelope. | pipeline |
 | `apps/web` | Next.js App Router: sidebar shell, dashboard composer, the run editor (script tree, live preview, inspector, multi-track timeline), library, styles, settings. Imports only browser-safe packages (scene-spec, presets, video-kit). See ADR 0012. | scene-spec, video-kit, presets |
@@ -52,4 +55,4 @@ Steps emit `started` / `progress` / `completed` / `failed` events, appended to `
 
 ## What is not built yet
 
-Temporal workflow and worker, Postgres/Drizzle persistence, screen capture and `screenshot-window`, pgvector retrieval, zip upload, cloud deploy. See `docs/progress.md`.
+Screen capture and `screenshot-window`, pgvector retrieval, zip upload, cloud deploy. See `docs/progress.md`.
