@@ -53,7 +53,7 @@ export function createKokoroProvider(options: KokoroProviderOptions): VoiceProvi
     } catch (error) {
       if (!options.allowDownload) {
         throw new VoiceModelMissingError(
-          `Kokoro model ${options.modelId} is not in ${options.modelCacheDirectory}. Run \`pnpm cutroom setup\` once while online (with the same CUTROOM_DATA_DIR).`,
+          `Kokoro model ${options.modelId} is not in ${options.modelCacheDirectory}. Run \`cutroom setup\` (or \`pnpm cutroom setup\` in a checkout) once while online (with the same CUTROOM_DATA_DIR).`,
         );
       }
       throw error;

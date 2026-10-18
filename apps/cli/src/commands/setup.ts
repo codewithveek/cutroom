@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { CutroomEnv } from "@cutroom/config";
+import { type CutroomEnv, productBrand } from "@cutroom/config";
 import { createKokoroProvider } from "@cutroom/voice";
 
 /** One-time, online: downloads Kokoro so Local-mode runs never touch the network. */
@@ -19,7 +19,7 @@ export async function runSetup(env: CutroomEnv): Promise<number> {
   });
   await provider.synthesizePcm({ text: "Ready.", voiceId: "af_heart", speed: 1 });
   console.log(
-    `\n✔ Voice model ready. Next: \`ollama pull ${env.MODEL_ID}\`, then \`pnpm cutroom make --repo .\``,
+    `\n✔ Voice model ready. Next: \`ollama pull ${env.MODEL_ID}\`, then \`${productBrand.cliName} make --repo .\``,
   );
   return 0;
 }
