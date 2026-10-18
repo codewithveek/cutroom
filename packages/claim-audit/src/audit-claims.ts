@@ -1,5 +1,5 @@
 import type { CutroomLogger } from "@cutroom/observability";
-import type { ModelClient, TokenUsage } from "@cutroom/providers";
+import type { EmbeddingClient, ModelClient, TokenUsage } from "@cutroom/providers";
 import {
   type Claim,
   type ClaimCheck,
@@ -21,6 +21,7 @@ import {
   isSelfEvident,
 } from "./deterministic-checks/checks";
 import { type JudgedClaim, judgeClaims } from "./model-judge/judge-claims";
+import { type CodeVectorIndex, createSemanticRetriever } from "./semantic-retrieval/semantic-retriever";
 
 const verdictRank: Readonly<Record<ClaimVerdict, number>> = { supported: 0, weak: 1, unsupported: 2 };
 
@@ -113,6 +114,8 @@ export interface AuditClaimsOptions extends AuditContext {
   /** Re-audit only these scenes (after an edit, FR-HR-2). */
   sceneIds?: ReadonlyArray<string>;
   logger?: CutroomLogger;
+  /** Vector search for the judge (FR-ING-6): the project's code index and the run's embedder. */
+  semantic?: { index: CodeVectorIndex; embedder: EmbeddingClient } | undefined;
 }
 
 export interface AuditClaimsResult {
@@ -142,6 +145,13 @@ export async function auditClaims(options: AuditClaimsOptions): Promise<AuditCla
           reader: options.reader,
           brief: options.brief,
           model: options.model,
+          retriever: options.semantic
+            ? createSemanticRetriever({
+                ...options.semantic,
+                repoText: index,
+                onSynced: (stats) => options.logger?.info(stats, "synced the code index"),
+              })
+            : undefined,
         })
       : { judged: new Map<string, JudgedClaim>(), usage: { inputTokens: 0, outputTokens: 0 } };
   const judgedIds = new Set(claimsForJudge.map((claim) => claim.id));

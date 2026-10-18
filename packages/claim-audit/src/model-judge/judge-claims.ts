@@ -9,6 +9,7 @@ import {
 } from "@cutroom/scene-spec";
 import { z } from "zod";
 import type { RepoTextIndex } from "../audit-context";
+import { mergeSnippets, type SemanticRetriever } from "../semantic-retrieval/semantic-retriever";
 import { type CandidateSnippet, retrieveCandidateEvidence } from "./retrieve-evidence";
 
 export const claimVerdictsSchema = z.object({
@@ -34,6 +35,8 @@ Cite evidence as file path, start line, end line and a verbatim excerpt from the
 
 const CLAIMS_PER_CALL = 10;
 const SNIPPETS_PER_CLAIM = 4;
+/** Extra room for semantic hits found in places the keywords missed. */
+const SEMANTIC_SNIPPETS_PER_CLAIM = 2;
 
 function renderSnippet(snippet: CandidateSnippet): string {
   const numbered = snippet.text
@@ -52,10 +55,18 @@ function renderBrief(brief: ProductBrief): string {
     .join("\n");
 }
 
-function renderClaims(claims: ReadonlyArray<Claim>, index: RepoTextIndex): string {
-  return claims
+function renderClaims(options: {
+  claims: ReadonlyArray<Claim>;
+  index: RepoTextIndex;
+  semantic: ReadonlyMap<string, CandidateSnippet[]> | undefined;
+}): string {
+  return options.claims
     .map((claim) => {
-      const snippets = retrieveCandidateEvidence({ claim, index, limit: SNIPPETS_PER_CLAIM });
+      const snippets = mergeSnippets({
+        keyword: retrieveCandidateEvidence({ claim, index: options.index, limit: SNIPPETS_PER_CLAIM }),
+        semantic: options.semantic?.get(claim.id) ?? [],
+        limit: SNIPPETS_PER_CLAIM + SEMANTIC_SNIPPETS_PER_CLAIM,
+      });
       const evidenceText =
         snippets.length > 0 ? snippets.map(renderSnippet).join("\n") : "    (no matching code found)";
       return `- id: ${claim.id}\n  claim: ${JSON.stringify(claim.text)}\n  evidence:\n${evidenceText}`;
@@ -77,6 +88,8 @@ export interface JudgeClaimsOptions {
   reader: SnapshotReader;
   brief: ProductBrief;
   model: ModelClient;
+  /** Vector search over the repo (FR-ING-6); keyword search alone when absent. */
+  retriever?: SemanticRetriever | undefined;
 }
 
 /** The model's verdict may only stand on evidence that verifies against the repo. */
@@ -106,6 +119,10 @@ export async function judgeClaims(
   for (let start = 0; start < options.claims.length; start += CLAIMS_PER_CALL) {
     const batch = options.claims.slice(start, start + CLAIMS_PER_CALL);
     const batchIds = new Set(batch.map((claim) => claim.id));
+    const semantic = await options.retriever?.retrieve({
+      claims: batch,
+      limit: SEMANTIC_SNIPPETS_PER_CLAIM + 1,
+    });
     const result = await options.model.generateStructured({
       schema: claimVerdictsSchema,
       schemaName: "claim_verdicts",
@@ -113,7 +130,7 @@ export async function judgeClaims(
       messages: [
         {
           role: "user",
-          content: `Verified brief for ${options.brief.name}:\n${renderBrief(options.brief)}\n\nClaims to judge:\n\n${renderClaims(batch, options.index)}`,
+          content: `Verified brief for ${options.brief.name}:\n${renderBrief(options.brief)}\n\nClaims to judge:\n\n${renderClaims({ claims: batch, index: options.index, semantic })}`,
         },
       ],
       validate: (output) => {

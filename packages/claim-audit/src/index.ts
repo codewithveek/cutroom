@@ -10,3 +10,12 @@ export { formatAuditTable } from "./format-audit-table";
 export { claimVerdictsSchema, judgeSystemPrompt } from "./model-judge/judge-claims";
 export { claimKeywords, retrieveCandidateEvidence } from "./model-judge/retrieve-evidence";
 export { findOverclaims, overclaimLexicon } from "./overclaim-lexicon";
+export { type CodeChunk, chunkRepoFiles } from "./semantic-retrieval/code-chunks";
+export {
+  type CodeVectorIndex,
+  createSemanticRetriever,
+  focusWindow,
+  mergeSnippets,
+  type NearestChunk,
+  type SemanticRetriever,
+} from "./semantic-retrieval/semantic-retriever";
