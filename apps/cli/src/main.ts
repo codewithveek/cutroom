@@ -19,7 +19,7 @@ Usage:
   ${productBrand.cliName} demo [--ratios 16:9,9:16] [--voice af_heart]
                Film the bundled demo repo with a scripted model: no Ollama or GPU needed
                (silent unless --voice is given, which needs \`setup\` first)
-  ${productBrand.cliName} setup        Download the Kokoro voice model once (needs the network)
+  ${productBrand.cliName} setup        Download the Kokoro voice model and render browser once (needs the network)
 
   --yes       approve automatically when no claim is unsupported
   --silent    no voiceover (timing still follows the narration)

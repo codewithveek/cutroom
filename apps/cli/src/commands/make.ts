@@ -12,6 +12,7 @@ import { createSilentProvider } from "@cutroom/voice";
 import { buildRunRequest, type MakeFlags } from "../make-options";
 import { findPrebuiltBundle } from "../package-assets";
 import { runPreflight } from "../preflight";
+import { prepareRenderBrowser } from "../render-browser";
 import { printEgressManifest, printStoryboard, promptForApproval, promptForEgress } from "../review-prompt";
 import { isZipPath, stageArchive } from "../stage-archive";
 import { printEvent } from "../terminal-ui";
@@ -53,6 +54,7 @@ export async function runMake(options: RunMakeOptions): Promise<number> {
       ...(flags.silent ? { voiceProviderOverride: createSilentProvider() } : {}),
     },
   });
+  await prepareRenderBrowser(services.browserExecutable);
   const runner = new InProcessRunner(services);
   const request = buildRunRequest(
     flags,

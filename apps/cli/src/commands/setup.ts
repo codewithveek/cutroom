@@ -1,8 +1,10 @@
 import path from "node:path";
 import { type CutroomEnv, productBrand } from "@cutroom/config";
+import { resolveBrowserExecutable } from "@cutroom/renderer";
 import { createKokoroProvider } from "@cutroom/voice";
+import { prepareRenderBrowser } from "../render-browser";
 
-/** One-time, online: downloads Kokoro so Local-mode runs never touch the network. */
+/** One-time, online: downloads Kokoro and the render browser so Local-mode runs never touch the network. */
 export async function runSetup(env: CutroomEnv): Promise<number> {
   const modelCacheDirectory = path.resolve(env.CUTROOM_DATA_DIR, "models");
   console.log(`Downloading ${env.KOKORO_MODEL_ID} (${env.KOKORO_DTYPE}) to ${modelCacheDirectory}…`);
@@ -18,6 +20,7 @@ export async function runSetup(env: CutroomEnv): Promise<number> {
     },
   });
   await provider.synthesizePcm({ text: "Ready.", voiceId: "af_heart", speed: 1 });
+  await prepareRenderBrowser(resolveBrowserExecutable(env.BROWSER_EXECUTABLE));
   console.log(
     `\n✔ Voice model ready. Next: \`ollama pull ${env.MODEL_ID}\`, then \`${productBrand.cliName} make --repo .\``,
   );
