@@ -7,6 +7,7 @@ import {
   type Brand,
   type CapturedScreen,
   createStoryboardDraftSchema,
+  isSourceCodePath,
   type LookId,
   type ProductBrief,
   parseDirection,
@@ -42,6 +43,10 @@ export interface PlanStoryboardResult {
   attempts: number;
 }
 
+function hasSourceExcerpts(brief: ProductBrief): boolean {
+  return brief.features.some((feature) => feature.evidence.some((item) => isSourceCodePath(item.filePath)));
+}
+
 /** Pipeline step 3: brief + beat template + look → validated, repaired Storyboard (FR-SB-1…6). */
 export async function planStoryboard(options: PlanStoryboardOptions): Promise<PlanStoryboardResult> {
   const screens = options.screens ?? [];
@@ -49,7 +54,11 @@ export async function planStoryboard(options: PlanStoryboardOptions): Promise<Pl
     schema: createStoryboardDraftSchema({
       look: options.look,
       beats: videoTypeTemplates[options.videoType].beats.map((beat) => beat.beat),
-      excludeBlocks: screens.length > 0 ? [] : ["screenshot-window"],
+      excludeBlocks: [
+        ...(screens.length > 0 ? [] : (["screenshot-window"] as const)),
+        // Only source-code evidence can fill a code-card; docs-only briefs get none (ADR 0017).
+        ...(hasSourceExcerpts(options.brief) ? [] : (["code-card"] as const)),
+      ],
     }),
     schemaName: "storyboard_draft",
     system: planStoryboardSystemPrompt,
@@ -80,6 +89,8 @@ export async function planStoryboard(options: PlanStoryboardOptions): Promise<Pl
       }),
     ],
     operation: "plan-storyboard",
+    // Small models miss word budgets by a few words; the fourth try is worth its minutes.
+    maxAttempts: 4,
     temperature: 0.5,
     maxOutputTokens: 4000,
   });

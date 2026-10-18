@@ -68,6 +68,11 @@ export class InProcessRunner implements PipelineRunner {
     this.execute(runId);
   }
 
+  async retryRun(runId: string): Promise<void> {
+    await this.commands.prepareRetry(runId);
+    this.execute(runId);
+  }
+
   async approveStoryboard(runId: string, approval: ApproveStoryboardInput): Promise<void> {
     await this.commands.recordApproval(runId, approval);
     this.execute(runId);

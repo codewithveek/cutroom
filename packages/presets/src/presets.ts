@@ -44,7 +44,7 @@ export const presets: Readonly<Record<PresetId, Preset>> = {
   "feature-drop-editorial": {
     id: "feature-drop-editorial",
     label: "Feature drop · Editorial",
-    description: "A 30-second \"what's new\" for one release, made from the changes since the last tag.",
+    description: 'A 30-second "what\'s new" for one release, made from the changes since the last tag.',
     videoType: "feature-drop",
     look: "editorial",
     ratios: bothShapes,

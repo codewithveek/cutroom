@@ -81,6 +81,12 @@ export class TemporalRunner implements PipelineRunner {
     await this.store.setWorkflowId(runId, workflowId);
   }
 
+  /** A failed workflow is closed, so the same workflow id starts again from the failed step. */
+  async retryRun(runId: string): Promise<void> {
+    await this.commands.prepareRetry(runId);
+    await this.startWorkflow(runId);
+  }
+
   async approveStoryboard(runId: string, approval: ApproveStoryboardInput): Promise<void> {
     await this.commands.recordApproval(runId, approval);
     await this.client.workflow.getHandle(workflowIdForRun(runId)).signal(SIGNAL_APPROVE_STORYBOARD);

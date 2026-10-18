@@ -29,6 +29,8 @@ export interface UpdateStoryboardResult {
  */
 export interface PipelineRunner {
   start(request: RunRequestInput): Promise<{ runId: string }>;
+  /** Runs a failed run again from the step that failed; finished steps are kept. */
+  retryRun(runId: string): Promise<void>;
   approveStoryboard(runId: string, approval: ApproveStoryboardInput): Promise<void>;
   confirmEgress(runId: string, manifestSha256: string): Promise<void>;
   updateStoryboard(runId: string, storyboard: Storyboard): Promise<UpdateStoryboardResult>;

@@ -100,6 +100,20 @@ export class RunCommands {
     return runId;
   }
 
+  /**
+   * A failed run goes back to the queue with its error cleared. Steps that finished (the brief,
+   * a stored storyboard) are kept and skip themselves, so the run picks up where it failed.
+   */
+  async prepareRetry(runId: string): Promise<void> {
+    const run = await this.requireRun(runId);
+    if (run.status !== "failed")
+      throw new RunStateError(`Run ${runId} is ${run.status}; only a failed run can be retried`);
+    await this.store.update(runId, (current) => {
+      const { error: _error, ...rest } = current;
+      return { ...rest, status: "queued" };
+    });
+  }
+
   async recordApproval(runId: string, approval: ApproveStoryboardInput): Promise<void> {
     const run = await this.requireRun(runId);
     if (run.status !== "awaiting_review")

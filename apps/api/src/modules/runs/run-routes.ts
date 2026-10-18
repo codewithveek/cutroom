@@ -112,6 +112,11 @@ export const runRoutes: FastifyPluginAsyncZod<RunRoutesOptions> = async (app, op
   );
 
   /** Server-sent events: the run timeline in the browser (FR-OBS-3). Replays history first. */
+  app.post("/runs/:runId/retry", { schema: { params: runParamsSchema } }, async (request) => {
+    await runner.retryRun(request.params.runId);
+    return toRunView(await requireRun(request.params.runId));
+  });
+
   app.get("/runs/:runId/events", { schema: { params: runParamsSchema } }, async (request, reply) => {
     const { runId } = request.params;
     await requireRun(runId);
