@@ -1,3 +1,4 @@
+export * from "./auth-contracts";
 export { type BlockCatalogEntry, blockCatalog, blocksAllowedInLook } from "./block-catalog";
 export * from "./blocks/big-number";
 export * from "./blocks/code-card";
