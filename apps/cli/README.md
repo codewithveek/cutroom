@@ -32,6 +32,7 @@ Everything lives in `CUTROOM_DATA_DIR` (default `.cutroom` in the current direct
 | `--privacy` | `local` (default), `hybrid`, `cloud` |
 | `--look`, `--type`, `--seconds`, `--voice`, `--music` | Override the preset |
 | `--yes` | Approve when no claim is unsupported |
+| `--direction` | A free-text steer for the storyboard ("for developers, focus on the CLI") |
 | `--watermark` | A "created with cutroom" badge in the bottom-right corner |
 | `--silent` | No voiceover |
 
