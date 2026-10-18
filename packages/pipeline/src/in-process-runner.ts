@@ -24,6 +24,7 @@ import {
 import type { PipelineServices } from "./services";
 import { pipelineSteps } from "./step-registry";
 import { auditVersion } from "./steps/audit-step";
+import { LOGO_ASSET_KEY } from "./steps/plan-step";
 import { createRunModelClient, requireSnapshot } from "./steps/run-resources";
 import type { StepContext, StepDefinition } from "./steps/step-context";
 import { RunNotFoundError } from "./store/run-store";
@@ -163,6 +164,18 @@ export class InProcessRunner implements PipelineRunner {
       previousResults: previous.claimResults,
     });
     return { versionId, version: previous.version + 1, claimResults: results };
+  }
+
+  /** The file behind a run's media key: a synthesised voice clip or the repo's logo. */
+  async mediaFilePath(runId: string, assetKey: string): Promise<string | undefined> {
+    const run = await this.requireRun(runId);
+    const clip = run.voiceClips.find((candidate) => candidate.assetKey === assetKey);
+    if (clip) return clip.filePath;
+    if (assetKey !== LOGO_ASSET_KEY) return undefined;
+    const { logoFilePath } = await requireSnapshot(this.createContext(runId, "ingest-repository")).catch(
+      () => ({ logoFilePath: undefined }),
+    );
+    return logoFilePath;
   }
 
   /** Voice and music may change until approval; the voice step reads them afterwards. */

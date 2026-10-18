@@ -13,6 +13,9 @@ const contentTypes: Readonly<Record<string, string>> = {
   ".jpg": "image/jpeg",
   ".md": "text/markdown; charset=utf-8",
   ".json": "application/json",
+  ".wav": "audio/wav",
+  ".svg": "image/svg+xml",
+  ".webp": "image/webp",
 };
 
 export interface ByteRange {
@@ -76,6 +79,28 @@ export const assetRoutes: FastifyPluginAsyncZod<AssetRoutesOptions> = async (app
           .send(createReadStream(filePath, range));
       }
       return reply.header("content-length", size).send(createReadStream(filePath));
+    },
+  );
+
+  app.get(
+    "/runs/:runId/media/:assetKey",
+    {
+      schema: {
+        params: z.object({
+          runId: z.string().regex(/^[0-9A-Z]{26}$/),
+          assetKey: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/),
+        }),
+      },
+    },
+    async (request, reply) => {
+      const filePath = await options.runner.mediaFilePath(request.params.runId, request.params.assetKey);
+      if (!filePath) throw new ApiError({ code: "not_found", statusCode: 404, message: "Media not found" });
+      const { size } = await stat(filePath);
+      return reply
+        .header("content-type", contentTypes[path.extname(filePath)] ?? "application/octet-stream")
+        .header("content-length", size)
+        .header("cache-control", "private, max-age=3600")
+        .send(createReadStream(filePath));
     },
   );
 };

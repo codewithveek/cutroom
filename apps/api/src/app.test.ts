@@ -129,6 +129,8 @@ describe("runs", () => {
     expect(settings.json().request.voice.voiceId).toBe("bf_emma");
     expect(settings.json().request.music).toEqual({ kind: "none" });
     const emptySettings = await app.inject({ method: "PATCH", url: `/runs/${runId}/settings`, payload: {} });
+    const unknownMedia = await app.inject({ method: "GET", url: `/runs/${runId}/media/nope` });
+    expect(unknownMedia.statusCode).toBe(404);
     expect(emptySettings.statusCode).toBe(400);
   });
 

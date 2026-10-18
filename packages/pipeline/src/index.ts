@@ -49,6 +49,7 @@ export {
 export { createShipnoteScriptedTransport } from "./scripted/shipnote-script";
 export { dataPaths, type PipelineServices } from "./services";
 export { pipelineSteps } from "./step-registry";
+export { LOGO_ASSET_KEY } from "./steps/plan-step";
 export { FileRunStore } from "./store/file-run-store";
 export { RunNotFoundError, type RunStore } from "./store/run-store";
 export { createSystemService, type SystemService, UnknownVoiceOptionError } from "./system/system-service";

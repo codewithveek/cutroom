@@ -28,6 +28,8 @@ export interface PipelineRunner {
   updateStoryboard(runId: string, storyboard: Storyboard): Promise<UpdateStoryboardResult>;
   regenerateScene(runId: string, request: RegenerateSceneRequest): Promise<UpdateStoryboardResult>;
   updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void>;
+  /** The file behind a media key (voice clip or logo), for previews in the browser. */
+  mediaFilePath(runId: string, assetKey: string): Promise<string | undefined>;
   getRun(runId: string): Promise<RunRecord | undefined>;
   listRuns(): Promise<RunRecord[]>;
   listEvents(runId: string): Promise<RunEvent[]>;

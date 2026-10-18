@@ -1,5 +1,5 @@
 import { findApprovalBlockers } from "@cutroom/claim-audit";
-import { latestStoryboardVersion, type RunRecord } from "@cutroom/pipeline";
+import { LOGO_ASSET_KEY, latestStoryboardVersion, type RunRecord } from "@cutroom/pipeline";
 
 /** What the browser sees of a run: never file paths, only asset ids. */
 export function toRunView(run: RunRecord) {
@@ -31,6 +31,22 @@ export function toRunView(run: RunRecord) {
       createdAt: version.createdAt,
     })),
     approval: run.approval,
+    media: [
+      ...run.voiceClips.map((clip) => ({
+        assetKey: clip.assetKey,
+        kind: "voice" as const,
+        url: `/runs/${run.id}/media/${clip.assetKey}`,
+      })),
+      ...(latest?.storyboard.brand.logoAssetKey === LOGO_ASSET_KEY
+        ? [
+            {
+              assetKey: LOGO_ASSET_KEY,
+              kind: "logo" as const,
+              url: `/runs/${run.id}/media/${LOGO_ASSET_KEY}`,
+            },
+          ]
+        : []),
+    ],
     egress: run.egress
       ? {
           manifest: run.egress.manifest,
