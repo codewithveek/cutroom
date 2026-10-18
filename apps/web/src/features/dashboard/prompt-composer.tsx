@@ -23,8 +23,12 @@ import { allRatios, RatioIcon } from "@/components/ui/ratio-icon";
 import { buildRunRequest } from "@/features/new-video/run-request";
 import { apiClient } from "@/lib/api-client";
 import { classNames } from "@/lib/class-names";
+import { useRepositoryTags } from "@/lib/use-repository-tags";
 import { availableSourceModes, type SourceModeId } from "./source-modes";
 import { useArchiveUpload } from "./use-archive-upload";
+
+/** The scope chip's default: the whole product rather than a range of changes (E2-6). */
+const WHOLE_PRODUCT = "whole-product";
 
 const privacyOptions = [
   { value: "local", label: "Local", description: "Nothing leaves this machine.", Icon: Laptop },
@@ -142,6 +146,8 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
   const hasSource = Boolean(archive.upload) || repo.trim().length > 0;
   const [error, setError] = useState<string>();
   const mode = modes.find((candidate) => candidate.id === sourceMode) ?? modes[0];
+  const tags = useRepositoryTags(archive.upload ? "" : repo);
+  const [changesSince, setChangesSince] = useState<string>(WHOLE_PRODUCT);
 
   const choosePreset = (nextPresetId: PresetId) => {
     setPresetId(nextPresetId);
@@ -155,7 +161,16 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
     setError(undefined);
     try {
       const run = await apiClient.createRun(
-        buildRunRequest({ repo, upload: archive.upload, presetId, privacyMode, ratios, look, direction }),
+        buildRunRequest({
+          repo,
+          upload: archive.upload,
+          presetId,
+          privacyMode,
+          ratios,
+          look,
+          direction,
+          ...(changesSince !== WHOLE_PRODUCT && tags.includes(changesSince) ? { changesSince } : {}),
+        }),
       );
       router.push(`/runs/${run.id}`);
     } catch (caught) {
@@ -301,6 +316,21 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
             }}
           />
           <DropdownSelect label="Look" options={lookOptions} value={look} onChange={setLook} />
+          {tags.length > 0 ? (
+            <DropdownSelect
+              label="Scope"
+              options={[
+                { value: WHOLE_PRODUCT, label: "Whole product" },
+                ...tags.map((tag) => ({ value: tag, label: `Changes since ${tag}` })),
+              ]}
+              value={changesSince}
+              onChange={(value) => {
+                setChangesSince(value);
+                // A range is a feature drop; the preset row still lets the user pick another.
+                if (value !== WHOLE_PRODUCT) choosePreset("feature-drop-editorial");
+              }}
+            />
+          ) : null}
           <span className="mx-1 h-5 w-px bg-line" aria-hidden="true" />
           <RatioToggles value={ratios} onChange={setRatios} />
           <div className="ml-auto flex items-center gap-2">

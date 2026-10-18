@@ -11,6 +11,7 @@ import {
   createSystemService,
   InProcessRunner,
 } from "@cutroom/pipeline";
+import { createChangesFixtureRepo } from "@cutroom/repo-ingest";
 import { createSilentProvider } from "@cutroom/voice";
 import type { FastifyInstance } from "fastify";
 import { zipSync } from "fflate";
@@ -53,6 +54,20 @@ const runBody = {
   music: { kind: "none" },
   privacyMode: "local",
 };
+
+describe("sources", () => {
+  it("lists a local repository's tags newest first, and none for a folder without git", async () => {
+    const repo = path.join(await mkdtemp(path.join(tmpdir(), "cutroom-tags-")), "shipnote");
+    await createChangesFixtureRepo(repo);
+    const tagged = await app.inject({ method: "GET", url: `/sources/tags?path=${encodeURIComponent(repo)}` });
+    expect(tagged.json().tags).toEqual(expect.arrayContaining(["v1.1.0", "v1.0.0"]));
+    const plain = await app.inject({
+      method: "GET",
+      url: `/sources/tags?path=${encodeURIComponent(tmpdir())}`,
+    });
+    expect(plain.json()).toEqual({ tags: [] });
+  });
+});
 
 describe("catalogue", () => {
   it("serves health, presets and looks", async () => {

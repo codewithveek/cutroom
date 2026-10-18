@@ -145,6 +145,11 @@ export const apiClient = {
   voiceSampleUrl: (voiceId: string) => `${apiBaseUrl}/voices/${voiceId}/sample`,
   listLooks: () => request({ path: "/looks", schema: z.object({ looks: z.array(lookSummarySchema) }) }),
   assetUrl: (relativeUrl: string) => `${apiBaseUrl}${relativeUrl}`,
+  listTags: (repoPath: string) =>
+    request({
+      path: `/sources/tags?path=${encodeURIComponent(repoPath)}`,
+      schema: z.object({ tags: z.array(z.string()) }),
+    }),
   authStatus: () => request({ path: "/auth/me", schema: authStatusSchema }),
   login: (body: LoginRequest) =>
     request({

@@ -91,5 +91,8 @@ Cutroom made its own demo video (16:9 + 9:16, watermarked). The run surfaced and
 
 - 2026-10-18 · E7 auth for deployed instances: login required off loopback (refuses to start open or with weak secrets), one seeded argon2id admin, hashed server-side sessions, CSRF origin checks, rate-limited login with backoff, helmet, revocable `ctr_` API tokens, `/login` page and Settings → Account / API tokens, generated secrets in the Render Blueprint (ADR 0016)
 
+- 2026-10-18 · E1 direction hardened: `directionSchema` parsed from the free text (audience, tone, must-say / must-not-say), a delimited `<user_direction>` block for the brief and the storyboard, a system rule that it cannot add claims, repair issues for missing / forbidden phrases
+- 2026-10-18 · E2 changes-to-video: `ChangeSnapshot` (commits, redacted hunks, added lines, CHANGELOG section), `analyze-changes` with added-line evidence, "new" claims audited against added lines, `no_user_visible_changes`, `feature-drop-editorial` preset, `--changes` / `--include-fixes`, composer `Whole product ▾` chip (ADR 0017)
+
 ## Not done yet
 - Deploying to the .tech domain (needs the Droplet or Render account and DNS)

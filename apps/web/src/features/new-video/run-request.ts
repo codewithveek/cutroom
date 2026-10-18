@@ -37,6 +37,8 @@ export interface NewRunChoices {
   routes?: string;
   /** The "created with cutroom" badge in the bottom-right corner of every ratio. */
   watermark?: boolean;
+  /** A tag: make a video of what changed since it, up to HEAD (E2). */
+  changesSince?: string | undefined;
 }
 
 /** Preset values, overridden by what the user picked: one request shape for the composer and the wizard. */
@@ -58,6 +60,9 @@ export function buildRunRequest(choices: NewRunChoices): RunRequestInput {
     music: preset.music,
     privacyMode: choices.privacyMode,
     watermark: choices.watermark ?? false,
+    ...(choices.changesSince
+      ? { changes: { fromRef: choices.changesSince, toRef: "HEAD", includeFixes: false } }
+      : {}),
     ...(direction ? { direction } : {}),
     ...(capture ? { capture } : {}),
     ...(choices.accentColor && /^#[0-9a-fA-F]{6}$/.test(choices.accentColor)

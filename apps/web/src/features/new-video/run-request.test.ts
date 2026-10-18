@@ -25,6 +25,21 @@ describe("buildRunRequest", () => {
     expect(buildRunRequest({ ...base, ratios: ["16:9"], watermark: true }).watermark).toBe(true);
   });
 
+  it("asks for the changes since a tag, up to HEAD", () => {
+    const base = {
+      repo: ".",
+      presetId: "feature-drop-editorial",
+      privacyMode: "local",
+      ratios: ["16:9"],
+    } as const;
+    expect(buildRunRequest({ ...base, ratios: ["16:9"] })).not.toHaveProperty("changes");
+    expect(buildRunRequest({ ...base, ratios: ["16:9"], changesSince: "v1.2.0" }).changes).toEqual({
+      fromRef: "v1.2.0",
+      toRef: "HEAD",
+      includeFixes: false,
+    });
+  });
+
   it("lets recommendLook decide on auto and passes a direction through", () => {
     const request = buildRunRequest({
       repo: "https://github.com/x/y",

@@ -11,6 +11,7 @@ import { catalogueRoutes } from "./modules/catalogue/catalogue-routes";
 import { renderJobRoutes } from "./modules/render-jobs/render-job-routes";
 import { musicRoutes } from "./modules/runs/music-routes";
 import { runRoutes } from "./modules/runs/run-routes";
+import { sourceRoutes } from "./modules/sources/source-routes";
 import { systemRoutes } from "./modules/system/system-routes";
 import { uploadRoutes } from "./modules/uploads/upload-routes";
 import { isValidApiToken, registerAuthGuard } from "./plugins/auth-guard";
@@ -57,6 +58,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   await app.register(catalogueRoutes);
   await app.register(systemRoutes, { system: options.system, store: options.store, env: options.env });
   await app.register(uploadRoutes, { uploadsDirectory: options.uploadsDirectory });
+  await app.register(sourceRoutes);
   await app.register(runRoutes, { runner: options.runner });
   await app.register(musicRoutes, { runner: options.runner });
   await app.register(assetRoutes, { runner: options.runner, store: options.store });
