@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DropdownSelect } from "@/components/ui/dropdown-select";
 import { allRatios, RatioIcon } from "@/components/ui/ratio-icon";
 import { buildRunRequest } from "@/features/new-video/run-request";
@@ -127,6 +127,12 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
   const [direction, setDirection] = useState("");
   const [presetId, setPresetId] = useState<PresetId>("launch-editorial");
   const [privacyMode, setPrivacyMode] = useState<PrivacyMode>("local");
+  const [privacyChosen, setPrivacyChosen] = useState(false);
+  const serverDefaultPrivacy = props.status?.defaultPrivacyMode;
+  // Start from the deployment's default (Cloud on a host without Ollama) until the user picks one.
+  useEffect(() => {
+    if (serverDefaultPrivacy && !privacyChosen) setPrivacyMode(serverDefaultPrivacy);
+  }, [serverDefaultPrivacy, privacyChosen]);
   const [look, setLook] = useState<LookId | "auto">("auto");
   const [ratios, setRatios] = useState<AspectRatio[]>(presets["launch-editorial"].ratios);
   const [submitting, setSubmitting] = useState(false);
@@ -289,7 +295,10 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
             label="Privacy"
             options={privacyOptions}
             value={privacyMode}
-            onChange={setPrivacyMode}
+            onChange={(mode) => {
+              setPrivacyChosen(true);
+              setPrivacyMode(mode);
+            }}
           />
           <DropdownSelect label="Look" options={lookOptions} value={look} onChange={setLook} />
           <span className="mx-1 h-5 w-px bg-line" aria-hidden="true" />

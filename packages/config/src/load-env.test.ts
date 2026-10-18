@@ -9,6 +9,12 @@ describe("parseEnv", () => {
     expect(env.API_PORT).toBe(4100);
   });
 
+  it("starts the composer in Local mode unless the deployment says otherwise", () => {
+    expect(parseEnv({}).DEFAULT_PRIVACY_MODE).toBe("local");
+    expect(parseEnv({ DEFAULT_PRIVACY_MODE: "cloud" }).DEFAULT_PRIVACY_MODE).toBe("cloud");
+    expect(() => parseEnv({ DEFAULT_PRIVACY_MODE: "public" })).toThrow(InvalidConfigError);
+  });
+
   it("treats empty strings as unset", () => {
     const env = parseEnv({ ELEVENLABS_API_KEY: "", API_PORT: "" });
     expect(env.ELEVENLABS_API_KEY).toBeUndefined();

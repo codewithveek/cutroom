@@ -8,6 +8,8 @@ export const envSchema = z
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"]).default("info"),
     CUTROOM_DATA_DIR: z.string().min(1).default(".cutroom"),
+    /** The composer's starting privacy mode; a hosted deploy without Ollama sets `cloud`. */
+    DEFAULT_PRIVACY_MODE: z.enum(["local", "hybrid", "cloud"]).default("local"),
 
     OLLAMA_HOST: z.url().default("http://127.0.0.1:11434"),
     MODEL_ID: z.string().min(1).default("gemma4:e4b"),

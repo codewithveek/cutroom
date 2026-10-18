@@ -120,7 +120,7 @@ export function createSystemService(services: PipelineServices): SystemService {
           installedModels: installed ?? [],
         },
         checks: [model, voiceCheck(services), await ffmpegCheck(), renderHostCheck(services)],
-        defaultPrivacyMode: "local",
+        defaultPrivacyMode: services.env.DEFAULT_PRIVACY_MODE,
         ...(demoRepositoryPath ? { demoRepositoryPath } : {}),
       };
     },
