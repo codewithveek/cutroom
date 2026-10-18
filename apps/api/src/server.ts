@@ -1,6 +1,6 @@
 import { loadEnv } from "@cutroom/config";
 import { createLogger, initTracing } from "@cutroom/observability";
-import { createSystemService, RenderJobWorker } from "@cutroom/pipeline";
+import { createSystemService, dataPaths, RenderJobWorker } from "@cutroom/pipeline";
 import { buildApp } from "./app";
 import { createRunner } from "./create-runner";
 
@@ -30,6 +30,7 @@ const app = await buildApp({
   runner,
   store: services.store,
   system: createSystemService(services),
+  uploadsDirectory: dataPaths(services.dataDirectory).uploads,
   ...(renderJobWorker ? { renderJobWorker } : {}),
   logger: true,
 });

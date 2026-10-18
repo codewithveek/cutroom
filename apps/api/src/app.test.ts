@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -11,6 +12,7 @@ import {
 } from "@cutroom/pipeline";
 import { createSilentProvider } from "@cutroom/voice";
 import type { FastifyInstance } from "fastify";
+import { zipSync } from "fflate";
 import { beforeAll, describe, expect, it } from "vitest";
 import { buildApp } from "./app";
 import { parseRangeHeader } from "./modules/assets/asset-routes";
@@ -31,7 +33,13 @@ beforeAll(async () => {
     },
   });
   runner = new InProcessRunner(services);
-  app = await buildApp({ env, runner, store: services.store, system: createSystemService(services) });
+  app = await buildApp({
+    env,
+    runner,
+    store: services.store,
+    system: createSystemService(services),
+    uploadsDirectory: path.join(dataDirectory, "uploads"),
+  });
 });
 
 const runBody = {
@@ -159,6 +167,77 @@ describe("runs", () => {
     expect(voices.json().voices[0]).toMatchObject({ id: "af_heart", grade: "A" });
     const unknownVoice = await app.inject({ method: "GET", url: "/voices/xx_nobody/sample" });
     expect(unknownVoice.statusCode).toBe(404);
+  });
+});
+
+/** A multipart body with one file field, as a browser would send it. */
+function multipartFile(options: { fileName: string; content: Uint8Array }): {
+  body: Buffer;
+  contentType: string;
+} {
+  const boundary = "----cutroom-test-boundary";
+  const head = `--${boundary}\r\ncontent-disposition: form-data; name="archive"; filename="${options.fileName}"\r\ncontent-type: application/zip\r\n\r\n`;
+  return {
+    body: Buffer.concat([
+      Buffer.from(head),
+      Buffer.from(options.content),
+      Buffer.from(`\r\n--${boundary}--\r\n`),
+    ]),
+    contentType: `multipart/form-data; boundary=${boundary}`,
+  };
+}
+
+describe("zip uploads", () => {
+  it("extracts an archive, then a run ingests it as its source", async () => {
+    const files = Object.fromEntries(
+      [
+        "package.json",
+        "README.md",
+        "src/cli.ts",
+        "src/group-commits.ts",
+        "src/parse-commit.ts",
+        "src/write-changelog.ts",
+      ].map((name) => [`shipnote-main/${name}`, readFileSync(path.join(shipnoteFixture, name))]),
+    );
+    const upload = multipartFile({ fileName: "shipnote-main.zip", content: zipSync(files) });
+    const response = await app.inject({
+      method: "POST",
+      url: "/uploads",
+      payload: upload.body,
+      headers: { "content-type": upload.contentType },
+    });
+    expect(response.statusCode).toBe(201);
+    const { uploadId, fileName } = response.json();
+    expect(response.json().files).toBe(6);
+    const created = await app.inject({
+      method: "POST",
+      url: "/runs",
+      payload: { ...runBody, source: { kind: "zip", uploadId, fileName } },
+    });
+    expect(created.statusCode).toBe(201);
+    const run = await runner.waitForStatus(created.json().id, ["awaiting_review"]);
+    expect(run.status).toBe("awaiting_review");
+    expect(run.brief?.name).toBe("Shipnote");
+  });
+
+  it("refuses files that are not zip archives", async () => {
+    const upload = multipartFile({ fileName: "notes.txt", content: new TextEncoder().encode("hello") });
+    const response = await app.inject({
+      method: "POST",
+      url: "/uploads",
+      payload: upload.body,
+      headers: { "content-type": upload.contentType },
+    });
+    expect(response.statusCode).toBe(400);
+    const broken = multipartFile({ fileName: "broken.zip", content: new TextEncoder().encode("not a zip") });
+    const brokenResponse = await app.inject({
+      method: "POST",
+      url: "/uploads",
+      payload: broken.body,
+      headers: { "content-type": broken.contentType },
+    });
+    expect(brokenResponse.statusCode).toBe(400);
+    expect(brokenResponse.json().error.message).toMatch(/zip/);
   });
 });
 

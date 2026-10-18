@@ -33,6 +33,7 @@ describe("Hybrid mode", () => {
       runner: new InProcessRunner(hostServices),
       store: hostServices.store,
       system: createSystemService(hostServices),
+      uploadsDirectory: path.join(renderHostDirectory, "uploads"),
       renderJobWorker: worker,
     });
     const address = await renderHost.listen({ host: "127.0.0.1", port: 0 });
