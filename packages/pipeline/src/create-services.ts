@@ -11,7 +11,11 @@ export interface CreatePipelineServicesOptions {
   overrides?: Partial<
     Pick<
       PipelineServices,
-      "modelTransportOverride" | "voiceProviderOverride" | "enforceLocalEgress" | "prebuiltBundleDirectory" | "store"
+      | "modelTransportOverride"
+      | "voiceProviderOverride"
+      | "enforceLocalEgress"
+      | "prebuiltBundleDirectory"
+      | "store"
     >
   >;
 }

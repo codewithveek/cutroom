@@ -3,6 +3,7 @@ import { mkdtemp, realpath, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { RepoSource } from "@cutroom/scene-spec";
+import { archiveRoot, uploadDirectory } from "./zip-archive";
 
 export { type RepoSource, repoSourceSchema } from "@cutroom/scene-spec";
 
@@ -48,8 +49,39 @@ export interface ResolvedSource {
   isTemporary: boolean;
 }
 
-/** A local path (must exist and be a directory) or a shallow clone into a temp workspace (FR-ING-1). */
-export async function resolveSource(source: RepoSource): Promise<ResolvedSource> {
+export interface ResolveSourceOptions {
+  /** Where the API extracts uploaded archives (`<data>/uploads`); needed for zip sources. */
+  uploadsDirectory?: string | undefined;
+}
+
+async function resolveUpload(options: {
+  source: Extract<RepoSource, { kind: "zip" }>;
+  uploadsDirectory: string | undefined;
+}): Promise<ResolvedSource> {
+  if (!options.uploadsDirectory) throw new SourceError("Zip sources need the uploads directory.");
+  const extracted = path.join(
+    uploadDirectory({ uploadsDirectory: options.uploadsDirectory, uploadId: options.source.uploadId }),
+    "extracted",
+  );
+  if (!(await stat(extracted).catch(() => undefined))?.isDirectory())
+    throw new SourceError(`Upload ${options.source.uploadId} was not found; upload the archive again.`);
+  const rootDirectory = await archiveRoot(extracted);
+  const rootName =
+    rootDirectory === extracted
+      ? options.source.fileName.replace(/\.zip$/i, "")
+      : path.basename(rootDirectory);
+  return { rootDirectory, rootName, isTemporary: false };
+}
+
+/**
+ * A local path (must exist and be a directory), a shallow clone into a temp workspace, or an
+ * uploaded archive already extracted by the API (FR-ING-1).
+ */
+export async function resolveSource(
+  source: RepoSource,
+  options: ResolveSourceOptions = {},
+): Promise<ResolvedSource> {
+  if (source.kind === "zip") return resolveUpload({ source, uploadsDirectory: options.uploadsDirectory });
   if (source.kind === "path") {
     const rootDirectory = await realpath(path.resolve(source.path)).catch(() => {
       throw new SourceError(`Path not found: ${source.path}`);

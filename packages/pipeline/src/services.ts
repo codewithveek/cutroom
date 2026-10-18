@@ -29,5 +29,6 @@ export function dataPaths(dataDirectory: string) {
     voiceCache: path.join(dataDirectory, "voice-cache"),
     models: path.join(dataDirectory, "models"),
     summaryCache: path.join(dataDirectory, "summary-cache"),
+    uploads: path.join(dataDirectory, "uploads"),
   };
 }

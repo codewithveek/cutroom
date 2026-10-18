@@ -1,3 +1,4 @@
+import { sourceLabel, sourceReference } from "@cutroom/scene-spec";
 import type { RunView } from "./api-client";
 
 export type RunActivity = "working" | "needs-you" | "done" | "failed";
@@ -30,20 +31,10 @@ export interface ProjectNode {
 }
 
 function sourceKey(source: RunView["request"]["source"]): string {
-  return source.kind === "git"
-    ? `git:${source.url.replace(/\.git$/, "")}`
-    : `path:${source.path.replace(/[\\/]+$/, "")}`;
+  return `${source.kind}:${sourceReference(source)}`;
 }
 
-export function sourceLabel(source: RunView["request"]["source"]): string {
-  const raw = source.kind === "git" ? source.url.replace(/\.git$/, "") : source.path;
-  return (
-    raw
-      .replace(/[\\/]+$/, "")
-      .split(/[\\/:]/)
-      .pop() || raw
-  );
-}
+export { sourceLabel };
 
 export function videoLabel(run: RunView): string {
   return run.storyboard?.storyboard.title ?? run.brief?.name ?? `${run.request.videoType} video`;

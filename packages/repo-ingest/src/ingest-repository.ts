@@ -28,6 +28,8 @@ export interface IngestRepositoryOptions {
   /** Where the redacted mirror and snapshot.json are written. */
   outputDirectory: string;
   maxFileBytes?: number;
+  /** Required for zip sources: where uploads are extracted. */
+  uploadsDirectory?: string | undefined;
 }
 
 export interface IngestResult {
@@ -169,7 +171,7 @@ async function copyLogo(options: { rootDirectory: string; mirrorDirectory: strin
 
 /** Repo in, redacted snapshot out (pipeline step 1). */
 export async function ingestRepository(options: IngestRepositoryOptions): Promise<IngestResult> {
-  const resolved = await resolveSource(options.source);
+  const resolved = await resolveSource(options.source, { uploadsDirectory: options.uploadsDirectory });
   const maxFileBytes = options.maxFileBytes ?? DEFAULT_MAX_FILE_BYTES;
   const mirrorDirectory = path.join(path.resolve(options.outputDirectory), "files");
   await mkdir(mirrorDirectory, { recursive: true });

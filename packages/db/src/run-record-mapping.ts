@@ -1,5 +1,5 @@
 import { type RunRecord, runRecordSchema } from "@cutroom/pipeline";
-import type { RepoSource } from "@cutroom/scene-spec";
+import { type RepoSource, sourceLabel, sourceReference } from "@cutroom/scene-spec";
 import { ulid } from "ulid";
 import type {
   assets,
@@ -41,14 +41,12 @@ function optional<Key extends string, Value>(key: Key, value: Value | null): Par
 }
 
 export function projectForSource(options: { source: RepoSource; id?: string }): ProjectInsert {
-  const sourceRef = options.source.kind === "git" ? options.source.url : options.source.path;
-  const name =
-    sourceRef
-      .replace(/\.git$/, "")
-      .replace(/[\\/]+$/, "")
-      .split(/[\\/:]/)
-      .pop() || sourceRef;
-  return { id: options.id ?? ulid(), name, sourceType: options.source.kind, sourceRef };
+  return {
+    id: options.id ?? ulid(),
+    name: sourceLabel(options.source),
+    sourceType: options.source.kind,
+    sourceRef: sourceReference(options.source),
+  };
 }
 
 export function toRows(options: {

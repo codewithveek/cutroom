@@ -1,4 +1,5 @@
 import { ingestRepository, loadSnapshot } from "@cutroom/repo-ingest";
+import { dataPaths } from "../services";
 import { snapshotDirectoryFor } from "./run-resources";
 import type { StepFunction } from "./step-context";
 
@@ -10,6 +11,7 @@ export const ingestStep: StepFunction = async (context, run) => {
   const { snapshot } = await ingestRepository({
     source: run.request.source,
     outputDirectory: snapshotDirectory,
+    uploadsDirectory: dataPaths(context.services.dataDirectory).uploads,
   });
   await context.updateRun((current) => ({ ...current, snapshotDirectory }));
   return {
