@@ -1,6 +1,12 @@
 import {
+  type AccountUpdate,
   type ApproveRequest,
   apiErrorEnvelopeSchema,
+  apiTokenSummarySchema,
+  authStatusSchema,
+  type CreateApiTokenRequest,
+  createdApiTokenSchema,
+  type LoginRequest,
   type ProductBrief,
   type RunRequestInput,
   type RunSettingsUpdate,
@@ -46,7 +52,14 @@ async function request<Output>({ path, schema, init }: RequestOptions<Output>): 
       ...init?.headers,
     },
   });
-  const body: unknown = await response.json().catch(() => ({}));
+  // A deployed instance needs a login: send the browser there and keep where it was (UX only;
+  // the API enforces it). The login page itself asks /auth/* and handles 401 on its own.
+  if (response.status === 401 && !path.startsWith("/auth/") && typeof window !== "undefined") {
+    const next = `${window.location.pathname}${window.location.search}`;
+    if (window.location.pathname !== "/login")
+      window.location.assign(`/login?next=${encodeURIComponent(next)}`);
+  }
+  const body: unknown = response.status === 204 ? {} : await response.json().catch(() => ({}));
   if (!response.ok) {
     const envelope = apiErrorEnvelopeSchema.safeParse(body);
     throw new ApiRequestError(
@@ -132,6 +145,32 @@ export const apiClient = {
   voiceSampleUrl: (voiceId: string) => `${apiBaseUrl}/voices/${voiceId}/sample`,
   listLooks: () => request({ path: "/looks", schema: z.object({ looks: z.array(lookSummarySchema) }) }),
   assetUrl: (relativeUrl: string) => `${apiBaseUrl}${relativeUrl}`,
+  authStatus: () => request({ path: "/auth/me", schema: authStatusSchema }),
+  login: (body: LoginRequest) =>
+    request({
+      path: "/auth/login",
+      schema: authStatusSchema,
+      init: { method: "POST", body: JSON.stringify(body) },
+    }),
+  logout: () => request({ path: "/auth/logout", schema: z.unknown(), init: { method: "POST" } }),
+  updateAccount: (body: AccountUpdate) =>
+    request({
+      path: "/account",
+      schema: authStatusSchema,
+      init: { method: "PATCH", body: JSON.stringify(body) },
+    }),
+  signOutOtherSessions: () =>
+    request({ path: "/account/sign-out-others", schema: z.unknown(), init: { method: "POST" } }),
+  listApiTokens: () =>
+    request({ path: "/api-tokens", schema: z.object({ tokens: z.array(apiTokenSummarySchema) }) }),
+  createApiToken: (body: CreateApiTokenRequest) =>
+    request({
+      path: "/api-tokens",
+      schema: createdApiTokenSchema,
+      init: { method: "POST", body: JSON.stringify(body) },
+    }),
+  revokeApiToken: (tokenId: string) =>
+    request({ path: `/api-tokens/${tokenId}`, schema: z.unknown(), init: { method: "DELETE" } }),
 } as const;
 
 export type { RunView };

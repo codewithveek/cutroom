@@ -8,28 +8,9 @@ import { SystemCheckCard } from "@/components/system-check-card";
 import { VoiceList } from "@/features/voice/voice-list";
 import { useSystemStatus } from "@/lib/use-system-status";
 import { useVoices } from "@/lib/use-voices";
-
-function Section(props: {
-  id: string;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}): React.ReactElement {
-  return (
-    <section
-      aria-labelledby={props.id}
-      className="grid gap-6 border-t border-line pt-8 lg:grid-cols-[260px_minmax(0,1fr)]"
-    >
-      <div>
-        <h2 id={props.id} className="text-sm font-semibold">
-          {props.title}
-        </h2>
-        <p className="mt-1.5 text-xs leading-relaxed text-ink-muted">{props.description}</p>
-      </div>
-      <div>{props.children}</div>
-    </section>
-  );
-}
+import { AccountSection } from "./account-section";
+import { ApiTokensSection } from "./api-tokens-section";
+import { Section } from "./settings-section";
 
 const privacyModes = [
   {
@@ -123,6 +104,8 @@ export function SettingsView(): React.ReactElement {
           ))}
         </ul>
       </Section>
+      <AccountSection />
+      <ApiTokensSection />
       <Section id="appearance" title="Appearance" description="Stored in this browser.">
         <div className="max-w-xs">
           <ThemeSwitch collapsed={false} />

@@ -20,7 +20,7 @@ async function proxy(request: Request, context: ProxyContext): Promise<Response>
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
   const upstream = await fetch(target, {
     method: request.method,
-    headers: requestHeadersFor(request.headers),
+    headers: requestHeadersFor(request.headers, new URL(request.url)),
     ...(hasBody ? { body: request.body, duplex: "half" } : {}),
     signal: request.signal,
     redirect: "manual",

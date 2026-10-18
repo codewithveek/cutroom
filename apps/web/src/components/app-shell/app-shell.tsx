@@ -73,6 +73,9 @@ export function AppShell(props: { children: React.ReactNode }): React.ReactEleme
     }
   };
 
+  // The sign-in page of a deployed instance stands alone: nothing behind it is reachable yet.
+  if (pathname === "/login") return <main className="min-h-dvh">{props.children}</main>;
+
   return (
     <div className="flex h-dvh flex-col gap-2 p-2 md:flex-row md:gap-3 md:p-3">
       <MobileBar onOpenMenu={() => setDrawerOpen(true)} />

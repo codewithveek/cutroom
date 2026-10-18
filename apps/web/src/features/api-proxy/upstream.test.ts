@@ -20,9 +20,15 @@ describe("api proxy", () => {
   });
 
   it("forwards only the headers the API needs, and keeps event streams unbuffered", () => {
-    const sent = requestHeadersFor(new Headers({ range: "bytes=0-99", cookie: "session=1", host: "web" }));
+    const sent = requestHeadersFor(
+      new Headers({ range: "bytes=0-99", cookie: "cutroom_session=1", host: "cutroom.tech", referer: "x" }),
+      new URL("http://0.0.0.0:3000/cutroom-api/runs"),
+    );
     expect(sent.get("range")).toBe("bytes=0-99");
-    expect(sent.has("cookie")).toBe(false);
+    expect(sent.get("cookie")).toBe("cutroom_session=1");
+    expect(sent.get("x-forwarded-host")).toBe("cutroom.tech");
+    expect(sent.get("x-forwarded-proto")).toBe("http");
+    expect(sent.has("referer")).toBe(false);
     expect(sent.has("host")).toBe(false);
     const returned = responseHeadersFor(
       new Headers({ "content-type": "text/event-stream", "content-encoding": "gzip", "content-range": "x" }),
@@ -30,5 +36,9 @@ describe("api proxy", () => {
     expect(returned.get("x-accel-buffering")).toBe("no");
     expect(returned.has("content-encoding")).toBe(false);
     expect(returned.get("content-range")).toBe("x");
+    const cookies = new Headers();
+    cookies.append("set-cookie", "a=1; Path=/");
+    cookies.append("set-cookie", "b=2; Path=/");
+    expect(responseHeadersFor(cookies).getSetCookie()).toEqual(["a=1; Path=/", "b=2; Path=/"]);
   });
 });
