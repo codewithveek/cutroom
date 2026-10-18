@@ -20,5 +20,6 @@ export function createPreviewVideoProps(storyboard: Storyboard = fixtureStoryboa
     assetUrls: {},
     openOnThumbnail: false,
     burnCaptions: false,
+    watermark: false,
   };
 }

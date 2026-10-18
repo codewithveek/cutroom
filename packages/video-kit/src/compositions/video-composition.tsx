@@ -17,6 +17,7 @@ import { resolveLook } from "../looks/resolve-look";
 import { easeInOut } from "../motion/easing";
 import { cutroomTransition } from "../transitions/presentations";
 import { resolveSceneTransition } from "../transitions/resolve-transition";
+import { CreatedWithWatermark } from "../watermark/created-with-watermark";
 import { SceneLayer } from "./scene-layer";
 import { THUMBNAIL_CAPTURE_FRAME, ThumbnailFrame } from "./thumbnail-frame";
 
@@ -98,6 +99,7 @@ export function VideoComposition(props: VideoProps): React.ReactElement {
             <ThumbnailIntro {...props} />
           </Sequence>
         ) : null}
+        {props.watermark ? <CreatedWithWatermark /> : null}
         <Soundtrack
           storyboard={storyboard}
           timeline={voiceTimeline}
