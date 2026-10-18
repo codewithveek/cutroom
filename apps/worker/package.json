@@ -1,0 +1,21 @@
+{
+  "name": "@cutroom/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "tsx src/main.ts",
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@cutroom/config": "workspace:*",
+    "@cutroom/db": "workspace:*",
+    "@cutroom/observability": "workspace:*",
+    "@cutroom/pipeline": "workspace:*",
+    "@cutroom/temporal": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}
