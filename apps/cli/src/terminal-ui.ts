@@ -2,6 +2,7 @@ import type { RunEvent } from "@cutroom/pipeline";
 
 const stepLabels: Readonly<Record<RunEvent["step"], string>> = {
   "ingest-repository": "Reading the repository",
+  "capture-screens": "Capturing the app's screens",
   "analyze-product": "Writing the product brief",
   "plan-storyboard": "Planning the storyboard",
   "audit-claims": "Auditing every claim against the code",

@@ -73,6 +73,7 @@ export async function planFromBrief(options: {
     brand,
     seed: run.request.seed,
     direction: run.request.direction,
+    screens: run.capture?.screens ?? [],
     logger: context.logger,
   });
   return {

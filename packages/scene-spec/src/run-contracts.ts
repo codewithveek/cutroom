@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { brandSchema } from "./brand";
+import { captureManifestSchema, captureRequestSchema } from "./capture-contracts";
 import { claimOverrideSchema, claimResultSchema } from "./claims";
 import { musicSelectionSchema } from "./music";
 import { presetIdSchema } from "./preset-id";
@@ -29,6 +30,8 @@ export const runRequestSchema = z.object({
   seed: z.number().int().nonnegative().default(1),
   /** Free-text steer for the storyboard ("focus on the CLI, for developers"); redacted before the model sees it. */
   direction: z.string().trim().max(280).optional(),
+  /** Capture these routes of the running app for screenshot-window scenes (FR-CAP-1). */
+  capture: captureRequestSchema.optional(),
 });
 export type RunRequest = z.infer<typeof runRequestSchema>;
 export type RunRequestInput = z.input<typeof runRequestSchema>;
@@ -51,6 +54,7 @@ export type RunStatus = z.infer<typeof runStatusSchema>;
 
 export const pipelineStepSchema = z.enum([
   "ingest-repository",
+  "capture-screens",
   "analyze-product",
   "plan-storyboard",
   "audit-claims",
@@ -156,10 +160,18 @@ export const runViewSchema = z.object({
     }),
   ),
   approval: runApprovalSchema.optional(),
-  /** Preview media by asset key (voice clips, the brand logo), for the browser player. */
+  /** Preview media by asset key (voice clips, music, the logo, screenshots), for the browser player. */
   media: z
-    .array(z.object({ assetKey: z.string(), kind: z.enum(["voice", "logo", "music"]), url: z.string() }))
+    .array(
+      z.object({
+        assetKey: z.string(),
+        kind: z.enum(["voice", "logo", "music", "screenshot"]),
+        url: z.string(),
+      }),
+    )
     .default([]),
+  /** The app screens captured for this run, with the element texts a scene may focus. */
+  capture: captureManifestSchema.optional(),
   egress: runEgressSchema.omit({ bundleDirectory: true }).optional(),
   voiceTimeline: voiceTimelineSchema.optional(),
   providers: runProvidersSchema,

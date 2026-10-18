@@ -52,6 +52,7 @@ export const runs = pgTable(
     request: jsonb("request").$type<RunRequest>().notNull(),
     error: jsonb("error").$type<NonNullable<RunRecord["error"]>>(),
     snapshotDirectory: text("snapshot_directory"),
+    capture: jsonb("capture").$type<NonNullable<RunRecord["capture"]>>(),
     approval: jsonb("approval").$type<NonNullable<RunRecord["approval"]>>(),
     egress: jsonb("egress").$type<NonNullable<RunRecord["egress"]>>(),
     voiceTimeline: jsonb("voice_timeline").$type<NonNullable<RunRecord["voiceTimeline"]>>(),

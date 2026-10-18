@@ -5,6 +5,7 @@ import { classNames } from "@/lib/class-names";
 
 const steps: ReadonlyArray<{ step: PipelineStep; label: string }> = [
   { step: "ingest-repository", label: "Read repository" },
+  { step: "capture-screens", label: "App screens" },
   { step: "analyze-product", label: "Product brief" },
   { step: "plan-storyboard", label: "Storyboard" },
   { step: "audit-claims", label: "Claim audit" },

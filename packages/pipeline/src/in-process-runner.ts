@@ -13,7 +13,7 @@ import type { PipelineServices } from "./services";
 import { StepExecutor } from "./step-executor";
 import { pipelineSteps } from "./step-registry";
 
-export { RunStateError } from "./run-commands";
+export { RunStateError, StoryboardEditError } from "./run-commands";
 
 /** Resolves when the run reaches one of `statuses` (or fails), polling between events. */
 export async function waitForRunStatus(options: {

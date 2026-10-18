@@ -1,5 +1,6 @@
 import {
   aspectRatioSchema,
+  captureManifestSchema,
   claimResultSchema,
   lookIdSchema,
   productBriefSchema,
@@ -61,6 +62,8 @@ export const runRecordSchema = z.object({
   look: lookIdSchema.optional(),
   lookReason: z.string().optional(),
   snapshotDirectory: z.string().optional(),
+  /** Screens captured from the running app (FR-CAP-1); the PNGs live in the run's capture folder. */
+  capture: captureManifestSchema.optional(),
   brief: productBriefSchema.optional(),
   storyboardVersions: z.array(storyboardVersionSchema).default([]),
   approval: runApprovalSchema.optional(),

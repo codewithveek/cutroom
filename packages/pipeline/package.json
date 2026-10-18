@@ -12,6 +12,7 @@
   "dependencies": {
     "@cutroom/agent": "workspace:*",
     "@cutroom/audio-io": "workspace:*",
+    "@cutroom/capture": "workspace:*",
     "@cutroom/claim-audit": "workspace:*",
     "@cutroom/config": "workspace:*",
     "@cutroom/observability": "workspace:*",

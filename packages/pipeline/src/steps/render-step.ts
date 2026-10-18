@@ -11,12 +11,13 @@ import {
 } from "../remote-render/render-job-client";
 import type { AssetRecord, RunRecord } from "../run-schema";
 import { dataPaths } from "../services";
+import { screenshotAssetsFor } from "./captured-screens";
 import { LOGO_ASSET_KEY } from "./plan-step";
 import { MissingStepOutputError, requireSnapshot } from "./run-resources";
 import type { StepContext, StepFunction } from "./step-context";
 import { uploadedMusicAssetKey, uploadedMusicPath } from "./uploaded-music";
 
-/** Voice clips and the repo's logo: the local files a render of this run needs. */
+/** Voice clips, music, screenshots and the repo's logo: the local files a render of this run needs. */
 export async function localAssetsFor(context: StepContext, run: RunRecord): Promise<StagedAsset[]> {
   const version = run.storyboardVersions.find((candidate) => candidate.id === run.approval?.versionId);
   const { logoFilePath } = await requireSnapshot(context);
@@ -24,6 +25,9 @@ export async function localAssetsFor(context: StepContext, run: RunRecord): Prom
     ...run.voiceClips.map((clip) => ({ assetKey: clip.assetKey, filePath: clip.filePath })),
     ...(run.request.music.kind === "uploaded"
       ? [{ assetKey: uploadedMusicAssetKey, filePath: uploadedMusicPath(context.runDirectory) }]
+      : []),
+    ...(version
+      ? screenshotAssetsFor({ runDirectory: context.runDirectory, run, storyboard: version.storyboard })
       : []),
     ...(logoFilePath && version?.storyboard.brand.logoAssetKey === LOGO_ASSET_KEY
       ? [{ assetKey: LOGO_ASSET_KEY, filePath: logoFilePath }]

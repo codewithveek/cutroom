@@ -1,6 +1,7 @@
-import { regenerateScene, reverifyBrief } from "@cutroom/agent";
+import { regenerateScene, reverifyBrief, screenIssues } from "@cutroom/agent";
 import { assertApprovable } from "@cutroom/claim-audit";
 import {
+  attachScreenViews,
   type ProductBrief,
   productBriefSchema,
   type RunSettingsUpdate,
@@ -23,6 +24,7 @@ import {
 } from "./run-schema";
 import type { StepExecutor } from "./step-executor";
 import { auditVersion } from "./steps/audit-step";
+import { screenForAssetKey, screenshotFilePath } from "./steps/captured-screens";
 import { LOGO_ASSET_KEY, planFromBrief } from "./steps/plan-step";
 import { createRunModelClient, requireSnapshot } from "./steps/run-resources";
 import { transcodeMusic, uploadedMusicAssetKey, uploadedMusicPath } from "./steps/uploaded-music";
@@ -30,6 +32,22 @@ import { RunNotFoundError } from "./store/run-store";
 
 export class RunStateError extends Error {
   override readonly name = "RunStateError";
+}
+
+/** A user edit the storyboard contract allows but this run cannot show, e.g. an uncaptured screen. */
+export class StoryboardEditError extends Error {
+  override readonly name = "StoryboardEditError";
+  constructor(readonly issues: ReadonlyArray<string>) {
+    super(`The storyboard cannot be shown as edited: ${issues.join("; ")}`);
+  }
+}
+
+/** Screenshot scenes must name captured screens and real elements; their view comes from the capture. */
+function snapScreens(options: { storyboard: Storyboard; run: RunRecord }): Storyboard {
+  const screens = options.run.capture?.screens ?? [];
+  const issues = screenIssues({ scenes: options.storyboard.scenes, screens });
+  if (issues.length > 0) throw new StoryboardEditError(issues);
+  return attachScreenViews({ storyboard: options.storyboard, screens });
 }
 
 export const terminalStatuses: ReadonlySet<RunStatus> = new Set(["completed", "failed"]);
@@ -131,10 +149,10 @@ export class RunCommands {
   }
 
   async updateStoryboard(runId: string, storyboardInput: Storyboard): Promise<UpdateStoryboardResult> {
-    const storyboard = storyboardSchema.parse(storyboardInput);
     const run = await this.requireRun(runId);
     if (run.status !== "awaiting_review")
       throw new RunStateError(`Run ${runId} is ${run.status}; edits are only accepted during review`);
+    const storyboard = snapScreens({ storyboard: storyboardSchema.parse(storyboardInput), run });
     const previous = latestStoryboardVersion(run);
     if (!previous) throw new RunStateError("No storyboard to edit");
     const versionId = ulid();
@@ -180,6 +198,7 @@ export class RunCommands {
       model: createRunModelClient(context, run),
       paceSeconds: lookTokensById[latest.storyboard.look].paceSeconds,
       targetSeconds: run.request.targetSeconds,
+      screens: run.capture?.screens ?? [],
       ...(request.instruction ? { instruction: request.instruction } : {}),
     });
     return this.updateStoryboard(runId, storyboard);
@@ -255,13 +274,15 @@ export class RunCommands {
     }));
   }
 
-  /** The file behind a run's media key: a synthesised voice clip or the repo's logo. */
+  /** The file behind a run's media key: a voice clip, the uploaded track, a screenshot or the logo. */
   async mediaFilePath(runId: string, assetKey: string): Promise<string | undefined> {
     const run = await this.requireRun(runId);
     const clip = run.voiceClips.find((candidate) => candidate.assetKey === assetKey);
     if (clip) return clip.filePath;
     if (assetKey === uploadedMusicAssetKey && run.request.music.kind === "uploaded")
       return uploadedMusicPath(this.store.runDirectory(runId));
+    const screen = screenForAssetKey(run, assetKey);
+    if (screen) return screenshotFilePath({ runDirectory: this.store.runDirectory(runId), screen });
     if (assetKey !== LOGO_ASSET_KEY) return undefined;
     const { logoFilePath } = await requireSnapshot(
       this.executor.createContext(runId, "ingest-repository"),

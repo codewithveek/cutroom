@@ -429,6 +429,9 @@ importers:
       '@cutroom/audio-io':
         specifier: workspace:*
         version: link:../audio-io
+      '@cutroom/capture':
+        specifier: workspace:*
+        version: link:../capture
       '@cutroom/claim-audit':
         specifier: workspace:*
         version: link:../claim-audit

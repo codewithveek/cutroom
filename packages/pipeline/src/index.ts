@@ -1,7 +1,7 @@
 export { type CreatePipelineServicesOptions, createPipelineServices } from "./create-services";
 export { buildDeliveryNote } from "./delivery-note";
 export { type DescribedError, describeError, type ErrorCode, errorCodes } from "./describe-error";
-export { InProcessRunner, RunStateError, waitForRunStatus } from "./in-process-runner";
+export { InProcessRunner, RunStateError, StoryboardEditError, waitForRunStatus } from "./in-process-runner";
 export type {
   ApproveStoryboardInput,
   PipelineRunner,

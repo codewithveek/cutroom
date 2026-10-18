@@ -5,6 +5,7 @@
 
 export type PipelineStepName =
   | "ingest-repository"
+  | "capture-screens"
   | "analyze-product"
   | "plan-storyboard"
   | "audit-claims"
@@ -25,6 +26,7 @@ export interface StepPolicy {
 /** PRD §8.4: retries and timeouts per activity. */
 export const stepPolicies: ReadonlyArray<StepPolicy> = [
   { step: "ingest-repository", maximumAttempts: 3, startToCloseTimeout: "5 minutes" },
+  { step: "capture-screens", maximumAttempts: 3, startToCloseTimeout: "5 minutes" },
   { step: "analyze-product", maximumAttempts: 4, startToCloseTimeout: "10 minutes" },
   { step: "plan-storyboard", maximumAttempts: 4, startToCloseTimeout: "10 minutes" },
   { step: "audit-claims", maximumAttempts: 4, startToCloseTimeout: "5 minutes" },

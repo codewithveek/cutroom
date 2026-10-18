@@ -69,6 +69,7 @@ export function toRows(options: {
     request: record.request,
     error: nullable(record.error),
     snapshotDirectory: nullable(record.snapshotDirectory),
+    capture: nullable(record.capture),
     approval: nullable(record.approval),
     egress: nullable(record.egress),
     voiceTimeline: nullable(record.voiceTimeline),
@@ -155,6 +156,7 @@ export function fromRows(rows: RunRows): RunRecord {
     ...optional("look", run.look),
     ...optional("lookReason", run.lookReason),
     ...optional("snapshotDirectory", run.snapshotDirectory),
+    ...optional("capture", run.capture),
     ...(rows.brief ? { brief: rows.brief.brief } : {}),
     storyboardVersions: rows.versions
       .toSorted((left, right) => left.version - right.version)
