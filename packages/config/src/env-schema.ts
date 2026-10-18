@@ -37,6 +37,8 @@ export const envSchema = z
     TEMPORAL_ADDRESS: z.string().min(1).default("127.0.0.1:7233"),
     TEMPORAL_NAMESPACE: z.string().min(1).default("default"),
     TEMPORAL_TASK_QUEUE: z.string().min(1).default("cutroom-pipeline"),
+    /** Temporal Cloud: an API key switches the connection to TLS (docs/deploy.md). */
+    TEMPORAL_API_KEY: optionalSecret,
 
     /**
      * Code retrieval for the claim judge (FR-ING-6), stored in pgvector: `ollama` embeds with

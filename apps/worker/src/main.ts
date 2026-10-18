@@ -39,6 +39,7 @@ const services = createPipelineServices({
 const { worker, connection } = await createPipelineWorker({
   services,
   address: env.TEMPORAL_ADDRESS,
+  apiKey: env.TEMPORAL_API_KEY,
   namespace: env.TEMPORAL_NAMESPACE,
   taskQueue: env.TEMPORAL_TASK_QUEUE,
 });

@@ -9,7 +9,7 @@ import {
   type PipelineRunner,
   type PipelineServices,
 } from "@cutroom/pipeline";
-import { TemporalRunner } from "@cutroom/temporal";
+import { TemporalRunner, temporalConnectionOptions } from "@cutroom/temporal";
 import { Client, Connection } from "@temporalio/client";
 
 export interface RunnerSetup {
@@ -62,7 +62,9 @@ export async function createRunner(options: {
   };
 
   if (env.RUNNER === "temporal" && store) {
-    const connection = await Connection.connect({ address: env.TEMPORAL_ADDRESS });
+    const connection = await Connection.connect(
+      temporalConnectionOptions({ address: env.TEMPORAL_ADDRESS, apiKey: env.TEMPORAL_API_KEY }),
+    );
     const client = new Client({ connection, namespace: env.TEMPORAL_NAMESPACE });
     const runner = new TemporalRunner({
       services: { ...services, store },
