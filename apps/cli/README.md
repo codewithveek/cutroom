@@ -26,7 +26,7 @@ Everything lives in `CUTROOM_DATA_DIR` (default `.cutroom` in the current direct
 
 | Flag | Meaning |
 |---|---|
-| `--repo <path\|git-url>` | The product to film (required) |
+| `--repo <path\|git-url\|app.zip>` | The product to film (required) |
 | `--preset` | `launch-editorial` (default) and five more; sets type, look, length and ratios |
 | `--ratios` | Comma-separated: `16:9,9:16,1:1,4:5` |
 | `--privacy` | `local` (default), `hybrid`, `cloud` |

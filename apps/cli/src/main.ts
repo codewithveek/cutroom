@@ -10,7 +10,7 @@ import { findDemoRepository } from "./package-assets";
 const usage = `${productBrand.cliName}: ${productBrand.tagline}
 
 Usage:
-  ${productBrand.cliName} make --repo <path|git-url> [--preset launch-editorial] [--ratios 16:9,9:16]
+  ${productBrand.cliName} make --repo <path|git-url|app.zip> [--preset launch-editorial] [--ratios 16:9,9:16]
                 [--privacy local|hybrid|cloud] [--look editorial] [--type launch] [--seconds 45]
                 [--voice af_heart] [--music upbeat|calm|none] [--yes] [--silent] [--scripted]
   ${productBrand.cliName} demo [--ratios 16:9,9:16] [--voice af_heart]

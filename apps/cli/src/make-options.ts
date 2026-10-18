@@ -36,8 +36,8 @@ function sourceFor(repo: string): RunRequestInput["source"] {
   return /^(https:\/\/|git@)/.test(repo) ? { kind: "git", url: repo } : { kind: "path", path: repo };
 }
 
-/** Preset values, overridden flag by flag. */
-export function buildRunRequest(flags: MakeFlags): RunRequestInput {
+/** Preset values, overridden flag by flag; `source` replaces `--repo` (a staged zip). */
+export function buildRunRequest(flags: MakeFlags, source?: RunRequestInput["source"]): RunRequestInput {
   const preset = presets[flags.preset as PresetId];
   const voice = flags.silent
     ? { provider: "none" as const, voiceId: "silent", speed: 1 }
@@ -51,7 +51,7 @@ export function buildRunRequest(flags: MakeFlags): RunRequestInput {
         ? { kind: "generated" as const, bed: flags.music }
         : preset.music;
   return {
-    source: sourceFor(flags.repo),
+    source: source ?? sourceFor(flags.repo),
     presetId: preset.id,
     videoType: flags.type ?? preset.videoType,
     look: flags.look ?? preset.look,

@@ -3,6 +3,7 @@ import { createLogger } from "@cutroom/observability";
 import {
   createPipelineServices,
   createShipnoteScriptedTransport,
+  dataPaths,
   InProcessRunner,
   latestStoryboardVersion,
   type RunRecord,
@@ -12,6 +13,7 @@ import { buildRunRequest, type MakeFlags } from "../make-options";
 import { findPrebuiltBundle } from "../package-assets";
 import { runPreflight } from "../preflight";
 import { printEgressManifest, printStoryboard, promptForApproval, promptForEgress } from "../review-prompt";
+import { isZipPath, stageArchive } from "../stage-archive";
 import { printEvent } from "../terminal-ui";
 
 function printDeliverables(run: RunRecord): void {
@@ -52,7 +54,15 @@ export async function runMake(options: RunMakeOptions): Promise<number> {
     },
   });
   const runner = new InProcessRunner(services);
-  const request = buildRunRequest(flags);
+  const request = buildRunRequest(
+    flags,
+    isZipPath(flags.repo)
+      ? await stageArchive({
+          archivePath: flags.repo,
+          uploadsDirectory: dataPaths(services.dataDirectory).uploads,
+        })
+      : undefined,
+  );
   const { runId } = await runner.start(request);
   console.log(
     `Run ${runId} · ${request.videoType} · ${request.ratios.join(", ")} · ${request.privacyMode} mode`,
