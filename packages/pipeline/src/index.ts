@@ -1,7 +1,7 @@
 export { type CreatePipelineServicesOptions, createPipelineServices } from "./create-services";
 export { buildDeliveryNote } from "./delivery-note";
 export { type DescribedError, describeError, type ErrorCode, errorCodes } from "./describe-error";
-export { InProcessRunner, RunStateError } from "./in-process-runner";
+export { InProcessRunner, RunStateError, waitForRunStatus } from "./in-process-runner";
 export type {
   ApproveStoryboardInput,
   PipelineRunner,
@@ -30,6 +30,8 @@ export {
   RENDER_JOB_RETENTION_MS,
   RenderJobWorker,
 } from "./remote-render/render-job-worker";
+export { pausedStatuses, RunCommands, terminalStatuses } from "./run-commands";
+export { LocalRunEventBus, type RunEventBus } from "./run-event-bus";
 export {
   type AssetRecord,
   latestStoryboardVersion,
@@ -48,6 +50,7 @@ export {
 } from "./run-schema";
 export { createShipnoteScriptedTransport } from "./scripted/shipnote-script";
 export { dataPaths, type PipelineServices } from "./services";
+export { type RunStepOptions, StepExecutor, type StepResult } from "./step-executor";
 export { pipelineSteps } from "./step-registry";
 export { LOGO_ASSET_KEY } from "./steps/plan-step";
 export { FileRunStore } from "./store/file-run-store";
