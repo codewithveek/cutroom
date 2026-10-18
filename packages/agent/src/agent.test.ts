@@ -9,6 +9,7 @@ import { analyzeProduct } from "./steps/analyze-product";
 import { brandFromBrief } from "./steps/assemble-storyboard";
 import { planStoryboard } from "./steps/plan-storyboard";
 import { regenerateScene } from "./steps/regenerate-scene";
+import { reverifyBrief } from "./steps/reverify-brief";
 import { storyboardDraftIssues } from "./validation/word-budget";
 
 const shipnoteFixture = path.resolve(import.meta.dirname, "../../../evals/fixtures/shipnote");
@@ -163,6 +164,38 @@ describe("planStoryboard", () => {
     expect(prompt).toContain("## Direction from the user");
     expect(prompt).toContain("Focus on the CLI.");
     expect(prompt).not.toContain("ghp_abcdefghijklmnopqrstuvwxyz0123456789");
+  });
+});
+
+describe("reverifyBrief", () => {
+  it("keeps edited text, drops evidence that no longer verifies and marks the feature weak", async () => {
+    const { brief } = await analyzeProduct({
+      reader,
+      model: createModelClientFromTransport(createScriptedTransport(() => shipnoteBriefDraft)),
+      contextBudgetTokens: 24_000,
+    });
+    const [first, ...rest] = brief.features;
+    if (!first) throw new Error("fixture drift");
+    const edited = {
+      ...brief,
+      tagline: "Changelogs from commits, in one command",
+      features: [
+        {
+          ...first,
+          evidence: [{ ...first.evidence[0], filePath: "src/does-not-exist.ts", excerpt: "invented" }],
+        },
+        ...rest,
+      ],
+    } as typeof brief;
+    const result = await reverifyBrief({ brief: edited, reader });
+    expect(result.tagline).toBe("Changelogs from commits, in one command");
+    expect(result.features[0]?.evidence).toEqual([]);
+    expect(result.features[0]?.strength).toBe("weak");
+    expect(
+      result.features
+        .slice(1)
+        .every((feature) => feature.strength === "verified" || feature.evidence.length === 0),
+    ).toBe(true);
   });
 });
 

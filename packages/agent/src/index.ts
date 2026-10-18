@@ -26,5 +26,6 @@ export {
   planStoryboard,
 } from "./steps/plan-storyboard";
 export { type RegenerateSceneOptions, regenerateScene, SceneNotFoundError } from "./steps/regenerate-scene";
+export { reverifyBrief } from "./steps/reverify-brief";
 export { directorySummarySchema } from "./steps/summarize-directories";
 export { storyboardDraftIssues } from "./validation/word-budget";
