@@ -6,6 +6,7 @@ import {
   Hash,
   LayoutGrid,
   ListOrdered,
+  MonitorPlay,
   Route,
   SquareTerminal,
   Type,
@@ -22,4 +23,5 @@ export const blockIcons: Readonly<Record<BlockId, React.ComponentType<{ classNam
   "word-slot": ListOrdered,
   "end-card": Flag,
   "diagram-flow": Route,
+  "screenshot-window": MonitorPlay,
 };

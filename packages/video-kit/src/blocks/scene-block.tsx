@@ -6,6 +6,7 @@ import { DiagramFlowBlock } from "./diagram-flow-block";
 import { EndCardBlock } from "./end-card-block";
 import { FeatureCardsBlock } from "./feature-cards-block";
 import { KineticHeadlineBlock } from "./kinetic-headline-block";
+import { ScreenshotWindowBlock } from "./screenshot-window-block";
 import { TerminalBlock } from "./terminal-block";
 import { TitleCardBlock } from "./title-card-block";
 import { WordSlotBlock } from "./word-slot-block";
@@ -32,5 +33,7 @@ export function SceneBlock(props: { scene: Scene }): React.ReactElement {
       return <EndCardBlock scene={scene} />;
     case "diagram-flow":
       return <DiagramFlowBlock scene={scene} />;
+    case "screenshot-window":
+      return <ScreenshotWindowBlock scene={scene} />;
   }
 }

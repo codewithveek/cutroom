@@ -19,6 +19,8 @@ function describeScene(scene: Scene): string {
       return scene.props.commands.map((command) => `$ ${command.command}`).join(" ; ");
     case "word-slot":
       return `${scene.props.lead} ${scene.props.items.join(" | ")}`;
+    case "screenshot-window":
+      return `${scene.props.screenId}${scene.props.focusText ? ` → "${scene.props.focusText}"` : ""}`;
     case "diagram-flow":
       return scene.props.nodes.map((node) => node.label).join(" → ");
     case "end-card":

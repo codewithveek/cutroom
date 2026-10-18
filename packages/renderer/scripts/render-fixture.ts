@@ -11,6 +11,7 @@ import {
   blockCatalog,
   type LookId,
   lookIdSchema,
+  screenshotAssetKey,
 } from "@cutroom/scene-spec";
 import { createPreviewVideoProps, fixtureStoryboard } from "@cutroom/video-kit";
 import { bundleVideoKit, produceDeliverables, resolveBrowserExecutable } from "../src/index";
@@ -43,7 +44,12 @@ for (const look of looks) {
     voiceTimeline,
     ratios,
     music: { kind: "generated", bed: look === "studio" || look === "cinematic" ? "calm" : "upbeat" },
-    localAssets: [],
+    localAssets: [
+      {
+        assetKey: screenshotAssetKey("screen-1"),
+        filePath: path.resolve(import.meta.dirname, "../../video-kit/public/fixtures/screen-1.png"),
+      },
+    ],
     outputDirectory: values.out,
     workDirectory: path.join(values.out, "work", look),
     baseName: `fixture-${look}`,

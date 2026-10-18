@@ -10,4 +10,5 @@ export const blockLabels: Readonly<Record<BlockId, string>> = {
   "word-slot": "Word slot",
   "end-card": "End card",
   "diagram-flow": "Diagram flow",
+  "screenshot-window": "Screenshot",
 };

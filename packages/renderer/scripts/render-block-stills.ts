@@ -13,6 +13,7 @@ import {
   estimateTimeline,
   lookIdSchema,
   type Storyboard,
+  screenshotAssetKey,
   type VideoProps,
 } from "@cutroom/scene-spec";
 import { fixtureStoryboard, lookTokensById } from "@cutroom/video-kit";
@@ -36,7 +37,7 @@ for (const look of lookIdSchema.options) {
       voiceTimeline: timeline,
       ratio,
       music: { kind: "none" },
-      assetUrls: {},
+      assetUrls: { [screenshotAssetKey("screen-1")]: "public/fixtures/screen-1.png" },
       openOnThumbnail: false,
       burnCaptions: false,
     };
