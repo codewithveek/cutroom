@@ -389,6 +389,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@cutroom/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@cutroom/claim-audit':
         specifier: workspace:*
         version: link:../claim-audit

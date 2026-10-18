@@ -190,3 +190,47 @@ export const codeChunks = pgTable(
     index("code_chunks_embedding_idx").using("hnsw", table.embedding.op("vector_cosine_ops")),
   ],
 );
+
+/** The single admin account of a deployed instance (PRD extension E7). */
+export const users = pgTable(
+  "users",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("users_email_idx").on(table.email)],
+);
+
+/** Server-side sessions; `id_hash` is the SHA-256 of the cookie's 256-bit id. */
+export const sessions = pgTable(
+  "sessions",
+  {
+    idHash: text("id_hash").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true, mode: "string" }).notNull(),
+    userAgent: text("user_agent"),
+  },
+  (table) => [index("sessions_user_idx").on(table.userId)],
+);
+
+/** API tokens for the CLI, the GitHub Action and the remote render API; only the hash is kept. */
+export const apiTokens = pgTable(
+  "api_tokens",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    createdAt: createdAt(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true, mode: "string" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }),
+    revokedAt: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+  },
+  (table) => [uniqueIndex("api_tokens_hash_idx").on(table.tokenHash)],
+);

@@ -6,6 +6,7 @@ export {
   runMigrations,
 } from "./database";
 export { codeIndexForRun, PgVectorCodeIndex } from "./pgvector-code-index";
+export { PostgresAuthStore } from "./postgres-auth-store";
 export { PostgresRunStore } from "./postgres-run-store";
 export { fromRows, projectForSource, type RunRows, toRows } from "./run-record-mapping";
 export * as schema from "./schema";
