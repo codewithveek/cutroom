@@ -27,6 +27,8 @@ export const runRequestSchema = z.object({
   autoApprove: z.boolean().default(false),
   brandOverride: brandSchema.partial().optional(),
   seed: z.number().int().nonnegative().default(1),
+  /** Free-text steer for the storyboard ("focus on the CLI, for developers"); redacted before the model sees it. */
+  direction: z.string().trim().max(280).optional(),
 });
 export type RunRequest = z.infer<typeof runRequestSchema>;
 export type RunRequestInput = z.input<typeof runRequestSchema>;

@@ -139,6 +139,31 @@ describe("planStoryboard", () => {
     );
     expect(storyboard.scenes[0]?.baseFrames).toBe(90);
   });
+
+  it("passes the user's direction to the model with secrets redacted", async () => {
+    const transport = createScriptedTransport(() => shipnoteStoryboardDraft);
+    const { brief } = await analyzeProduct({
+      reader,
+      model: createModelClientFromTransport(createScriptedTransport(() => shipnoteBriefDraft)),
+      contextBudgetTokens: 24_000,
+    });
+    await planStoryboard({
+      brief,
+      reader,
+      model: createModelClientFromTransport(transport),
+      videoType: "launch",
+      look: "editorial",
+      paceSeconds: [3, 5],
+      targetSeconds: 45,
+      brand: brandFromBrief({ brief, hints: reader.snapshot.brandHints }),
+      seed: 1,
+      direction: "Focus on the CLI. Demo key ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+    });
+    const prompt = transport.requests[0]?.messages[0]?.content ?? "";
+    expect(prompt).toContain("## Direction from the user");
+    expect(prompt).toContain("Focus on the CLI.");
+    expect(prompt).not.toContain("ghp_abcdefghijklmnopqrstuvwxyz0123456789");
+  });
 });
 
 describe("regenerateScene", () => {

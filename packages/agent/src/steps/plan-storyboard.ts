@@ -2,6 +2,7 @@ import type { CutroomLogger } from "@cutroom/observability";
 import { videoTypeTemplates } from "@cutroom/presets";
 import type { ModelClient, TokenUsage } from "@cutroom/providers";
 import type { SnapshotReader } from "@cutroom/repo-ingest";
+import { redactSecrets } from "@cutroom/repo-ingest";
 import {
   type Brand,
   createStoryboardDraftSchema,
@@ -24,6 +25,8 @@ export interface PlanStoryboardOptions {
   targetSeconds: number;
   brand: Brand;
   seed: number;
+  /** Free-text steer from the run request; secrets are redacted here before it reaches the model. */
+  direction?: string | undefined;
   logger?: CutroomLogger;
 }
 
@@ -51,6 +54,7 @@ export async function planStoryboard(options: PlanStoryboardOptions): Promise<Pl
           videoType: options.videoType,
           look: options.look,
           targetSeconds: options.targetSeconds,
+          direction: options.direction ? redactSecrets(options.direction).content : undefined,
         }),
       },
     ],

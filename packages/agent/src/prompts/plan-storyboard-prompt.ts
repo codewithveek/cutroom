@@ -87,6 +87,8 @@ export interface PlanStoryboardPromptOptions {
   videoType: VideoType;
   look: LookId;
   targetSeconds: number;
+  /** The user's steer, already redacted. */
+  direction?: string | undefined;
 }
 
 export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions): string {
@@ -108,5 +110,13 @@ export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions):
     "",
     "## Commands you may show in terminal",
     describeCommands(options.snapshot),
+    ...(options.direction
+      ? [
+          "",
+          "## Direction from the user",
+          "Follow it where it does not conflict with the rules, the beat plan or the evidence:",
+          options.direction,
+        ]
+      : []),
   ].join("\n");
 }

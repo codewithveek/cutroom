@@ -60,6 +60,7 @@ export const planStep: StepFunction = async (context, run) => {
     targetSeconds: run.request.targetSeconds,
     brand,
     seed: run.request.seed,
+    direction: run.request.direction,
     logger: context.logger,
   });
   await context.updateRun((current) => ({
