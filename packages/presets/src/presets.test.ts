@@ -38,7 +38,7 @@ describe("recommendLook", () => {
 
 describe("presets", () => {
   it("defines six valid presets", () => {
-    expect(Object.keys(presets)).toHaveLength(6);
+    expect(Object.keys(presets)).toHaveLength(7);
     for (const preset of Object.values(presets)) expect(presetSchema.parse(preset)).toEqual(preset);
     expect(presets["social-cutdown-vertical"].ratios).toEqual(["9:16"]);
   });

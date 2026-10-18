@@ -9,7 +9,7 @@ import { RatioIcon } from "@/components/ui/ratio-icon";
 import { lookIds } from "@/features/video-preview/look-preview";
 import { LookCard } from "./look-card";
 
-/** The four looks (hover to play) and the six presets that combine a type, a look and ratios. */
+/** The four looks (hover to play) and the seven presets that combine a type, a look and ratios. */
 export function StylesView(): React.ReactElement {
   return (
     <PageFrame>

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const presetIdSchema = z.enum([
   "launch-editorial",
+  "feature-drop-editorial",
   "api-launch-graphic",
   "tutorial-studio",
   "teaser-cinematic",

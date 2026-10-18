@@ -1,3 +1,4 @@
+import { NoUserVisibleChangesError } from "@cutroom/agent";
 import { ApprovalBlockedError } from "@cutroom/claim-audit";
 import {
   EgressBlockedError,
@@ -16,6 +17,7 @@ export const errorCodes = [
   "source_unavailable",
   "voice_model_missing",
   "approval_blocked",
+  "no_user_visible_changes",
   "step_failed",
 ] as const;
 export type ErrorCode = (typeof errorCodes)[number];
@@ -30,6 +32,8 @@ export interface DescribedError {
 export function describeError(error: unknown): DescribedError {
   if (error instanceof PrivacyViolationError) return { code: "privacy_violation", message: error.message };
   if (error instanceof EgressBlockedError) return { code: "egress_blocked", message: error.message };
+  if (error instanceof NoUserVisibleChangesError)
+    return { code: "no_user_visible_changes", message: error.message };
   if (error instanceof StructuredOutputError)
     return { code: "model_output_invalid", message: error.message, details: { issues: error.issues } };
   if (error instanceof ModelTransportError) return { code: "model_unavailable", message: error.message };

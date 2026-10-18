@@ -26,7 +26,15 @@ export const claimVerdictSchema = z.enum(["supported", "weak", "unsupported"]);
 export type ClaimVerdict = z.infer<typeof claimVerdictSchema>;
 
 export const claimCheckSchema = z.object({
-  check: z.enum(["ui-label", "code-excerpt", "number", "overclaim", "model-judge", "evidence-search"]),
+  check: z.enum([
+    "ui-label",
+    "code-excerpt",
+    "number",
+    "overclaim",
+    "model-judge",
+    "evidence-search",
+    "added-lines",
+  ]),
   passed: z.boolean(),
   detail: z.string(),
 });

@@ -33,6 +33,7 @@ Everything lives in `CUTROOM_DATA_DIR` (default `.cutroom` in the current direct
 | `--look`, `--type`, `--seconds`, `--voice`, `--music` | Override the preset |
 | `--yes` | Approve when no claim is unsupported |
 | `--direction` | A free-text steer for the storyboard ("for developers, focus on the CLI") |
+| `--changes v1.2.0..v1.3.0` | A "what's new" video of that range (`--include-fixes` keeps bug fixes); use with `--preset feature-drop-editorial` |
 | `--watermark` | A "created with cutroom" badge in the bottom-right corner |
 | `--silent` | No voiceover |
 

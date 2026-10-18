@@ -41,6 +41,17 @@ export const presets: Readonly<Record<PresetId, Preset>> = {
     voice: defaultVoice,
     music: { kind: "generated", bed: "upbeat" },
   },
+  "feature-drop-editorial": {
+    id: "feature-drop-editorial",
+    label: "Feature drop · Editorial",
+    description: "A 30-second \"what's new\" for one release, made from the changes since the last tag.",
+    videoType: "feature-drop",
+    look: "editorial",
+    ratios: bothShapes,
+    targetSeconds: 30,
+    voice: defaultVoice,
+    music: { kind: "generated", bed: "upbeat" },
+  },
   "api-launch-graphic": {
     id: "api-launch-graphic",
     label: "API launch · Graphic",

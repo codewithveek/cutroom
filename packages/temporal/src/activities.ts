@@ -1,5 +1,5 @@
-import { pipelineSteps, type StepExecutor } from "@cutroom/pipeline";
-import { Context } from "@temporalio/activity";
+import { describeError, type ErrorCode, pipelineSteps, type StepExecutor } from "@cutroom/pipeline";
+import { ApplicationFailure, Context } from "@temporalio/activity";
 import {
   ACTIVITY_HEARTBEAT_INTERVAL_MS,
   type PipelineActivities,
@@ -23,6 +23,14 @@ async function withHeartbeat<Result>(work: () => Promise<Result>): Promise<Resul
   }
 }
 
+/** Failures a retry cannot fix: the run fails at once instead of spending more model calls. */
+const finalErrorCodes: ReadonlySet<ErrorCode> = new Set([
+  "privacy_violation",
+  "egress_blocked",
+  "source_unavailable",
+  "no_user_visible_changes",
+]);
+
 /**
  * Activities on top of the shared StepExecutor. Errors are rethrown so Temporal retries the step;
  * only the last attempt records the failure on the run.
@@ -33,9 +41,16 @@ export function createPipelineActivities(executor: StepExecutor): PipelineActivi
       const definition = pipelineSteps.find((candidate) => candidate.step === input.step);
       if (!definition) throw new UnknownStepError(`No pipeline step named ${input.step}`);
       const finalAttempt = Context.current().info.attempt >= input.maximumAttempts;
-      return withHeartbeat(() =>
-        executor.runStep({ runId: input.runId, definition, recordFailure: finalAttempt }),
-      );
+      try {
+        return await withHeartbeat(() =>
+          executor.runStep({ runId: input.runId, definition, recordFailure: finalAttempt }),
+        );
+      } catch (error) {
+        const described = describeError(error);
+        if (finalAttempt || !finalErrorCodes.has(described.code)) throw error;
+        await executor.recordFailure({ runId: input.runId, definition, error });
+        throw ApplicationFailure.nonRetryable(described.message, described.code);
+      }
     },
     async completeRun(input: ProduceVideoInput): Promise<void> {
       await executor.completeRun(input.runId);

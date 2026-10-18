@@ -15,6 +15,7 @@ Usage:
                 [--voice af_heart] [--music upbeat|calm|none] [--yes] [--silent] [--scripted]
                 [--app-url http://localhost:3000 --routes /,/settings] [--watermark]
                 [--direction "for developers, focus on the CLI"]
+                [--changes v1.2.0..v1.3.0 [--include-fixes]] (with --preset feature-drop-editorial)
   ${productBrand.cliName} demo [--ratios 16:9,9:16] [--voice af_heart]
                Film the bundled demo repo with a scripted model: no Ollama or GPU needed
                (silent unless --voice is given, which needs \`setup\` first)
@@ -26,7 +27,9 @@ Usage:
   --app-url   capture screens of the running app (read-only) for window scenes
   --routes    comma-separated routes to capture on --app-url (default /)
   --watermark a "created with cutroom" badge in the bottom-right corner
-  --direction a free-text steer for the storyboard (redacted before the model sees it)`;
+  --direction a free-text steer for the storyboard (redacted before the model sees it)
+  --changes   a "what's new" video of a range of history: <from>..<to>, or <from> for <from>..HEAD
+  --include-fixes   keep bug fixes in a --changes video (left out by default)`;
 
 const entryDirectory = import.meta.dirname;
 
@@ -51,9 +54,15 @@ function parseMakeFlags(args: ReadonlyArray<string>): MakeFlags {
       scripted: { type: "boolean", default: false },
       watermark: { type: "boolean", default: false },
       direction: { type: "string" },
+      changes: { type: "string" },
+      "include-fixes": { type: "boolean", default: false },
     },
   });
-  return makeFlagsSchema.parse({ ...values, appUrl: values["app-url"] });
+  return makeFlagsSchema.parse({
+    ...values,
+    appUrl: values["app-url"],
+    includeFixes: values["include-fixes"],
+  });
 }
 
 /** `cutroom demo`: the shipnote fixture, the scripted model, approved automatically. */

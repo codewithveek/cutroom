@@ -28,6 +28,12 @@ export const makeFlagsSchema = z.object({
   routes: z.string().optional(),
   watermark: z.boolean().default(false),
   direction: z.string().trim().max(280).optional(),
+  /** `v1.2.0..v1.3.0` or `v1.2.0` (to HEAD): a video of what changed (E2). */
+  changes: z
+    .string()
+    .regex(/^[\w./^~-]+(\.\.[\w./^~-]+)?$/, "--changes takes <from>..<to> or <from>")
+    .optional(),
+  includeFixes: z.boolean().default(false),
 });
 export type MakeFlags = z.infer<typeof makeFlagsSchema>;
 
@@ -43,6 +49,11 @@ function captureFor(flags: MakeFlags): RunRequestInput["capture"] {
     .map((route) => route.trim())
     .filter(Boolean);
   return { appUrl: flags.appUrl, routes: routes.length > 0 ? routes : ["/"] };
+}
+
+function changesFor(range: string, includeFixes: boolean): NonNullable<RunRequestInput["changes"]> {
+  const [fromRef = range, toRef = "HEAD"] = range.split("..");
+  return { fromRef, toRef, includeFixes };
 }
 
 function sourceFor(repo: string): RunRequestInput["source"] {
@@ -77,6 +88,7 @@ export function buildRunRequest(flags: MakeFlags, source?: RunRequestInput["sour
     seed: flags.seed,
     watermark: flags.watermark,
     ...(flags.direction ? { direction: flags.direction } : {}),
+    ...(flags.changes ? { changes: changesFor(flags.changes, flags.includeFixes) } : {}),
     ...(flags.appUrl ? { capture: captureFor(flags) } : {}),
   };
 }

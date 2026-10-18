@@ -1,5 +1,6 @@
 import { ingestRepository, loadSnapshot } from "@cutroom/repo-ingest";
 import { dataPaths } from "../services";
+import { prepareChangesSource, saveChangeSnapshot } from "./changes-source";
 import { snapshotDirectoryFor } from "./run-resources";
 import type { StepFunction } from "./step-context";
 
@@ -8,11 +9,17 @@ export const ingestStep: StepFunction = async (context, run) => {
   const snapshotDirectory = snapshotDirectoryFor(context);
   const existing = await loadSnapshot(snapshotDirectory);
   if (existing) return { skipped: true };
-  const { snapshot } = await ingestRepository({
-    source: run.request.source,
+  const changes = run.request.changes
+    ? await prepareChangesSource({ context, source: run.request.source, changes: run.request.changes })
+    : undefined;
+  const { snapshot, reader } = await ingestRepository({
+    source: changes?.treeSource ?? run.request.source,
     outputDirectory: snapshotDirectory,
     uploadsDirectory: dataPaths(context.services.dataDirectory).uploads,
   });
+  const changeSnapshot = changes
+    ? await saveChangeSnapshot({ context, changeSnapshot: changes.changeSnapshot, reader })
+    : undefined;
   await context.updateRun((current) => ({ ...current, snapshotDirectory }));
   return {
     payload: {
@@ -22,6 +29,13 @@ export const ingestStep: StepFunction = async (context, run) => {
       redactions: snapshot.stats.redactions,
       frameworks: snapshot.frameworks,
       uiStrings: snapshot.uiStrings.length,
+      ...(changeSnapshot
+        ? {
+            range: `${changeSnapshot.fromRef}..${changeSnapshot.toRef}`,
+            commits: changeSnapshot.commits.length,
+            changedFiles: changeSnapshot.files.length,
+          }
+        : {}),
     },
   };
 };

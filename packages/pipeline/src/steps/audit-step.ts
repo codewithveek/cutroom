@@ -1,6 +1,7 @@
-import { auditClaims } from "@cutroom/claim-audit";
+import { applyAddedLineRule, auditClaims } from "@cutroom/claim-audit";
 import { type ClaimResult, collectSceneClaims, type Storyboard } from "@cutroom/scene-spec";
 import { latestStoryboardVersion, type RunRecord } from "../run-schema";
+import { loadChangeSnapshot } from "./changes-source";
 import {
   createRunModelClient,
   MissingStepOutputError,
@@ -63,7 +64,12 @@ export async function auditVersion(
   const carried = (options.previousResults ?? []).filter(
     (result) => !auditedScenes.has(result.sceneId) && liveScenes.has(result.sceneId),
   );
-  const results = [...carried, ...audit.results];
+  // A changes video may only call something new when it cites lines the range added (E2-5).
+  // Carried results already went through the rule.
+  const fresh = run.request.changes
+    ? applyAddedLineRule({ results: audit.results, files: (await loadChangeSnapshot(context)).files })
+    : audit.results;
+  const results = [...carried, ...fresh];
   await context.updateRun((current) => ({
     ...current,
     storyboardVersions: current.storyboardVersions.map((candidate) =>

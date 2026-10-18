@@ -7,7 +7,7 @@ This is the as-built companion to PRD §8. Where the build differs from the PRD,
 | Package | Responsibility | Depends on |
 |---|---|---|
 | `@cutroom/scene-spec` | Zod contracts for everything that crosses a boundary: brief, evidence, the ten block schemas, storyboard, claims, voice timeline, render job, video props, run request/status/events/view. Pure helpers that must behave identically in Node and the browser: timing solver, caption cues, claim collection, starred text. | zod |
-| `@cutroom/presets` | Video-type beat templates, the six presets, `recommendLook` (a rules table). | scene-spec |
+| `@cutroom/presets` | Video-type beat templates, the seven presets, `recommendLook` (a rules table). | scene-spec |
 | `@cutroom/video-kit` | Remotion: looks (token sets), frame shapes, motion primitives, ten blocks, eight transitions, soundtrack mixing, burned captions, video and thumbnail compositions. Runs in the render browser and in `@remotion/player`. | scene-spec, remotion, shiki |
 | `@cutroom/repo-ingest` | Source resolution (path, shallow git clone), ignore rules, secret redaction, UI string inventory, frameworks, brand hints, the redacted mirror (`SnapshotReader`), deterministic evidence verification. | scene-spec |
 | `@cutroom/providers` | `ModelClient` contract, Ollama (streaming) / OpenAI-compatible / scripted transports, the validate-and-repair loop, the privacy guard and the Local-mode egress guard. | scene-spec, observability |

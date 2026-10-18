@@ -61,7 +61,7 @@ describe("catalogue", () => {
     expect(health.json()).toMatchObject({ runner: "in-process", database: "not-used" });
     expect(health.json().checks.map((check: { id: string }) => check.id)).toContain("model");
     const presetsResponse = await app.inject({ method: "GET", url: "/presets" });
-    expect(presetsResponse.json().presets).toHaveLength(6);
+    expect(presetsResponse.json().presets).toHaveLength(7);
     const looksResponse = await app.inject({ method: "GET", url: "/looks" });
     expect(looksResponse.json().looks.map((look: { id: string }) => look.id)).toEqual([
       "studio",

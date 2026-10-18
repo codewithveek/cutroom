@@ -94,6 +94,39 @@ function storyboardFor(request: JsonCompletionRequest) {
   };
 }
 
+/**
+ * The changes fixture (createChangesFixtureRepo): the draft command when its added lines are in
+ * the prompt, nothing user-visible otherwise, as a well-behaved model answers.
+ */
+function changeBriefFor(request: JsonCompletionRequest) {
+  const prompt = request.messages[0]?.content ?? "";
+  const added = prompt.includes("+    2| export function draftChangelog(commits: string[]) {");
+  return {
+    name: "Shipnote",
+    tagline: "Release notes from your commits",
+    audience: "Maintainers who ship often",
+    problem: "The changelog was written by hand at every release.",
+    promise: "The changelog drafts itself from your commits.",
+    changes: added
+      ? [
+          {
+            kind: "feature",
+            title: "Draft the changelog",
+            description: "A draft command writes CHANGELOG.md from the commits since the last tag.",
+            evidence: [
+              {
+                filePath: "src/draft.ts",
+                lineStart: 2,
+                lineEnd: 2,
+                excerpt: "export function draftChangelog(commits: string[]) {",
+              },
+            ],
+          },
+        ]
+      : [],
+  };
+}
+
 /** Answers a regenerate request with the fixture draft's scene for the same beat. */
 function regeneratedSceneFor(request: JsonCompletionRequest) {
   const beat = request.messages[0]?.content.match(/\(beat "([^"]+)"\)/)?.[1];
@@ -115,6 +148,8 @@ export function createShipnoteScriptedTransport(): JsonCompletionTransport {
         return { summary: "Parses conventional commits and writes a changelog.", candidateFeatures: [] };
       case "storyboard_draft":
         return storyboardFor(request);
+      case "change_brief":
+        return changeBriefFor(request);
       case "claim_verdicts":
         return judgeFromSnippets(request);
       case "scene_draft":

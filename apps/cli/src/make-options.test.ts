@@ -22,3 +22,15 @@ describe("buildRunRequest watermark", () => {
     expect(buildRunRequest(flags).watermark).toBe(true);
   });
 });
+
+describe("buildRunRequest changes", () => {
+  it("reads a range, a single ref up to HEAD, and --include-fixes", () => {
+    const range = buildRunRequest(makeFlagsSchema.parse({ repo: ".", changes: "v1.2.0..v1.3.0" }));
+    expect(range.changes).toEqual({ fromRef: "v1.2.0", toRef: "v1.3.0", includeFixes: false });
+    const since = buildRunRequest(
+      makeFlagsSchema.parse({ repo: ".", changes: "v1.2.0", includeFixes: true }),
+    );
+    expect(since.changes).toEqual({ fromRef: "v1.2.0", toRef: "HEAD", includeFixes: true });
+    expect(() => makeFlagsSchema.parse({ repo: ".", changes: "v1 v2" })).toThrow();
+  });
+});
