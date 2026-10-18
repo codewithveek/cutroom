@@ -1,4 +1,5 @@
 import { type EgressGuard, installLocalEgressGuard } from "@cutroom/providers";
+import { ensureRenderBrowser } from "@cutroom/renderer";
 import type { ProductBrief, RunSettingsUpdate, Storyboard } from "@cutroom/scene-spec";
 import type {
   ApproveStoryboardInput,
@@ -49,6 +50,8 @@ export class InProcessRunner implements PipelineRunner {
   private readonly executor: StepExecutor;
   private readonly commands: RunCommands;
   private readonly executing = new Map<string, Promise<void>>();
+  /** One browser check per process, shared by concurrent Local-mode runs. */
+  private browserReady: Promise<"ready" | "downloaded"> | undefined;
 
   constructor(services: PipelineServices) {
     this.services = services;
@@ -144,12 +147,27 @@ export class InProcessRunner implements PipelineRunner {
     this.executing.set(runId, execution);
   }
 
+  /**
+   * Remotion downloads its browser on first use; capture and render would do that mid-run, where
+   * the Local-mode guard blocks it. Fetching it before the guard keeps it a one-time setup step.
+   * Offline with no browser, the step that needs one fails with egress_blocked as before.
+   */
+  private async prepareBrowserBeforeGuard(): Promise<void> {
+    this.browserReady ??= ensureRenderBrowser({ browserExecutable: this.services.browserExecutable }).catch(
+      (error: unknown) => {
+        this.browserReady = undefined;
+        this.services.logger.warn({ err: error }, "could not prepare the render browser");
+        return "ready" as const;
+      },
+    );
+    await this.browserReady;
+  }
+
   private async executeSteps(runId: string): Promise<void> {
     const initial = await this.commands.requireRun(runId);
-    const guard: EgressGuard | undefined =
-      this.services.enforceLocalEgress && initial.request.privacyMode === "local"
-        ? installLocalEgressGuard()
-        : undefined;
+    const enforceEgress = this.services.enforceLocalEgress && initial.request.privacyMode === "local";
+    if (enforceEgress) await this.prepareBrowserBeforeGuard();
+    const guard: EgressGuard | undefined = enforceEgress ? installLocalEgressGuard() : undefined;
     try {
       for (const definition of pipelineSteps) {
         const result = await this.executor.runStep({ runId, definition, recordFailure: true });
