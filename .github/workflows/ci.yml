@@ -55,3 +55,35 @@ jobs:
           npm init -y
           npm install "$RUNNER_TEMP"/cutroom-*.tgz
           npx cutroom demo --ratios 16:9
+
+  durability:
+    # PRD M4: a run survives its worker being killed mid-render.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: cutroom
+          POSTGRES_PASSWORD: cutroom
+          POSTGRES_DB: cutroom
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U cutroom" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pnpm install --frozen-lockfile
+      - name: Start a Temporal dev server
+        run: |
+          curl -sSL "https://temporal.download/cli/archive/latest?platform=linux&arch=amd64" | tar xz
+          ./temporal server start-dev --headless &
+          for attempt in $(seq 1 30); do ./temporal operator cluster health && break; sleep 2; done
+      - run: pnpm tsx scripts/check-durability.ts
+        env:
+          DATABASE_URL: postgres://cutroom:cutroom@127.0.0.1:5432/cutroom
