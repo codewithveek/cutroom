@@ -30,7 +30,7 @@ Both buttons stand up the web app, the API and Postgres from this repo (`render.
 2. Note the URL it prints (`http://<droplet IP>:8000/v1`) and the model id.
 3. Paste them into `OPENAI_COMPAT_BASE_URL`, `OPENAI_COMPAT_MODEL_ID` and `OPENAI_COMPAT_API_KEY` (the `VLLM_API_KEY`) when the deploy asks.
 
-> **Anyone with the URL can start runs.** The API has no login yet. Keep the deployment's URL private, or put it behind your platform's access controls.
+**Signing in.** A deployed instance always has a login (one admin account); a laptop install never does. On Render the admin password is generated: open the `cutroom-api` service → **Environment** → `CUTROOM_ADMIN_PASSWORD`. On DigitalOcean you choose it (12+ characters) when the app is created. Create API tokens for the CLI and the GitHub Action in **Settings → API tokens**.
 
 Durable runs with Temporal Cloud, the single-host stack with its own Temporal and HTTPS, and what each setting does: [`docs/deploy.md`](docs/deploy.md).
 

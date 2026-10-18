@@ -89,5 +89,7 @@ Cutroom made its own demo video (16:9 + 9:16, watermarked). The run surfaced and
 ## M8 · PRD extension (prd-extend-1)
 - 2026-10-18 · E4 one-click deploys: Render Blueprint and DigitalOcean App Platform template with README buttons; web app proxies the API at a runtime address; API and Temporal worker share one container (`cutroom-service all`); `/health` reports runner, database and checks; generated render-API token; `DEFAULT_PRIVACY_MODE` (ADR 0015)
 
+- 2026-10-18 · E7 auth for deployed instances: login required off loopback (refuses to start open or with weak secrets), one seeded argon2id admin, hashed server-side sessions, CSRF origin checks, rate-limited login with backoff, helmet, revocable `ctr_` API tokens, `/login` page and Settings → Account / API tokens, generated secrets in the Render Blueprint (ADR 0016)
+
 ## Not done yet
 - Deploying to the .tech domain (needs the Droplet or Render account and DNS)

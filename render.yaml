@@ -19,6 +19,16 @@ services:
         value: 0.0.0.0
       - key: API_PORT
         value: "10000"
+      # A public deploy is never open (E7): one admin, seeded on first boot. The password is
+      # generated: find it under cutroom-api → Environment → CUTROOM_ADMIN_PASSWORD.
+      - key: CUTROOM_AUTH_MODE
+        value: password
+      - key: CUTROOM_ADMIN_EMAIL
+        sync: false
+      - key: CUTROOM_ADMIN_PASSWORD
+        generateValue: true
+      - key: CUTROOM_SESSION_SECRET
+        generateValue: true
       - key: RUN_STORE
         value: postgres
       - key: DATABASE_URL

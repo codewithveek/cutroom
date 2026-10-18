@@ -16,6 +16,24 @@ on Render and DigitalOcean, where a disk belongs to one service, both run in one
 `GET /health` reports the runner, the database and each toolchain check (model, voice, ffmpeg). It
 answers 503 only when the database is unreachable, so a fresh deploy boots before the model is set.
 
+## Signing in
+
+A deployed instance always has a login; a laptop install never does. The API decides from where
+it listens: on a loopback address there is no login (`CUTROOM_AUTH_MODE` defaults to `none`);
+anywhere else it is `password`, and the API refuses to start without these, naming what is missing:
+
+| Variable | |
+| --- | --- |
+| `CUTROOM_ADMIN_EMAIL` | The admin's login, used to seed the account on first boot |
+| `CUTROOM_ADMIN_PASSWORD` | At least 12 characters; seeds the account on first boot only |
+| `CUTROOM_SESSION_SECRET` | At least 32 random bytes (`openssl rand -base64 48`); signs the session cookie |
+| `CUTROOM_ADMIN_RESET` | `true` re-applies the env email and password on the next boot (recovery); unset it after |
+| `CUTROOM_PUBLIC_URL` | Optional: the web app's exact origin for CSRF checks; otherwise the proxied host is used |
+
+Every API route except `/health` and the login needs the session cookie or an API token
+(`Authorization: Bearer ctr_…`, created in **Settings → API tokens**). `RENDER_API_TOKEN` still works
+as a bootstrap token for the remote render API.
+
 ## Option A · One host (DigitalOcean Droplet)
 
 Everything in `deploy/docker-compose.cloud.yml`: web, API, worker, Postgres with pgvector, a Temporal

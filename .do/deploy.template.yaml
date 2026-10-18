@@ -41,6 +41,19 @@ spec:
         - key: API_PORT
           scope: RUN_TIME
           value: "4100"
+        # A public deploy is never open (E7): App Platform asks for these; the API refuses to start
+        # with a password under 12 characters or a session secret under 32 bytes.
+        - key: CUTROOM_AUTH_MODE
+          scope: RUN_TIME
+          value: password
+        - key: CUTROOM_ADMIN_EMAIL
+          scope: RUN_TIME
+        - key: CUTROOM_ADMIN_PASSWORD
+          scope: RUN_TIME
+          type: SECRET
+        - key: CUTROOM_SESSION_SECRET
+          scope: RUN_TIME
+          type: SECRET
         - key: RUN_STORE
           scope: RUN_TIME
           value: postgres
