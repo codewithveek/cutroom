@@ -1,13 +1,8 @@
 import { loadEnv } from "@cutroom/config";
 import { createLogger, initTracing } from "@cutroom/observability";
-import {
-  createPipelineServices,
-  createShipnoteScriptedTransport,
-  createSystemService,
-  InProcessRunner,
-  RenderJobWorker,
-} from "@cutroom/pipeline";
+import { createSystemService, RenderJobWorker } from "@cutroom/pipeline";
 import { buildApp } from "./app";
+import { createRunner } from "./create-runner";
 
 const env = loadEnv();
 initTracing({
@@ -16,33 +11,7 @@ initTracing({
   tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
 });
 const logger = createLogger({ level: env.LOG_LEVEL, name: "cutroom-api" });
-const services = createPipelineServices({
-  env,
-  logger,
-  overrides:
-    env.MODEL_PROVIDER === "scripted-shipnote"
-      ? { modelTransportOverride: createShipnoteScriptedTransport() }
-      : {},
-});
-const runner = new InProcessRunner(services);
-
-// Durability for the in-process runner: runs interrupted by a restart continue from their last step.
-const interruptedStatuses = new Set([
-  "queued",
-  "ingesting",
-  "analyzing",
-  "planning",
-  "auditing",
-  "voicing",
-  "rendering",
-  "finalizing",
-]);
-for (const run of await services.store.list()) {
-  if (interruptedStatuses.has(run.status)) {
-    logger.info({ runId: run.id, status: run.status }, "resuming interrupted run");
-    runner.resume(run.id);
-  }
-}
+const { runner, services, close } = await createRunner({ env, logger });
 
 const renderJobWorker = env.RENDER_API_TOKEN
   ? new RenderJobWorker({
@@ -64,4 +33,6 @@ const app = await buildApp({
   ...(renderJobWorker ? { renderJobWorker } : {}),
   logger: true,
 });
+app.addHook("onClose", close);
 await app.listen({ host: env.API_HOST, port: env.API_PORT });
+logger.info({ runner: env.RUNNER, store: env.RUN_STORE }, "api listening");
