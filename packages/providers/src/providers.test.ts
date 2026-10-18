@@ -107,7 +107,7 @@ describe("privacy guard", () => {
 });
 
 describe("ollama transport", () => {
-  it("posts the JSON schema as `format` and reads token counts", async () => {
+  it("posts the JSON schema as `format` with thinking off, and reads token counts", async () => {
     let sentBody: unknown;
     const transport = createOllamaTransport({
       host: "http://127.0.0.1:11434",
@@ -131,7 +131,12 @@ describe("ollama transport", () => {
       maxOutputTokens: 100,
     });
     expect(completion).toEqual({ content: '{"ok":true}', usage: { inputTokens: 12, outputTokens: 5 } });
-    expect(sentBody).toMatchObject({ model: "gemma4:e4b", stream: true, format: { type: "object" } });
+    expect(sentBody).toMatchObject({
+      model: "gemma4:e4b",
+      stream: true,
+      think: false,
+      format: { type: "object" },
+    });
   });
 });
 

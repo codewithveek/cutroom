@@ -78,6 +78,8 @@ export function createOllamaTransport(options: OllamaTransportOptions): JsonComp
         body: JSON.stringify({
           model: options.modelId,
           stream: true,
+          // Thinking-capable models (gemma4) ignore `format` while thinking (ADR 0014).
+          think: false,
           format: request.jsonSchema,
           messages: [{ role: "system", content: request.system }, ...request.messages],
           options: {
