@@ -1,6 +1,7 @@
 import { SceneNotFoundError } from "@cutroom/agent";
 import { ApprovalBlockedError } from "@cutroom/claim-audit";
 import {
+  describeError,
   RunNotFoundError,
   RunStateError,
   StoryboardEditError,
@@ -19,6 +20,8 @@ export const apiErrorCodeSchema = z.enum([
   "not_found",
   "conflict",
   "approval_blocked",
+  "model_output_invalid",
+  "model_unavailable",
   "internal",
 ]);
 export type ApiErrorCode = z.infer<typeof apiErrorCodeSchema>;
@@ -95,7 +98,19 @@ function mapError(error: FastifyError | Error): MappedError {
       details: { claimIds: error.blockingClaims.map((claim) => claim.claimId) },
     };
   }
-  return { statusCode: 500, code: "internal", message: "Something went wrong on our side" };
+  return (
+    mapModelError(error) ?? { statusCode: 500, code: "internal", message: "Something went wrong on our side" }
+  );
+}
+
+/** A request that waits on the model (storyboard edits re-audit, scene regeneration) can fail there. */
+function mapModelError(error: Error): MappedError | undefined {
+  const described = describeError(error);
+  if (described.code === "model_output_invalid")
+    return { statusCode: 502, code: described.code, message: described.message, details: described.details };
+  if (described.code === "model_unavailable")
+    return { statusCode: 503, code: described.code, message: described.message };
+  return undefined;
 }
 
 export function registerErrorHandler(app: FastifyInstance): void {

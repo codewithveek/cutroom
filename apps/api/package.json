@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@cutroom/audio-io": "workspace:*",
+    "@cutroom/providers": "workspace:*",
     "fflate": "0.8.3",
     "tsx": "4.23.15"
   }
