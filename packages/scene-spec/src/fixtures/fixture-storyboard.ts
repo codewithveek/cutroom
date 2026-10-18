@@ -90,6 +90,22 @@ export const fixtureStoryboardInput: StoryboardInput = {
       narration: [{ text: "Three commit types, grouped for you." }],
     },
     {
+      id: "scene-flow",
+      beat: "pitch",
+      block: "diagram-flow",
+      baseFrames: 105,
+      props: {
+        heading: "How a release note gets written",
+        nodes: [
+          { icon: "search", label: "Read commits", detail: "git log" },
+          { icon: "layers", label: "Group by type", detail: "group-commits.ts" },
+          { icon: "check", label: "Write the changelog", detail: "CHANGELOG.md" },
+        ],
+        connectors: ["parse", "draft"],
+      },
+      narration: [{ text: "Commits in, grouped by type, written out as a changelog." }],
+    },
+    {
       id: "scene-audience",
       beat: "moment",
       block: "word-slot",

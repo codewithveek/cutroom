@@ -52,6 +52,13 @@ const claimFieldExtractors: { [Block in BlockId]: ClaimFieldExtractor<Block> } =
       ),
     ]),
   "word-slot": (scene) => scene.props.items.map((item, index) => field(`props.items.${index}`, item)),
+  "diagram-flow": (scene) => [
+    ...(scene.props.heading ? [field("props.heading", scene.props.heading)] : []),
+    ...scene.props.nodes.flatMap((node, index) => [
+      field(`props.nodes.${index}.label`, node.label),
+      ...(node.detail ? [field(`props.nodes.${index}.detail`, node.detail)] : []),
+    ]),
+  ],
   "end-card": (scene) => [
     field("props.tagline", scene.props.tagline),
     field("props.cta", scene.props.cta),

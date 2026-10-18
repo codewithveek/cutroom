@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { blocksAllowedInLook } from "./block-catalog";
-import { collectClaims } from "./collect-claims";
+import { collectClaims, collectSceneClaims } from "./collect-claims";
 import { fixtureStoryboardInput } from "./fixtures/fixture-storyboard";
+import { sceneSchema } from "./scene";
 import { createStoryboardDraftSchema } from "./scene-draft";
 import { parseStarredText, stripStars } from "./starred-text";
 import { storyboardSchema } from "./storyboard";
@@ -10,7 +11,7 @@ import { storyboardSchema } from "./storyboard";
 describe("storyboardSchema", () => {
   it("parses the fixture storyboard and applies defaults", () => {
     const storyboard = storyboardSchema.parse(fixtureStoryboardInput);
-    expect(storyboard.scenes).toHaveLength(8);
+    expect(storyboard.scenes).toHaveLength(9);
     const bigNumber = storyboard.scenes.find((scene) => scene.block === "big-number");
     expect(bigNumber?.block === "big-number" && bigNumber.props.limitState).toBe(false);
   });
@@ -75,7 +76,7 @@ describe("collectClaims", () => {
     const codeClaim = claims.find((claim) => claim.kind === "code-excerpt");
     expect(codeClaim?.source).toEqual({ filePath: "src/group-commits.ts", lineStart: 1, lineEnd: 5 });
     expect(claims.find((claim) => claim.id === "scene-number:props.value")?.kind).toBe("number");
-    expect(claims.filter((claim) => claim.kind === "narration")).toHaveLength(8);
+    expect(claims.filter((claim) => claim.kind === "narration")).toHaveLength(9);
     expect(new Set(claims.map((claim) => claim.id)).size).toBe(claims.length);
   });
 });
@@ -100,5 +101,29 @@ describe("deriveThumbnailTitle", () => {
     const title = deriveThumbnailTitle(storyboardSchema.parse(fixtureStoryboardInput));
     expect(title).toEqual(["Shipnote", "Release notes from your"]);
     expect(title.join(" ").split(" ").length).toBeLessThanOrEqual(5);
+  });
+});
+
+describe("diagram-flow", () => {
+  const base = { id: "flow", block: "diagram-flow", baseFrames: 90, narration: [] } as const;
+
+  it("needs one connector label per gap, or none", () => {
+    const nodes = [{ label: "Read" }, { label: "Group" }, { label: "Write" }];
+    expect(sceneSchema.safeParse({ ...base, props: { nodes } }).success).toBe(true);
+    expect(sceneSchema.safeParse({ ...base, props: { nodes, connectors: ["a", "b"] } }).success).toBe(true);
+    expect(sceneSchema.safeParse({ ...base, props: { nodes, connectors: ["a"] } }).success).toBe(false);
+  });
+
+  it("audits every node label and detail", () => {
+    const scene = sceneSchema.parse({
+      ...base,
+      props: { heading: "How it works", nodes: [{ label: "Read", detail: "git log" }, { label: "Write" }] },
+    });
+    expect(collectSceneClaims(scene).map((claim) => claim.fieldPath)).toEqual([
+      "props.heading",
+      "props.nodes.0.label",
+      "props.nodes.0.detail",
+      "props.nodes.1.label",
+    ]);
   });
 });

@@ -1,5 +1,15 @@
 import type { BlockId } from "@cutroom/scene-spec";
-import { AlignLeft, Code2, Flag, Hash, LayoutGrid, ListOrdered, SquareTerminal, Type } from "lucide-react";
+import {
+  AlignLeft,
+  Code2,
+  Flag,
+  Hash,
+  LayoutGrid,
+  ListOrdered,
+  Route,
+  SquareTerminal,
+  Type,
+} from "lucide-react";
 import type React from "react";
 
 export const blockIcons: Readonly<Record<BlockId, React.ComponentType<{ className?: string }>>> = {
@@ -11,4 +21,5 @@ export const blockIcons: Readonly<Record<BlockId, React.ComponentType<{ classNam
   terminal: SquareTerminal,
   "word-slot": ListOrdered,
   "end-card": Flag,
+  "diagram-flow": Route,
 };

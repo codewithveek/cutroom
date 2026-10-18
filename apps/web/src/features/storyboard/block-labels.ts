@@ -9,4 +9,5 @@ export const blockLabels: Readonly<Record<BlockId, string>> = {
   terminal: "Terminal",
   "word-slot": "Word slot",
   "end-card": "End card",
+  "diagram-flow": "Diagram flow",
 };

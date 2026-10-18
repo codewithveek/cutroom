@@ -2,6 +2,7 @@ import type { Scene } from "@cutroom/scene-spec";
 import React from "react";
 import { BigNumberBlock } from "./big-number-block";
 import { CodeCardBlock } from "./code-card-block";
+import { DiagramFlowBlock } from "./diagram-flow-block";
 import { EndCardBlock } from "./end-card-block";
 import { FeatureCardsBlock } from "./feature-cards-block";
 import { KineticHeadlineBlock } from "./kinetic-headline-block";
@@ -29,5 +30,7 @@ export function SceneBlock(props: { scene: Scene }): React.ReactElement {
       return <WordSlotBlock scene={scene} />;
     case "end-card":
       return <EndCardBlock scene={scene} />;
+    case "diagram-flow":
+      return <DiagramFlowBlock scene={scene} />;
   }
 }

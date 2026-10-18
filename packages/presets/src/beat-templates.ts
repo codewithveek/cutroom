@@ -135,14 +135,15 @@ export const videoTypeTemplates: Readonly<Record<VideoType, VideoTypeTemplate>> 
       {
         beat: "stage",
         sceneCount: [1, 1],
-        blocks: ["word-slot", "kinetic-headline"],
+        blocks: ["diagram-flow", "word-slot", "kinetic-headline"],
         narrationWords: [6, 10],
-        guidance: "Name the stages the explainer will walk through, in order.",
+        guidance:
+          "Name the stages the explainer will walk through, in order; diagram-flow shows them as a flow.",
       },
       {
         beat: "idea",
         sceneCount: [3, 5],
-        blocks: ["code-card", "big-number", "kinetic-headline", "feature-cards"],
+        blocks: ["code-card", "diagram-flow", "big-number", "kinetic-headline", "feature-cards"],
         narrationWords: [10, 16],
         guidance: "One idea per scene, each grounded in the code.",
       },

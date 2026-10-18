@@ -49,6 +49,12 @@ export const blockCatalog: Readonly<Record<BlockId, BlockCatalogEntry>> = {
     allowedLooks: allLooks,
     durationRangeSeconds: [3, 6],
   },
+  "diagram-flow": {
+    purpose:
+      "2–5 stages left to right (top to bottom in vertical), drawn in with connectors: how the product works, in the code's own words. Labels name real modules, steps or commands.",
+    allowedLooks: ["studio", "editorial", "graphic"],
+    durationRangeSeconds: [4, 9],
+  },
   "end-card": {
     purpose:
       "Verbs as beats, then mark, name, tagline, a call-to-action pill and URL. Always the last scene.",

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { bigNumberSceneSchema } from "./blocks/big-number";
 import { codeCardSceneSchema } from "./blocks/code-card";
+import { diagramFlowSceneSchema } from "./blocks/diagram-flow";
 import { endCardSceneSchema } from "./blocks/end-card";
 import { featureCardsSceneSchema } from "./blocks/feature-cards";
 import { kineticHeadlineSceneSchema } from "./blocks/kinetic-headline";
@@ -17,6 +18,7 @@ export const sceneSchemaByBlock = {
   terminal: terminalSceneSchema,
   "word-slot": wordSlotSceneSchema,
   "end-card": endCardSceneSchema,
+  "diagram-flow": diagramFlowSceneSchema,
 } as const;
 
 export type BlockId = keyof typeof sceneSchemaByBlock;
@@ -30,6 +32,7 @@ export const blockIdSchema = z.enum([
   "terminal",
   "word-slot",
   "end-card",
+  "diagram-flow",
 ]);
 
 export const sceneSchema = z.discriminatedUnion("block", [
@@ -41,6 +44,7 @@ export const sceneSchema = z.discriminatedUnion("block", [
   terminalSceneSchema,
   wordSlotSceneSchema,
   endCardSceneSchema,
+  diagramFlowSceneSchema,
 ]);
 
 export type Scene = z.infer<typeof sceneSchema>;

@@ -18,6 +18,8 @@ export function sceneHeadline(scene: Scene): string {
       return `${scene.props.lead} ${scene.props.items[0] ?? ""}…`;
     case "end-card":
       return `${scene.props.name} · ${scene.props.cta}`;
+    case "diagram-flow":
+      return scene.props.heading ?? scene.props.nodes.map((node) => node.label).join(" → ");
   }
 }
 

@@ -19,6 +19,8 @@ function describeScene(scene: Scene): string {
       return scene.props.commands.map((command) => `$ ${command.command}`).join(" ; ");
     case "word-slot":
       return `${scene.props.lead} ${scene.props.items.join(" | ")}`;
+    case "diagram-flow":
+      return scene.props.nodes.map((node) => node.label).join(" → ");
     case "end-card":
       return `${scene.props.name} · ${scene.props.cta}`;
   }
