@@ -86,6 +86,11 @@ describe("capture-screens step", () => {
 
     const version = latestStoryboardVersion(paused);
     if (!version) throw new Error("no storyboard");
+    // The planner was told to show a captured screen, and the view came from the capture.
+    const planned = version.storyboard.scenes.find((scene) => scene.block === "screenshot-window");
+    if (planned?.block !== "screenshot-window") throw new Error("the planner showed no captured screen");
+    expect(planned.props.screenId).toBe("screen-1");
+    expect(planned.props.view?.imageWidth).toBe(1440);
     const scenes = [...version.storyboard.scenes];
     scenes.splice(
       1,

@@ -67,6 +67,33 @@ function judgeFromSnippets(request: JsonCompletionRequest) {
   };
 }
 
+/**
+ * With captured screens in the prompt, the last moment headline becomes a screenshot-window on the
+ * first screen, aimed at its first labelled element, as a real model is asked to do.
+ */
+function storyboardFor(request: JsonCompletionRequest) {
+  const prompt = request.messages[0]?.content ?? "";
+  const listed = prompt.match(/^- (screen-\d+) · route .*?focusText options: "([^"]+)"/m);
+  if (!listed?.[1]) return shipnoteStoryboardDraft;
+  const [, screenId, focusText] = listed;
+  const replaced = shipnoteStoryboardDraft.scenes.findLastIndex(
+    (scene) => scene.beat === "moment" && scene.block === "kinetic-headline",
+  );
+  return {
+    ...shipnoteStoryboardDraft,
+    scenes: shipnoteStoryboardDraft.scenes.map((scene, index) =>
+      index === replaced
+        ? {
+            beat: "moment",
+            block: "screenshot-window",
+            props: { screenId, ...(focusText ? { focusText } : {}) },
+            narration: [{ text: "Here it is in the running app." }],
+          }
+        : scene,
+    ),
+  };
+}
+
 /** Answers a regenerate request with the fixture draft's scene for the same beat. */
 function regeneratedSceneFor(request: JsonCompletionRequest) {
   const beat = request.messages[0]?.content.match(/\(beat "([^"]+)"\)/)?.[1];
@@ -87,7 +114,7 @@ export function createShipnoteScriptedTransport(): JsonCompletionTransport {
       case "directory_summary":
         return { summary: "Parses conventional commits and writes a changelog.", candidateFeatures: [] };
       case "storyboard_draft":
-        return shipnoteStoryboardDraft;
+        return storyboardFor(request);
       case "claim_verdicts":
         return judgeFromSnippets(request);
       case "scene_draft":
