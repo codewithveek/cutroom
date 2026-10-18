@@ -2,17 +2,29 @@
 
 import { type PresetId, presets } from "@cutroom/presets";
 import type { AspectRatio, LookId, PrivacyMode, SystemStatus } from "@cutroom/scene-spec";
-import { ArrowUp, Cloud, FlaskConical, Laptop, Loader2, Sparkles, Split } from "lucide-react";
+import {
+  ArrowUp,
+  Cloud,
+  FileArchive,
+  FlaskConical,
+  Laptop,
+  Loader2,
+  Paperclip,
+  Sparkles,
+  Split,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { DropdownSelect } from "@/components/ui/dropdown-select";
 import { allRatios, RatioIcon } from "@/components/ui/ratio-icon";
 import { buildRunRequest } from "@/features/new-video/run-request";
 import { apiClient } from "@/lib/api-client";
 import { classNames } from "@/lib/class-names";
 import { availableSourceModes, type SourceModeId } from "./source-modes";
+import { useArchiveUpload } from "./use-archive-upload";
 
 const privacyOptions = [
   { value: "local", label: "Local", description: "Nothing leaves this machine.", Icon: Laptop },
@@ -118,6 +130,10 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
   const [look, setLook] = useState<LookId | "auto">("auto");
   const [ratios, setRatios] = useState<AspectRatio[]>(presets["launch-editorial"].ratios);
   const [submitting, setSubmitting] = useState(false);
+  const archive = useArchiveUpload();
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasSource = Boolean(archive.upload) || repo.trim().length > 0;
   const [error, setError] = useState<string>();
   const mode = modes.find((candidate) => candidate.id === sourceMode) ?? modes[0];
 
@@ -128,12 +144,12 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!repo.trim()) return;
+    if (!hasSource) return;
     setSubmitting(true);
     setError(undefined);
     try {
       const run = await apiClient.createRun(
-        buildRunRequest({ repo, presetId, privacyMode, ratios, look, direction }),
+        buildRunRequest({ repo, upload: archive.upload, presetId, privacyMode, ratios, look, direction }),
       );
       router.push(`/runs/${run.id}`);
     } catch (caught) {
@@ -163,7 +179,24 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
           </button>
         ))}
       </fieldset>
-      <div className="relative rounded-2xl border border-line bg-panel shadow-[var(--shadow-panel)] transition-colors focus-within:border-line-strong">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: dropping a zip is a shortcut; the attach button does the same */}
+      <div
+        onDragOver={(event) => {
+          event.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragging(false);
+          const file = event.dataTransfer.files[0];
+          if (file) void archive.attach(file);
+        }}
+        className={classNames(
+          "relative rounded-2xl border bg-panel shadow-[var(--shadow-panel)] transition-colors focus-within:border-line-strong",
+          dragging ? "border-accent" : "border-line",
+        )}
+      >
         <span
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-accent to-transparent"
@@ -183,20 +216,62 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
             ))}
           </div>
         ) : null}
-        <label className="flex items-center gap-3 px-4 pt-4">
+        <div className="flex items-center gap-3 px-4 pt-4">
           {mode ? <mode.Icon className="size-5 shrink-0 text-ink-faint" aria-hidden="true" /> : null}
-          <span className="sr-only">Repository</span>
+          {archive.upload ? (
+            <span className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-panel-raised px-2.5 py-1.5 text-sm">
+              <FileArchive className="size-4 shrink-0 text-accent" aria-hidden="true" />
+              <span className="truncate font-mono">{archive.upload.fileName}</span>
+              <span className="shrink-0 text-xs text-ink-faint">{archive.upload.files} files</span>
+              <button
+                type="button"
+                aria-label="Remove the archive"
+                onClick={archive.clear}
+                className="ml-auto text-ink-faint hover:text-ink"
+              >
+                <X className="size-3.5" aria-hidden="true" />
+              </button>
+            </span>
+          ) : (
+            <label className="min-w-0 flex-1">
+              <span className="sr-only">Repository</span>
+              <input
+                id="repo"
+                value={repo}
+                onChange={(event) => setRepo(event.target.value)}
+                placeholder={archive.uploading ? "Uploading the archive…" : mode?.placeholder}
+                autoComplete="off"
+                spellCheck={false}
+                className="w-full bg-transparent font-mono text-[15px] text-ink placeholder:font-sans placeholder:text-ink-faint focus:outline-none"
+              />
+            </label>
+          )}
           <input
-            id="repo"
-            required
-            value={repo}
-            onChange={(event) => setRepo(event.target.value)}
-            placeholder={mode?.placeholder}
-            autoComplete="off"
-            spellCheck={false}
-            className="w-full bg-transparent font-mono text-[15px] text-ink placeholder:font-sans placeholder:text-ink-faint focus:outline-none"
+            ref={fileInputRef}
+            type="file"
+            accept=".zip,application/zip"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void archive.attach(file);
+              event.target.value = "";
+            }}
           />
-        </label>
+          <button
+            type="button"
+            aria-label="Upload a .zip of the repository"
+            title="Upload a .zip (or drop one here)"
+            disabled={archive.uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-faint hover:bg-panel-hover hover:text-ink disabled:opacity-40"
+          >
+            {archive.uploading ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Paperclip className="size-4" aria-hidden="true" />
+            )}
+          </button>
+        </div>
         <label className="block px-4 pt-2 pb-1 sm:pl-12">
           <span className="sr-only">Direction</span>
           <textarea
@@ -224,7 +299,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
             <button
               type="submit"
               aria-label="Make the video"
-              disabled={submitting || !repo.trim()}
+              disabled={submitting || !hasSource}
               className="grid size-9 place-items-center rounded-full bg-ink text-canvas transition-opacity disabled:opacity-30"
             >
               {submitting ? (
@@ -248,7 +323,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
         ) : (
           <span />
         )}
-        {error ? <p className="text-unsupported">{error}</p> : null}
+        {error || archive.error ? <p className="text-unsupported">{error ?? archive.error}</p> : null}
         <Link href="/new" className="text-ink-faint hover:text-ink">
           Advanced setup: brand colour, every option →
         </Link>

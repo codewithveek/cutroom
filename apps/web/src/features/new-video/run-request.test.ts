@@ -32,4 +32,19 @@ describe("buildRunRequest", () => {
     expect(request.direction).toBe("Focus on the CLI");
     expect(sourceFor("git@github.com:x/y.git").kind).toBe("git");
   });
+
+  it("uses an uploaded archive as the source when there is one", () => {
+    const request = buildRunRequest({
+      repo: "ignored",
+      upload: { uploadId: "01M5ABCDEFGHJKMNPQRSTVWXYZ", fileName: "app.zip", files: 3, bytes: 10 },
+      presetId: "launch-editorial",
+      privacyMode: "local",
+      ratios: ["16:9"],
+    });
+    expect(request.source).toEqual({
+      kind: "zip",
+      uploadId: "01M5ABCDEFGHJKMNPQRSTVWXYZ",
+      fileName: "app.zip",
+    });
+  });
 });

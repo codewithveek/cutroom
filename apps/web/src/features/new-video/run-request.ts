@@ -1,5 +1,5 @@
 import { type PresetId, presets } from "@cutroom/presets";
-import type { AspectRatio, LookId, PrivacyMode, RunRequestInput } from "@cutroom/scene-spec";
+import type { AspectRatio, LookId, PrivacyMode, RunRequestInput, UploadResult } from "@cutroom/scene-spec";
 
 export function sourceFor(repo: string): RunRequestInput["source"] {
   const trimmed = repo.trim();
@@ -8,6 +8,8 @@ export function sourceFor(repo: string): RunRequestInput["source"] {
 
 export interface NewRunChoices {
   repo: string;
+  /** An uploaded archive; when set it is the source and `repo` is ignored. */
+  upload?: UploadResult | undefined;
   presetId: PresetId;
   privacyMode: PrivacyMode;
   ratios: ReadonlyArray<AspectRatio>;
@@ -23,7 +25,9 @@ export function buildRunRequest(choices: NewRunChoices): RunRequestInput {
   const direction = choices.direction?.trim();
   const look = choices.look ?? preset.look;
   return {
-    source: sourceFor(choices.repo),
+    source: choices.upload
+      ? { kind: "zip", uploadId: choices.upload.uploadId, fileName: choices.upload.fileName }
+      : sourceFor(choices.repo),
     presetId: preset.id,
     videoType: preset.videoType,
     ...(look === "auto" ? {} : { look }),

@@ -19,7 +19,7 @@ export const sourceModes: ReadonlyArray<SourceMode> = [
   {
     id: "repository",
     label: "Repository",
-    placeholder: "Path to a repository, or a git URL",
+    placeholder: "Path to a repository, a git URL, or drop a .zip",
     Icon: FolderGit2,
   },
   {

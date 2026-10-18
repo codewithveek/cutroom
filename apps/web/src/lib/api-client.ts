@@ -7,6 +7,7 @@ import {
   runViewSchema,
   type Storyboard,
   systemStatusSchema,
+  uploadResultSchema,
   voiceOptionSchema,
 } from "@cutroom/scene-spec";
 import { z } from "zod";
@@ -34,7 +35,11 @@ interface RequestOptions<Output> {
 async function request<Output>({ path, schema, init }: RequestOptions<Output>): Promise<Output> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
-    headers: { ...(init?.body ? { "content-type": "application/json" } : {}), ...init?.headers },
+    // FormData sets its own multipart boundary; only JSON bodies get a content type here.
+    headers: {
+      ...(typeof init?.body === "string" ? { "content-type": "application/json" } : {}),
+      ...init?.headers,
+    },
   });
   const body: unknown = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -97,6 +102,11 @@ export const apiClient = {
       schema: runViewSchema,
       init: { method: "PATCH", body: JSON.stringify(settings) },
     }),
+  uploadArchive: (file: File) => {
+    const form = new FormData();
+    form.append("archive", file);
+    return request({ path: "/uploads", schema: uploadResultSchema, init: { method: "POST", body: form } });
+  },
   systemStatus: () => request({ path: "/system/status", schema: systemStatusSchema }),
   listVoices: () => request({ path: "/voices", schema: z.object({ voices: z.array(voiceOptionSchema) }) }),
   voiceSampleUrl: (voiceId: string) => `${apiBaseUrl}/voices/${voiceId}/sample`,
