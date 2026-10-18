@@ -1,0 +1,62 @@
+/** Extensions of files whose lines are code a code-card can show. Docs and data files are not. */
+const sourceCodeExtensions = new Set([
+  "ts",
+  "tsx",
+  "mts",
+  "cts",
+  "js",
+  "jsx",
+  "mjs",
+  "cjs",
+  "py",
+  "rb",
+  "go",
+  "rs",
+  "java",
+  "kt",
+  "kts",
+  "swift",
+  "scala",
+  "php",
+  "cs",
+  "fs",
+  "c",
+  "h",
+  "cc",
+  "cpp",
+  "hpp",
+  "m",
+  "mm",
+  "dart",
+  "ex",
+  "exs",
+  "erl",
+  "clj",
+  "lua",
+  "r",
+  "jl",
+  "sh",
+  "bash",
+  "zsh",
+  "ps1",
+  "sql",
+  "graphql",
+  "gql",
+  "proto",
+  "css",
+  "scss",
+  "sass",
+  "less",
+  "html",
+  "vue",
+  "svelte",
+  "astro",
+]);
+
+/** True for source files; false for README, docs, changelogs, lockfiles and other prose or data. */
+export function isSourceCodePath(filePath: string): boolean {
+  const fileName = filePath.split("/").at(-1) ?? filePath;
+  const dot = fileName.lastIndexOf(".");
+  if (dot <= 0) return false;
+  return sourceCodeExtensions.has(fileName.slice(dot + 1).toLowerCase());
+}

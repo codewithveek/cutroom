@@ -104,6 +104,19 @@ describe("storyboardDraftIssues", () => {
     expect(issues).toContain("The last scene must be an end-card.");
   });
 
+  it("flags a code-card that shows documentation instead of code", () => {
+    const scenes = shipnoteStoryboardDraft.scenes.map((scene) =>
+      scene.block === "code-card"
+        ? { ...scene, props: { ...scene.props, filePath: "docs/architecture.md" } }
+        : scene,
+    );
+    const issues = storyboardDraftIssues({ ...shipnoteStoryboardDraft, scenes }, "launch");
+    expect(issues.some((issue) => issue.includes("docs/architecture.md is documentation, not code"))).toBe(
+      true,
+    );
+    expect(storyboardDraftIssues(shipnoteStoryboardDraft, "launch")).toEqual([]);
+  });
+
   it('flags a "say" that is not the line read aloud', () => {
     const [problem, ...rest] = shipnoteStoryboardDraft.scenes;
     if (!problem) throw new Error("fixture drift");

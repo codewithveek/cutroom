@@ -2,6 +2,7 @@ import { type BeatTemplate, videoTypeTemplates } from "@cutroom/presets";
 import {
   countWords,
   isPlausibleSpokenForm,
+  isSourceCodePath,
   type SceneDraft,
   type StoryboardDraft,
   stripStars,
@@ -67,6 +68,14 @@ function headlineIssues({ scene, index, videoType }: SceneIssueOptions & { video
   ];
 }
 
+/** A code-card shows source code; a README or docs line in a code window reads as filler. */
+function codeCardIssues({ scene, index }: SceneIssueOptions): string[] {
+  if (scene.block !== "code-card" || isSourceCodePath(scene.props.filePath)) return [];
+  return [
+    `${sceneLabel(scene, index)}: ${scene.props.filePath} is documentation, not code; show an excerpt from a source file, or use another block.`,
+  ];
+}
+
 function structureIssues(draft: StoryboardDraft, videoType: VideoType): string[] {
   const template = videoTypeTemplates[videoType];
   const issues: string[] = [];
@@ -99,6 +108,7 @@ export function storyboardDraftIssues(draft: StoryboardDraft, videoType: VideoTy
     const beat = beatFor(videoType, scene.beat);
     if (beat) issues.push(...narrationIssues({ scene, index, beat }));
     issues.push(...headlineIssues({ scene, index, videoType }));
+    issues.push(...codeCardIssues({ scene, index }));
   });
   return issues;
 }

@@ -4,6 +4,7 @@ import {
   blockCatalog,
   blocksAllowedInLook,
   type CapturedScreen,
+  isSourceCodePath,
   type LookId,
   type ProductBrief,
   type VideoType,
@@ -73,7 +74,10 @@ function describeBrief(brief: ProductBrief): string {
 }
 
 function describeCodeExcerpts(brief: ProductBrief): string {
-  const excerpts = brief.features.flatMap((feature) => feature.evidence);
+  // Evidence often cites the README or docs; a code-card shows source code only.
+  const excerpts = brief.features
+    .flatMap((feature) => feature.evidence)
+    .filter((item) => isSourceCodePath(item.filePath));
   if (excerpts.length === 0) return "(none: do not use code-card)";
   return excerpts
     .map(

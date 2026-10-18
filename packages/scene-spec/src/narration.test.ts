@@ -18,3 +18,15 @@ describe("spokenText", () => {
     expect(spokenText(line)).toBe("Introducing Cutroom, a video from your code.");
   });
 });
+
+describe("isSourceCodePath", () => {
+  it("accepts source files and rejects docs and data", async () => {
+    const { isSourceCodePath } = await import("./source-code-path");
+    expect(isSourceCodePath("src/group-commits.ts")).toBe(true);
+    expect(isSourceCodePath("apps/web/page.tsx")).toBe(true);
+    expect(isSourceCodePath("docs/architecture.md")).toBe(false);
+    expect(isSourceCodePath("README")).toBe(false);
+    expect(isSourceCodePath("pnpm-lock.yaml")).toBe(false);
+    expect(isSourceCodePath(".env")).toBe(false);
+  });
+});

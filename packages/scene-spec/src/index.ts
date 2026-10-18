@@ -38,6 +38,7 @@ export {
   type StoryboardDraft,
 } from "./scene-draft";
 export * from "./screen-view";
+export { isSourceCodePath } from "./source-code-path";
 export { parseStarredText, stripStars, type TextSegment } from "./starred-text";
 export * from "./storyboard";
 export * from "./system-contracts";
