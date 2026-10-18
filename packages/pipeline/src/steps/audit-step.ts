@@ -1,7 +1,12 @@
 import { auditClaims } from "@cutroom/claim-audit";
 import type { ClaimResult } from "@cutroom/scene-spec";
 import { latestStoryboardVersion, type RunRecord } from "../run-schema";
-import { createRunModelClient, MissingStepOutputError, requireSnapshot } from "./run-resources";
+import {
+  createRunModelClient,
+  MissingStepOutputError,
+  requireSnapshot,
+  semanticRetrievalFor,
+} from "./run-resources";
 import type { StepContext, StepFunction } from "./step-context";
 
 export interface AuditVersionOptions {
@@ -26,6 +31,7 @@ export async function auditVersion(
     reader,
     brief: run.brief,
     model: createRunModelClient(context, run),
+    semantic: await semanticRetrievalFor(context, run),
     ...(options.sceneIds ? { sceneIds: options.sceneIds } : {}),
     logger: context.logger,
   });

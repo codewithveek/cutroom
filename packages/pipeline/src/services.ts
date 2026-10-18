@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { CodeVectorIndex } from "@cutroom/claim-audit";
 import type { CutroomEnv } from "@cutroom/config";
 import type { CutroomLogger } from "@cutroom/observability";
 import type { JsonCompletionTransport } from "@cutroom/providers";
@@ -19,6 +20,8 @@ export interface PipelineServices {
   voiceProviderOverride?: VoiceProvider;
   /** CLI only: block every non-loopback connection while a Local-mode run executes. */
   enforceLocalEgress?: boolean;
+  /** The code index of a run's project (pgvector), when retrieval is on (EMBEDDINGS, FR-ING-6). */
+  codeIndexFor?: (runId: string) => Promise<CodeVectorIndex | undefined>;
   /** A prebuilt Remotion bundle to copy instead of bundling video-kit from source (published CLI). */
   prebuiltBundleDirectory?: string;
 }

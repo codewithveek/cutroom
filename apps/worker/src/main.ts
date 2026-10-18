@@ -1,6 +1,6 @@
 import path from "node:path";
 import { loadEnv } from "@cutroom/config";
-import { createDatabase, PostgresRunStore } from "@cutroom/db";
+import { codeIndexForRun, createDatabase, PostgresRunStore } from "@cutroom/db";
 import { createLogger, flushTracing, initTracing } from "@cutroom/observability";
 import { createPipelineServices, createShipnoteScriptedTransport } from "@cutroom/pipeline";
 import { createPipelineWorker } from "@cutroom/temporal";
@@ -29,6 +29,7 @@ const services = createPipelineServices({
   logger,
   overrides: {
     store,
+    ...(env.EMBEDDINGS !== "off" ? { codeIndexFor: codeIndexForRun(database) } : {}),
     ...(env.MODEL_PROVIDER === "scripted-shipnote"
       ? { modelTransportOverride: createShipnoteScriptedTransport() }
       : {}),

@@ -16,6 +16,7 @@ export interface CreatePipelineServicesOptions {
       | "enforceLocalEgress"
       | "prebuiltBundleDirectory"
       | "store"
+      | "codeIndexFor"
     >
   >;
 }

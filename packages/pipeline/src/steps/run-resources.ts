@@ -1,5 +1,12 @@
 import path from "node:path";
-import { createModelClient, type ModelClient } from "@cutroom/providers";
+import type { CodeVectorIndex } from "@cutroom/claim-audit";
+import {
+  CODE_EMBEDDING_DIMENSIONS,
+  createEmbeddingClient,
+  createModelClient,
+  type EmbeddingClient,
+  type ModelClient,
+} from "@cutroom/providers";
 import { type LoadedSnapshot, loadSnapshot } from "@cutroom/repo-ingest";
 import type { RunRecord } from "../run-schema";
 import { dataPaths } from "../services";
@@ -27,6 +34,24 @@ export function createRunModelClient(context: StepContext, run: RunRecord): Mode
       ? { transportOverride: context.services.modelTransportOverride }
       : {}),
   });
+}
+
+/**
+ * Vector search for the claim judge, when EMBEDDINGS is on and the store can hold vectors.
+ * The embedder passes the same privacy guard as the model (FR-PRV-2).
+ */
+export async function semanticRetrievalFor(
+  context: StepContext,
+  run: RunRecord,
+): Promise<{ index: CodeVectorIndex; embedder: EmbeddingClient } | undefined> {
+  const embedder = createEmbeddingClient({
+    mode: run.request.privacyMode,
+    env: context.services.env,
+    dimensions: CODE_EMBEDDING_DIMENSIONS,
+  });
+  if (!embedder || !context.services.codeIndexFor) return undefined;
+  const index = await context.services.codeIndexFor(run.id);
+  return index ? { index, embedder } : undefined;
 }
 
 export function summaryCacheDirectory(context: StepContext): string {

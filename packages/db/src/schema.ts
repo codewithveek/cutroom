@@ -1,4 +1,5 @@
 import type { AssetRecord, RunRecord, StoryboardVersion } from "@cutroom/pipeline";
+import { CODE_EMBEDDING_DIMENSIONS } from "@cutroom/providers";
 import type { ClaimResult, ProductBrief, RunRequest } from "@cutroom/scene-spec";
 import {
   boolean,
@@ -13,8 +14,8 @@ import {
   vector,
 } from "drizzle-orm/pg-core";
 
-/** Dimensions of the code-chunk embeddings (EmbeddingGemma and nomic-embed-text both use 768). */
-export const EMBEDDING_DIMENSIONS = 768;
+/** Dimensions of the code-chunk embeddings, shared with the embedding clients. */
+export const EMBEDDING_DIMENSIONS = CODE_EMBEDDING_DIMENSIONS;
 
 const createdAt = () =>
   timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow();

@@ -374,12 +374,18 @@ importers:
 
   packages/db:
     dependencies:
+      '@cutroom/claim-audit':
+        specifier: workspace:*
+        version: link:../claim-audit
       '@cutroom/config':
         specifier: workspace:*
         version: link:../config
       '@cutroom/pipeline':
         specifier: workspace:*
         version: link:../pipeline
+      '@cutroom/providers':
+        specifier: workspace:*
+        version: link:../providers
       '@cutroom/scene-spec':
         specifier: workspace:*
         version: link:../scene-spec

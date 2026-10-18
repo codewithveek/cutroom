@@ -8,6 +8,7 @@ import { createSilentProvider } from "@cutroom/voice";
 import { sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDatabase, type DatabaseHandle, runMigrations } from "./database";
+import { codeIndexForRun } from "./pgvector-code-index";
 import { PostgresRunStore } from "./postgres-run-store";
 
 const connectionString = process.env.CUTROOM_TEST_DATABASE_URL;
@@ -25,10 +26,17 @@ describe.skipIf(!connectionString)("PostgresRunStore", () => {
     const dataDirectory = await mkdtemp(path.join(tmpdir(), "cutroom-db-"));
     store = new PostgresRunStore({ database, filesRoot: path.join(dataDirectory, "runs") });
     const services = createPipelineServices({
-      env: parseEnv({ CUTROOM_DATA_DIR: dataDirectory, LOG_LEVEL: "silent" }),
+      env: parseEnv({
+        CUTROOM_DATA_DIR: dataDirectory,
+        LOG_LEVEL: "silent",
+        RUN_STORE: "postgres",
+        DATABASE_URL: connectionString,
+        EMBEDDINGS: "hashing",
+      }),
       logger: createLogger({ level: "silent" }),
       overrides: {
         store,
+        codeIndexFor: codeIndexForRun(database),
         modelTransportOverride: createShipnoteScriptedTransport(),
         voiceProviderOverride: createSilentProvider(),
       },
@@ -56,6 +64,11 @@ describe.skipIf(!connectionString)("PostgresRunStore", () => {
     expect(paused.status).toBe("awaiting_review");
     expect(paused.brief?.name).toBe("Shipnote");
     expect(paused.storyboardVersions[0]?.claimResults.length).toBeGreaterThan(0);
+    // The judge searched the project's code by meaning: its chunks are now in pgvector.
+    const indexed = await database.db.execute<{ chunks: number }>(
+      sql`select count(*)::int as chunks from code_chunks join runs on runs.project_id = code_chunks.project_id where runs.id = ${runId}`,
+    );
+    expect(indexed.rows[0]?.chunks).toBeGreaterThan(0);
 
     const version = paused.storyboardVersions[0];
     if (!version) throw new Error("no storyboard");

@@ -12,8 +12,10 @@
     "migrate": "tsx scripts/migrate.ts"
   },
   "dependencies": {
+    "@cutroom/claim-audit": "workspace:*",
     "@cutroom/config": "workspace:*",
     "@cutroom/pipeline": "workspace:*",
+    "@cutroom/providers": "workspace:*",
     "@cutroom/scene-spec": "workspace:*",
     "drizzle-orm": "0.45.4",
     "pg": "8.23.1",
