@@ -2,6 +2,7 @@
 
 import {
   type AspectRatio,
+  attachScreenViews,
   estimateTimeline,
   type RunEvent,
   type Storyboard,
@@ -185,12 +186,16 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
     [props.replaceRun],
   );
 
+  const screens = props.run.capture?.screens;
   const applyEdit = useCallback(
     (change: (storyboard: Storyboard) => Storyboard) => {
-      const failure = draft.edit(change);
+      // Screenshot scenes follow the capture: the preview shows the box the server will store.
+      const failure = draft.edit((storyboard) =>
+        attachScreenViews({ storyboard: change(storyboard), screens: screens ?? [] }),
+      );
       setNotice(failure);
     },
-    [draft.edit],
+    [draft.edit, screens],
   );
 
   useEffect(() => {

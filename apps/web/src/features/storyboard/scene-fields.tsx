@@ -1,6 +1,11 @@
 "use client";
 
-import { type ClaimResult, type Scene, sceneSchemaByBlock } from "@cutroom/scene-spec";
+import {
+  type ClaimResult,
+  type Scene,
+  sceneSchemaByBlock,
+  screenshotWindowPropsSchema,
+} from "@cutroom/scene-spec";
 import { RefreshCw } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
@@ -11,7 +16,11 @@ import { Label, TextInput } from "@/components/ui/field";
 import { type JsonSchemaNode, SchemaField } from "./schema-form";
 
 function propsJsonSchema(block: Scene["block"]): JsonSchemaNode {
-  const propsSchema = sceneSchemaByBlock[block].shape.props;
+  // A screenshot's view (image size, element box) comes from the capture, so it is not a field.
+  const propsSchema =
+    block === "screenshot-window"
+      ? screenshotWindowPropsSchema.omit({ view: true })
+      : sceneSchemaByBlock[block].shape.props;
   return z.toJSONSchema(propsSchema, { io: "input", unrepresentable: "any" }) as JsonSchemaNode;
 }
 

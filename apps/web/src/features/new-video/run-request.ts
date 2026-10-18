@@ -6,6 +6,21 @@ export function sourceFor(repo: string): RunRequestInput["source"] {
   return /^(https:\/\/|git@)/.test(trimmed) ? { kind: "git", url: trimmed } : { kind: "path", path: trimmed };
 }
 
+/** "/, /settings /billing" → a capture of those routes; no app URL → no capture. */
+export function captureFor(options: {
+  appUrl: string | undefined;
+  routes: string | undefined;
+}): RunRequestInput["capture"] {
+  const appUrl = options.appUrl?.trim();
+  if (!appUrl) return undefined;
+  const routes = (options.routes ?? "")
+    .split(/[\s,]+/)
+    .map((route) => route.trim())
+    .filter(Boolean)
+    .map((route) => (route.startsWith("/") ? route : `/${route}`));
+  return { appUrl, routes: routes.length > 0 ? [...new Set(routes)].slice(0, 8) : ["/"] };
+}
+
 export interface NewRunChoices {
   repo: string;
   /** An uploaded archive; when set it is the source and `repo` is ignored. */
@@ -17,6 +32,9 @@ export interface NewRunChoices {
   look?: LookId | "auto";
   direction?: string;
   accentColor?: string;
+  /** The running app to capture screens from, and its routes (space- or comma-separated). */
+  appUrl?: string;
+  routes?: string;
 }
 
 /** Preset values, overridden by what the user picked: one request shape for the composer and the wizard. */
@@ -24,6 +42,7 @@ export function buildRunRequest(choices: NewRunChoices): RunRequestInput {
   const preset = presets[choices.presetId];
   const direction = choices.direction?.trim();
   const look = choices.look ?? preset.look;
+  const capture = captureFor({ appUrl: choices.appUrl, routes: choices.routes });
   return {
     source: choices.upload
       ? { kind: "zip", uploadId: choices.upload.uploadId, fileName: choices.upload.fileName }
@@ -37,6 +56,7 @@ export function buildRunRequest(choices: NewRunChoices): RunRequestInput {
     music: preset.music,
     privacyMode: choices.privacyMode,
     ...(direction ? { direction } : {}),
+    ...(capture ? { capture } : {}),
     ...(choices.accentColor && /^#[0-9a-fA-F]{6}$/.test(choices.accentColor)
       ? { brandOverride: { accentColor: choices.accentColor } }
       : {}),

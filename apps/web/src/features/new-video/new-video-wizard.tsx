@@ -10,6 +10,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Label, TextArea, TextInput } from "@/components/ui/field";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { apiClient } from "@/lib/api-client";
+import { isEnabled } from "@/lib/capabilities";
 import { classNames } from "@/lib/class-names";
 import { LookPicker } from "./look-picker";
 import { PrivacyPicker } from "./privacy-picker";
@@ -105,6 +106,8 @@ export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.Rea
   const [look, setLook] = useState<LookId | "auto">(initialPreset.look);
   const [ratios, setRatios] = useState<AspectRatio[]>(initialPreset.ratios);
   const [accentColor, setAccentColor] = useState("");
+  const [appUrl, setAppUrl] = useState("");
+  const [routes, setRoutes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -120,7 +123,17 @@ export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.Rea
     setError(undefined);
     try {
       const run = await apiClient.createRun(
-        buildRunRequest({ repo, presetId, privacyMode, ratios, look, accentColor, direction }),
+        buildRunRequest({
+          repo,
+          presetId,
+          privacyMode,
+          ratios,
+          look,
+          accentColor,
+          direction,
+          appUrl,
+          routes,
+        }),
       );
       router.push(`/runs/${run.id}`);
     } catch (caught) {
@@ -195,6 +208,45 @@ export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.Rea
           className="max-w-40 font-mono"
         />
       </Step>
+      {isEnabled("screenCapture") ? (
+        <Step
+          number={5}
+          title="App screens"
+          description="Optional. Cutroom opens these routes read-only (no form posts), redacts secrets on the page and shows real screens in window scenes."
+        >
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div>
+              <Label
+                htmlFor="app-url"
+                hint={privacyMode === "local" ? "Local mode: this machine only" : "optional"}
+              >
+                Running app
+              </Label>
+              <TextInput
+                id="app-url"
+                type="url"
+                value={appUrl}
+                onChange={(event) => setAppUrl(event.target.value)}
+                placeholder="http://localhost:3000"
+                className="font-mono"
+              />
+            </div>
+            <div>
+              <Label htmlFor="routes" hint="up to 8, space-separated">
+                Routes
+              </Label>
+              <TextInput
+                id="routes"
+                value={routes}
+                disabled={!appUrl.trim()}
+                onChange={(event) => setRoutes(event.target.value)}
+                placeholder="/ /settings /billing"
+                className="font-mono"
+              />
+            </div>
+          </div>
+        </Step>
+      ) : null}
       <div className="flex items-center justify-end gap-4">
         {error ? <p className="text-sm text-unsupported">{error}</p> : null}
         <Button type="submit" variant="primary" disabled={submitting || !repo.trim()}>

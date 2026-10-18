@@ -1,4 +1,13 @@
-import type { BlockId, LookId, NarrationLine, Scene, Storyboard, TransitionId } from "@cutroom/scene-spec";
+import {
+  type BlockId,
+  type CapturedScreen,
+  type LookId,
+  type NarrationLine,
+  type Scene,
+  type Storyboard,
+  screenViewFor,
+  type TransitionId,
+} from "@cutroom/scene-spec";
 import { fixtureStoryboard } from "@cutroom/video-kit";
 import { ulid } from "ulid";
 import { moveItem } from "@/features/storyboard/edit-paths";
@@ -51,6 +60,30 @@ export function insertScene(options: {
     storyboard: options.storyboard,
     afterSceneId: options.afterSceneId,
     scene: { ...rest, id: ulid() },
+  });
+}
+
+/** Adds a scene showing a captured screen, focused on its first real element if it has one. */
+export function insertScreenScene(options: {
+  storyboard: Storyboard;
+  afterSceneId: string | undefined;
+  screen: CapturedScreen;
+}): Storyboard {
+  const focusText = options.screen.targets[0]?.text;
+  return insertAfter({
+    storyboard: options.storyboard,
+    afterSceneId: options.afterSceneId,
+    scene: {
+      id: ulid(),
+      block: "screenshot-window",
+      baseFrames: 120,
+      props: {
+        screenId: options.screen.id,
+        ...(focusText ? { focusText } : {}),
+        view: screenViewFor({ screen: options.screen, focusText }),
+      },
+      narration: [{ text: (options.screen.title || `The ${options.screen.route} screen`).slice(0, 80) }],
+    },
   });
 }
 

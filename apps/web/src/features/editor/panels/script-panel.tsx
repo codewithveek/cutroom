@@ -29,6 +29,7 @@ import { EditorPanel, IconButton } from "../editor-panel";
 import {
   duplicateScene,
   insertScene,
+  insertScreenScene,
   moveScene,
   removeScene,
   templateBlocks,
@@ -301,7 +302,11 @@ export function ScriptPanel(): React.ReactElement {
   const clips = useMemo(() => lineClips(editor.timeline), [editor.timeline]);
   const { storyboard } = editor.draft;
   const templates = templateBlocks();
-  const addable = blocksAllowedInLook(storyboard.look).filter((block) => templates.has(block));
+  const firstScreen = editor.run.capture?.screens[0];
+  // A screenshot scene needs a captured screen; the fixture's template screen is not this app's.
+  const addable = blocksAllowedInLook(storyboard.look).filter((block) =>
+    block === "screenshot-window" ? Boolean(firstScreen) : templates.has(block),
+  );
   return (
     <EditorPanel
       title="Script"
@@ -323,7 +328,13 @@ export function ScriptPanel(): React.ReactElement {
               disabled: !editor.editable,
               onSelect: () =>
                 editor.applyEdit((current) =>
-                  insertScene({ storyboard: current, afterSceneId: editor.selectedSceneId, block }),
+                  block === "screenshot-window" && firstScreen
+                    ? insertScreenScene({
+                        storyboard: current,
+                        afterSceneId: editor.selectedSceneId,
+                        screen: firstScreen,
+                      })
+                    : insertScene({ storyboard: current, afterSceneId: editor.selectedSceneId, block }),
                 ),
             }))}
           />

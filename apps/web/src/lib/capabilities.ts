@@ -6,8 +6,8 @@
 export const capabilities = {
   /** Script-to-motion: start a project from a written script instead of a repository. */
   scriptSource: false,
-  /** Screen capture of the running app for screenshot-window scenes. */
-  screenCapture: false,
+  /** Screen capture of the running app for screenshot-window scenes (run request `capture`). */
+  screenCapture: true,
   /** Model-generated imagery or b-roll in the Media tab. */
   generatedMedia: false,
   /** Cloned or custom voices beyond the Kokoro catalogue and ElevenLabs. */

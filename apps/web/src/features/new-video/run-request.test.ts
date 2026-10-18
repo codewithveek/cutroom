@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRunRequest, sourceFor } from "./run-request";
+import { buildRunRequest, captureFor, sourceFor } from "./run-request";
 
 describe("buildRunRequest", () => {
   it("fills the preset and keeps only meaningful overrides", () => {
@@ -46,5 +46,19 @@ describe("buildRunRequest", () => {
       uploadId: "01M5ABCDEFGHJKMNPQRSTVWXYZ",
       fileName: "app.zip",
     });
+  });
+});
+
+describe("captureFor", () => {
+  it("asks for no capture without an app URL", () => {
+    expect(captureFor({ appUrl: " ", routes: "/settings" })).toBeUndefined();
+  });
+
+  it("splits, normalises and de-duplicates routes, defaulting to the home page", () => {
+    expect(captureFor({ appUrl: "http://localhost:3000", routes: "/, settings  /billing,/" })).toEqual({
+      appUrl: "http://localhost:3000",
+      routes: ["/", "/settings", "/billing"],
+    });
+    expect(captureFor({ appUrl: "http://localhost:3000", routes: "" })?.routes).toEqual(["/"]);
   });
 });
