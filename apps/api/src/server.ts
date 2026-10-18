@@ -3,6 +3,7 @@ import { createLogger, initTracing } from "@cutroom/observability";
 import {
   createPipelineServices,
   createShipnoteScriptedTransport,
+  createSystemService,
   InProcessRunner,
   RenderJobWorker,
 } from "@cutroom/pipeline";
@@ -59,6 +60,7 @@ const app = await buildApp({
   env,
   runner,
   store: services.store,
+  system: createSystemService(services),
   ...(renderJobWorker ? { renderJobWorker } : {}),
   logger: true,
 });

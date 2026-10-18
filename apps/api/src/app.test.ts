@@ -3,7 +3,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { parseEnv } from "@cutroom/config";
 import { createLogger } from "@cutroom/observability";
-import { createPipelineServices, createShipnoteScriptedTransport, InProcessRunner } from "@cutroom/pipeline";
+import {
+  createPipelineServices,
+  createShipnoteScriptedTransport,
+  createSystemService,
+  InProcessRunner,
+} from "@cutroom/pipeline";
 import { createSilentProvider } from "@cutroom/voice";
 import type { FastifyInstance } from "fastify";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -26,7 +31,7 @@ beforeAll(async () => {
     },
   });
   runner = new InProcessRunner(services);
-  app = await buildApp({ env, runner, store: services.store });
+  app = await buildApp({ env, runner, store: services.store, system: createSystemService(services) });
 });
 
 const runBody = {
@@ -115,6 +120,33 @@ describe("runs", () => {
       payload: {},
     });
     expect(unknownScene.statusCode).toBe(404);
+    const settings = await app.inject({
+      method: "PATCH",
+      url: `/runs/${runId}/settings`,
+      payload: { voice: { provider: "kokoro", voiceId: "bf_emma", speed: 1 }, music: { kind: "none" } },
+    });
+    expect(settings.statusCode).toBe(200);
+    expect(settings.json().request.voice.voiceId).toBe("bf_emma");
+    expect(settings.json().request.music).toEqual({ kind: "none" });
+    const emptySettings = await app.inject({ method: "PATCH", url: `/runs/${runId}/settings`, payload: {} });
+    expect(emptySettings.statusCode).toBe(400);
+  });
+
+  it("reports the toolchain and lists voices", async () => {
+    const status = await app.inject({ method: "GET", url: "/system/status" });
+    expect(status.statusCode).toBe(200);
+    expect(status.json().model.provider).toBe("scripted");
+    expect(status.json().checks.map((check: { id: string }) => check.id)).toEqual([
+      "model",
+      "voice",
+      "ffmpeg",
+      "render-host",
+    ]);
+    expect(status.json().demoRepositoryPath).toBe(shipnoteFixture);
+    const voices = await app.inject({ method: "GET", url: "/voices" });
+    expect(voices.json().voices[0]).toMatchObject({ id: "af_heart", grade: "A" });
+    const unknownVoice = await app.inject({ method: "GET", url: "/voices/xx_nobody/sample" });
+    expect(unknownVoice.statusCode).toBe(404);
   });
 });
 

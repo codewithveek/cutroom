@@ -1,6 +1,7 @@
 import { SceneNotFoundError } from "@cutroom/agent";
 import { ApprovalBlockedError } from "@cutroom/claim-audit";
-import { RunNotFoundError, RunStateError } from "@cutroom/pipeline";
+import { RunNotFoundError, RunStateError, UnknownVoiceOptionError } from "@cutroom/pipeline";
+import { VoiceModelMissingError } from "@cutroom/voice";
 import type { FastifyError, FastifyInstance } from "fastify";
 import { hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -58,7 +59,13 @@ function mapError(error: FastifyError | Error): MappedError {
   }
   if (error instanceof ApiError)
     return { statusCode: error.statusCode, code: error.code, message: error.message };
-  if (error instanceof RunNotFoundError || error instanceof SceneNotFoundError) {
+  if (error instanceof VoiceModelMissingError)
+    return { statusCode: 409, code: "conflict", message: error.message };
+  if (
+    error instanceof RunNotFoundError ||
+    error instanceof SceneNotFoundError ||
+    error instanceof UnknownVoiceOptionError
+  ) {
     return { statusCode: 404, code: "not_found", message: error.message };
   }
   if (error instanceof RunStateError) return { statusCode: 409, code: "conflict", message: error.message };

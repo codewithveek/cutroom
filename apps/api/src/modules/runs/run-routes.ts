@@ -1,5 +1,5 @@
 import { type PipelineRunner, runRequestSchema } from "@cutroom/pipeline";
-import { claimOverrideSchema, storyboardSchema } from "@cutroom/scene-spec";
+import { claimOverrideSchema, runSettingsUpdateSchema, storyboardSchema } from "@cutroom/scene-spec";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { ApiError } from "../../plugins/error-handler";
@@ -37,6 +37,16 @@ export const runRoutes: FastifyPluginAsyncZod<RunRoutesOptions> = async (app, op
     async (request) => {
       await requireRun(request.params.runId);
       await runner.updateStoryboard(request.params.runId, request.body.storyboard);
+      return toRunView(await requireRun(request.params.runId));
+    },
+  );
+
+  app.patch(
+    "/runs/:runId/settings",
+    { schema: { params: runParamsSchema, body: runSettingsUpdateSchema } },
+    async (request) => {
+      await requireRun(request.params.runId);
+      await runner.updateSettings(request.params.runId, request.body);
       return toRunView(await requireRun(request.params.runId));
     },
   );

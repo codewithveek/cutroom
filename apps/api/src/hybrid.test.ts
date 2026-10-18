@@ -6,6 +6,7 @@ import { createLogger } from "@cutroom/observability";
 import {
   createPipelineServices,
   createShipnoteScriptedTransport,
+  createSystemService,
   InProcessRunner,
   latestStoryboardVersion,
   RenderJobWorker,
@@ -31,6 +32,7 @@ describe("Hybrid mode", () => {
       env: hostEnv,
       runner: new InProcessRunner(hostServices),
       store: hostServices.store,
+      system: createSystemService(hostServices),
       renderJobWorker: worker,
     });
     const address = await renderHost.listen({ host: "127.0.0.1", port: 0 });
