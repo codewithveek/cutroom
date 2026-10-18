@@ -1,3 +1,4 @@
+import { Agent } from "undici";
 import { z } from "zod";
 import type { JsonCompletion, JsonCompletionRequest, JsonCompletionTransport } from "./model-client";
 import { networkScopeForUrl } from "./privacy-guard";
@@ -64,6 +65,13 @@ export interface OllamaTransportOptions {
   fetchImplementation?: typeof fetch;
 }
 
+/**
+ * Ollama sends no response headers until the model is loaded, and a cold load of gemma4:e4b from a
+ * slow disk took over five minutes: past fetch's default 300 s header timeout. Generation itself
+ * streams (ADR 0008), so neither the header wait nor the gaps between chunks need a limit here.
+ */
+const ollamaDispatcher = new Agent({ headersTimeout: 0, bodyTimeout: 0 });
+
 /** Gemma via Ollama's /api/chat with structured output through `format` (FR-SB-2). */
 export function createOllamaTransport(options: OllamaTransportOptions): JsonCompletionTransport {
   const fetchImplementation = options.fetchImplementation ?? ((input, init) => fetch(input, init));
@@ -72,7 +80,8 @@ export function createOllamaTransport(options: OllamaTransportOptions): JsonComp
     modelId: options.modelId,
     networkScope: networkScopeForUrl(options.host),
     async complete(request: JsonCompletionRequest): Promise<JsonCompletion> {
-      const response = await fetchImplementation(new URL("/api/chat", options.host), {
+      // Node's fetch takes undici's dispatcher; the DOM RequestInit type does not know the key.
+      const init: RequestInit & { dispatcher: Agent } = {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -88,7 +97,9 @@ export function createOllamaTransport(options: OllamaTransportOptions): JsonComp
             num_ctx: options.contextTokens,
           },
         }),
-      });
+        dispatcher: ollamaDispatcher,
+      };
+      const response = await fetchImplementation(new URL("/api/chat", options.host), init);
       if (!response.ok) {
         throw new ModelTransportError(
           `Ollama returned ${response.status}: ${(await response.text()).slice(0, 300)}`,

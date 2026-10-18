@@ -13,6 +13,7 @@
     "@cutroom/config": "workspace:*",
     "@cutroom/observability": "workspace:*",
     "@cutroom/scene-spec": "workspace:*",
+    "undici": "6.23.0",
     "zod": "4.6.7"
   }
 }
