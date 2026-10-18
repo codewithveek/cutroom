@@ -1,4 +1,3 @@
-import { timingSafeEqual } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { RenderJobIntegrityError, type RenderJobWorker, type UploadedFile } from "@cutroom/pipeline";
 import type { FastifyRequest } from "fastify";
@@ -10,25 +9,13 @@ const MAX_BUNDLE_BYTES = 200 * 1024 * 1024;
 
 export interface RenderJobRoutesOptions {
   worker: RenderJobWorker;
-  /** Per-user API token; the remote render API is disabled without one. */
-  token: string | undefined;
+  /** The bootstrap RENDER_API_TOKEN or an API token from Settings (E7-7). */
+  isValidToken: (token: string) => Promise<boolean>;
 }
 
-function tokensMatch(expected: string, provided: string): boolean {
-  const expectedBuffer = Buffer.from(expected);
-  const providedBuffer = Buffer.from(provided);
-  return expectedBuffer.length === providedBuffer.length && timingSafeEqual(expectedBuffer, providedBuffer);
-}
-
-function requireBearer(request: FastifyRequest, token: string | undefined): void {
-  if (!token)
-    throw new ApiError({
-      code: "not_found",
-      statusCode: 404,
-      message: "The remote render API is not enabled on this server",
-    });
+async function requireBearer(request: FastifyRequest, options: RenderJobRoutesOptions): Promise<void> {
   const provided = request.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
-  if (!provided || !tokensMatch(token, provided)) {
+  if (!provided || !(await options.isValidToken(provided))) {
     throw new ApiError({
       code: "unauthorized",
       statusCode: 401,
@@ -42,7 +29,7 @@ const jobParamsSchema = z.object({ jobId: z.string().regex(/^[0-9A-Za-z_-]{1,64}
 /** The remote render API (PRD §8.7, Hybrid mode): verified uploads in, rendered files out. */
 export const renderJobRoutes: FastifyPluginAsyncZod<RenderJobRoutesOptions> = async (app, options) => {
   app.post("/render-jobs", async (request, reply) => {
-    requireBearer(request, options.token);
+    await requireBearer(request, options);
     let jobJson: string | undefined;
     const files: UploadedFile[] = [];
     for await (const part of request.parts({ limits: { fileSize: MAX_BUNDLE_BYTES } })) {
@@ -69,7 +56,7 @@ export const renderJobRoutes: FastifyPluginAsyncZod<RenderJobRoutesOptions> = as
   });
 
   app.get("/render-jobs/:jobId", { schema: { params: jobParamsSchema } }, async (request) => {
-    requireBearer(request, options.token);
+    await requireBearer(request, options);
     const status = await options.worker.status(request.params.jobId);
     if (!status) throw new ApiError({ code: "not_found", statusCode: 404, message: "Render job not found" });
     return status;
@@ -79,7 +66,7 @@ export const renderJobRoutes: FastifyPluginAsyncZod<RenderJobRoutesOptions> = as
     "/render-jobs/:jobId/files/:fileName",
     { schema: { params: jobParamsSchema.extend({ fileName: z.string().regex(/^[A-Za-z0-9._-]+$/) }) } },
     async (request, reply) => {
-      requireBearer(request, options.token);
+      await requireBearer(request, options);
       const filePath = await options.worker.outputPath(request.params.jobId, request.params.fileName);
       if (!filePath) throw new ApiError({ code: "not_found", statusCode: 404, message: "File not found" });
       return reply.header("content-type", "application/octet-stream").send(createReadStream(filePath));

@@ -20,6 +20,7 @@ export const apiErrorCodeSchema = z.enum([
   "not_found",
   "conflict",
   "approval_blocked",
+  "rate_limited",
   "model_output_invalid",
   "model_unavailable",
   "internal",
@@ -69,6 +70,9 @@ function mapError(error: FastifyError | Error): MappedError {
   }
   if (error instanceof ApiError)
     return { statusCode: error.statusCode, code: error.code, message: error.message };
+  // @fastify/rate-limit on POST /auth/login (E7-4).
+  if ("statusCode" in error && error.statusCode === 429)
+    return { statusCode: 429, code: "rate_limited", message: "Too many attempts; wait a minute and try again" };
   if (error instanceof FfmpegError)
     return { statusCode: 400, code: "validation_failed", message: "That file could not be read as audio" };
   if (error instanceof StoryboardEditError)

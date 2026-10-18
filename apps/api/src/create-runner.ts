@@ -1,6 +1,6 @@
 import path from "node:path";
 import type { CutroomEnv } from "@cutroom/config";
-import { codeIndexForRun, createDatabase, PostgresRunStore } from "@cutroom/db";
+import { codeIndexForRun, createDatabase, type DatabaseHandle, PostgresRunStore } from "@cutroom/db";
 import type { CutroomLogger } from "@cutroom/observability";
 import {
   createPipelineServices,
@@ -15,6 +15,8 @@ import { Client, Connection } from "@temporalio/client";
 export interface RunnerSetup {
   runner: PipelineRunner;
   services: PipelineServices;
+  /** The Postgres connection when RUN_STORE=postgres; the auth store shares it. */
+  database: DatabaseHandle | undefined;
   close: () => Promise<void>;
 }
 
@@ -74,6 +76,7 @@ export async function createRunner(options: {
     return {
       runner,
       services,
+      database,
       close: async () => {
         await connection.close();
         await closeStore();
@@ -88,5 +91,5 @@ export async function createRunner(options: {
       runner.resume(run.id);
     }
   }
-  return { runner, services, close: closeStore };
+  return { runner, services, database, close: closeStore };
 }
