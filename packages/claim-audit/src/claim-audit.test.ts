@@ -227,6 +227,26 @@ describe("auditClaims · judge left claims out", () => {
   });
 });
 
+describe("auditClaims · judge never answers for a claim", () => {
+  it("marks that claim unsupported, so it blocks approval", async () => {
+    const transport = createScriptedTransport((request) => ({
+      // Answers for the first listed claim only, every time.
+      verdicts: judgeResponder(request).verdicts.slice(0, 1),
+    }));
+    const { results: audited } = await auditClaims({
+      storyboard: storyboardSchema.parse(storyboardInput),
+      reader,
+      brief,
+      model: createModelClientFromTransport(transport),
+    });
+    const unanswered = audited.filter((result) =>
+      result.checks.some((check) => check.detail === "No verdict returned"),
+    );
+    expect(unanswered.length).toBeGreaterThan(0);
+    expect(unanswered.every((result) => result.verdict === "unsupported")).toBe(true);
+  });
+});
+
 describe("approval gate", () => {
   it("blocks on unsupported claims until each one is overridden with a reason", () => {
     const blockers = findApprovalBlockers(results, []);

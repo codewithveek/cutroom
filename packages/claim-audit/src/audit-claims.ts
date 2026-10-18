@@ -91,8 +91,9 @@ function combineResult(options: CombineOptions): ClaimResult {
       evidence.push(...judged.evidence);
       if (judged.rewrite && judged.verdict !== "supported") suggestions.unshift(judged.rewrite);
     } else {
+      // Never checked is not "probably fine": it blocks approval until someone looks (and --yes).
       checks.push({ check: "model-judge", passed: false, detail: "No verdict returned" });
-      verdicts.push("weak");
+      verdicts.push("unsupported");
     }
   }
   const suggestion = suggestions[0];
