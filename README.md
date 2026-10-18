@@ -77,7 +77,7 @@ pnpm --filter @cutroom/api dev     # http://127.0.0.1:4100
 pnpm --filter @cutroom/web dev     # http://localhost:3000
 ```
 
-The wizard takes a source, a privacy mode and a preset; the run page shows the live pipeline timeline, the product brief with evidence chips, and the storyboard editor: scene list, a live `@remotion/player` preview with a ratio switcher, a props form generated from each block's Zod schema, audit badges with "Apply suggestion", and approval with typed overrides. Set `MODEL_PROVIDER=scripted-shipnote` on the API to click through without a model.
+Home is a single composer: paste a repository path or git URL, add an optional direction ("for developers, focus on the CLI"), pick a preset, privacy mode, look and ratios. The run page is an editor: a script tree of scenes and narration lines (play any line), a live `@remotion/player` preview, a voice picker with local Kokoro samples, looks and ratios, the claim audit with "Apply suggestion", and a timeline with video, voice, music and caption tracks, undo/redo and reordering. Set `MODEL_PROVIDER=scripted-shipnote` on the API to click through without a model. Screenshots are in [`docs/screenshots/`](docs/screenshots).
 
 ## How it works
 

@@ -47,6 +47,14 @@ One line per completed item, with the date. Milestones follow PRD §13.
 ## Distribution
 - 2026-10-18 · Publishable `cutroom` npm package: esbuild bundle with a dependency check, prebuilt Remotion bundle, `cutroom demo` with the bundled fixture, ffmpeg/Ollama preflight; tarball installed in an empty directory renders 16:9 + 9:16 (ADR 0011)
 
+## UI v2 · editor-first interface (ADR 0012)
+- 2026-10-18 · API: `GET /system/status`, `GET /voices` + local Kokoro samples, `PATCH /runs/:id/settings` (voice, music until approval), run preview media (voice clips, logo), `direction` on the run request (redacted, steers planning)
+- 2026-10-18 · Shell: warm dark/light themes, collapsible sidebar with a projects → videos tree, activity badge, fly-out on the rail
+- 2026-10-18 · Home: composer (source, direction, preset chips, privacy, look, ratios, model chip, sample repository), recent videos with live storyboard frames, setup checklist
+- 2026-10-18 · Editor: mode tabs, script tree (play a line, reorder, add from block templates, duplicate, delete, regenerate), live preview fitted to any ratio, voice picker with samples, looks, aspect ratio, claim audit, multi-track timeline (video thumbnails, real voice waveforms after synthesis, music, captions), undo/redo, keyboard shortcuts, renders on the stage, brief/pipeline sheets
+- 2026-10-18 · Library and Activity with filters and search, Styles gallery (hover to play each look), Settings (toolchain, model, voices, privacy, appearance)
+- 2026-10-18 · Capability flags for designed-but-off features (script source, screen capture, generated media, voice cloning, music upload, manual timing)
+
 ## Not built yet
 - Temporal workflow + worker and the Drizzle/Postgres store (behind `PipelineRunner` / `RunStore`; ADR 0006)
 - Screen capture + `screenshot-window`, `diagram-flow`, pgvector retrieval, zip upload, brief editing, uploaded music

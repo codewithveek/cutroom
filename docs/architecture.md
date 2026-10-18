@@ -17,8 +17,8 @@ This is the as-built companion to PRD §8. Where the build differs from the PRD,
 | `@cutroom/renderer` | Bundle once, `renderMedia` per ratio, two-pass loudnorm, WebVTT, thumbnail stills, MP4 cover art, versioned outputs, generated music beds and SFX. | video-kit, audio-io |
 | `@cutroom/pipeline` | Run record and store, `PipelineRunner` interface, the idempotent steps, `InProcessRunner`, delivery note, scripted fixture model. | everything above |
 | `apps/cli` | `cutroom make`, `cutroom setup`. | pipeline |
-| `apps/api` | Fastify + `fastify-type-provider-zod`: runs, SSE events, range-served assets, one error envelope. | pipeline |
-| `apps/web` | Next.js App Router: wizard, run timeline, brief, storyboard editor, renders, library. Imports only browser-safe packages (scene-spec, presets, video-kit). | scene-spec, video-kit, presets |
+| `apps/api` | Fastify + `fastify-type-provider-zod`: runs, run settings, SSE events, range-served assets and preview media, system status, voices with samples, one error envelope. | pipeline |
+| `apps/web` | Next.js App Router: sidebar shell, dashboard composer, the run editor (script tree, live preview, inspector, multi-track timeline), library, styles, settings. Imports only browser-safe packages (scene-spec, presets, video-kit). See ADR 0012. | scene-spec, video-kit, presets |
 
 Each package exposes one `src/index.ts`; deep imports are blocked by Biome.
 
