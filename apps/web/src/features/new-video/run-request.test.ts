@@ -19,6 +19,12 @@ describe("buildRunRequest", () => {
     expect(request).not.toHaveProperty("brandOverride");
   });
 
+  it("leaves the watermark off unless the user ticks it", () => {
+    const base = { repo: ".", presetId: "launch-editorial", privacyMode: "local", ratios: ["16:9"] } as const;
+    expect(buildRunRequest({ ...base, ratios: ["16:9"] }).watermark).toBe(false);
+    expect(buildRunRequest({ ...base, ratios: ["16:9"], watermark: true }).watermark).toBe(true);
+  });
+
   it("lets recommendLook decide on auto and passes a direction through", () => {
     const request = buildRunRequest({
       repo: "https://github.com/x/y",

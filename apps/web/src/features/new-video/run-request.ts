@@ -35,6 +35,8 @@ export interface NewRunChoices {
   /** The running app to capture screens from, and its routes (space- or comma-separated). */
   appUrl?: string;
   routes?: string;
+  /** The "created with cutroom" badge in the bottom-right corner of every ratio. */
+  watermark?: boolean;
 }
 
 /** Preset values, overridden by what the user picked: one request shape for the composer and the wizard. */
@@ -55,6 +57,7 @@ export function buildRunRequest(choices: NewRunChoices): RunRequestInput {
     voice: preset.voice,
     music: preset.music,
     privacyMode: choices.privacyMode,
+    watermark: choices.watermark ?? false,
     ...(direction ? { direction } : {}),
     ...(capture ? { capture } : {}),
     ...(choices.accentColor && /^#[0-9a-fA-F]{6}$/.test(choices.accentColor)

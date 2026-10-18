@@ -108,6 +108,7 @@ export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.Rea
   const [accentColor, setAccentColor] = useState("");
   const [appUrl, setAppUrl] = useState("");
   const [routes, setRoutes] = useState("");
+  const [watermark, setWatermark] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -133,6 +134,7 @@ export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.Rea
           direction,
           appUrl,
           routes,
+          watermark,
         }),
       );
       router.push(`/runs/${run.id}`);
@@ -207,6 +209,15 @@ export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.Rea
           placeholder="#7c5cff"
           className="max-w-40 font-mono"
         />
+        <label htmlFor="watermark" className="mt-4 flex items-center gap-2 text-sm">
+          <input
+            id="watermark"
+            type="checkbox"
+            checked={watermark}
+            onChange={(event) => setWatermark(event.target.checked)}
+          />
+          Add a “created with cutroom” badge in the bottom-right corner
+        </label>
       </Step>
       {isEnabled("screenCapture") ? (
         <Step
