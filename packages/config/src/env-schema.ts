@@ -38,6 +38,13 @@ export const envSchema = z
     TEMPORAL_NAMESPACE: z.string().min(1).default("default"),
     TEMPORAL_TASK_QUEUE: z.string().min(1).default("cutroom-pipeline"),
 
+    /**
+     * Code retrieval for the claim judge (FR-ING-6), stored in pgvector: `ollama` embeds with
+     * EMBEDDING_MODEL_ID (768 dimensions), `hashing` is an offline stand-in, `off` keeps grep only.
+     */
+    EMBEDDINGS: z.enum(["off", "ollama", "hashing"]).default("off"),
+    EMBEDDING_MODEL_ID: z.string().min(1).default("nomic-embed-text"),
+
     BROWSER_EXECUTABLE: z.string().min(1).optional(),
     SENTRY_DSN: optionalUrl,
     SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(1),
@@ -48,6 +55,12 @@ export const envSchema = z
         code: "custom",
         path: ["DATABASE_URL"],
         message: "Required for RUN_STORE=postgres and RUNNER=temporal",
+      });
+    if (env.EMBEDDINGS !== "off" && env.RUN_STORE !== "postgres")
+      context.addIssue({
+        code: "custom",
+        path: ["EMBEDDINGS"],
+        message: "Embeddings are stored in pgvector: set RUN_STORE=postgres",
       });
     if (env.RUNNER === "temporal" && env.RUN_STORE !== "postgres")
       context.addIssue({

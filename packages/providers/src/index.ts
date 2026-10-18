@@ -1,4 +1,13 @@
 export { EgressBlockedError, type EgressGuard, installLocalEgressGuard } from "./egress-guard";
+export {
+  CODE_EMBEDDING_DIMENSIONS,
+  type CreateEmbeddingClientOptions,
+  createEmbeddingClient,
+  createHashingEmbeddingClient,
+  createOllamaEmbeddingClient,
+  type EmbeddingClient,
+  EmbeddingDimensionError,
+} from "./embedding-client";
 export type {
   ChatMessage,
   GenerateStructuredOptions,
