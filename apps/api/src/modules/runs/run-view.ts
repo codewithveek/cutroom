@@ -37,6 +37,15 @@ export function toRunView(run: RunRecord) {
         kind: "voice" as const,
         url: `/runs/${run.id}/media/${clip.assetKey}`,
       })),
+      ...(run.request.music.kind === "uploaded"
+        ? [
+            {
+              assetKey: run.request.music.assetKey,
+              kind: "music" as const,
+              url: `/runs/${run.id}/media/${run.request.music.assetKey}`,
+            },
+          ]
+        : []),
       ...(latest?.storyboard.brand.logoAssetKey === LOGO_ASSET_KEY
         ? [
             {

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { encodeWav } from "@cutroom/audio-io";
 import { parseEnv } from "@cutroom/config";
 import { createLogger } from "@cutroom/observability";
 import {
@@ -197,6 +198,46 @@ function multipartFile(options: { fileName: string; content: Uint8Array }): {
     contentType: `multipart/form-data; boundary=${boundary}`,
   };
 }
+
+describe("music uploads", () => {
+  it("transcodes the user's track into the run's music and serves it for the preview", async () => {
+    const created = await app.inject({ method: "POST", url: "/runs", payload: runBody });
+    const runId: string = created.json().id;
+    await runner.waitForStatus(runId, ["awaiting_review"]);
+    const sampleRate = 22_050;
+    const tone = Float32Array.from(
+      { length: sampleRate },
+      (_, index) => 0.2 * Math.sin((index / sampleRate) * 2 * Math.PI * 440),
+    );
+    const wav = encodeWav({ sampleRate, channels: [tone] });
+    const upload = multipartFile({ fileName: "theme.wav", content: wav });
+    const response = await app.inject({
+      method: "POST",
+      url: `/runs/${runId}/music`,
+      payload: upload.body,
+      headers: { "content-type": upload.contentType },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().request.music).toEqual({
+      kind: "uploaded",
+      assetKey: "music",
+      fileName: "theme.wav",
+    });
+    expect(response.json().media.map((item: { kind: string }) => item.kind)).toContain("music");
+    const media = await app.inject({ method: "GET", url: `/runs/${runId}/media/music` });
+    expect(media.statusCode).toBe(200);
+    expect(media.headers["content-type"]).toBe("audio/wav");
+
+    const fake = multipartFile({ fileName: "song.mp3", content: new TextEncoder().encode("not audio") });
+    const rejected = await app.inject({
+      method: "POST",
+      url: `/runs/${runId}/music`,
+      payload: fake.body,
+      headers: { "content-type": fake.contentType },
+    });
+    expect(rejected.statusCode).toBe(400);
+  });
+});
 
 describe("zip uploads", () => {
   it("extracts an archive, then a run ingests it as its source", async () => {

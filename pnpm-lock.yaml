@@ -92,6 +92,9 @@ importers:
       '@cutroom/presets':
         specifier: workspace:*
         version: link:../../packages/presets
+      '@cutroom/renderer':
+        specifier: workspace:*
+        version: link:../../packages/renderer
       '@cutroom/repo-ingest':
         specifier: workspace:*
         version: link:../../packages/repo-ingest
@@ -129,6 +132,9 @@ importers:
         specifier: 4.6.7
         version: 4.6.7
     devDependencies:
+      '@cutroom/audio-io':
+        specifier: workspace:*
+        version: link:../../packages/audio-io
       fflate:
         specifier: 0.8.3
         version: 0.8.3

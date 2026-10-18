@@ -7,6 +7,7 @@ import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fas
 import { assetRoutes } from "./modules/assets/asset-routes";
 import { catalogueRoutes } from "./modules/catalogue/catalogue-routes";
 import { renderJobRoutes } from "./modules/render-jobs/render-job-routes";
+import { musicRoutes } from "./modules/runs/music-routes";
 import { runRoutes } from "./modules/runs/run-routes";
 import { systemRoutes } from "./modules/system/system-routes";
 import { uploadRoutes } from "./modules/uploads/upload-routes";
@@ -41,6 +42,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   await app.register(systemRoutes, { system: options.system });
   await app.register(uploadRoutes, { uploadsDirectory: options.uploadsDirectory });
   await app.register(runRoutes, { runner: options.runner });
+  await app.register(musicRoutes, { runner: options.runner });
   await app.register(assetRoutes, { runner: options.runner, store: options.store });
   if (options.renderJobWorker) {
     await app.register(renderJobRoutes, {

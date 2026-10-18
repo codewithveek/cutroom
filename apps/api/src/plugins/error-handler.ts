@@ -1,6 +1,7 @@
 import { SceneNotFoundError } from "@cutroom/agent";
 import { ApprovalBlockedError } from "@cutroom/claim-audit";
 import { RunNotFoundError, RunStateError, UnknownVoiceOptionError } from "@cutroom/pipeline";
+import { FfmpegError } from "@cutroom/renderer";
 import { ZipArchiveError } from "@cutroom/repo-ingest";
 import { VoiceModelMissingError } from "@cutroom/voice";
 import type { FastifyError, FastifyInstance } from "fastify";
@@ -60,6 +61,8 @@ function mapError(error: FastifyError | Error): MappedError {
   }
   if (error instanceof ApiError)
     return { statusCode: error.statusCode, code: error.code, message: error.message };
+  if (error instanceof FfmpegError)
+    return { statusCode: 400, code: "validation_failed", message: "That file could not be read as audio" };
   if (error instanceof ZipArchiveError)
     return { statusCode: 400, code: "validation_failed", message: error.message };
   if (error instanceof VoiceModelMissingError)
