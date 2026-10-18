@@ -9,6 +9,7 @@ import {
 } from "@cutroom/pipeline";
 import { createSilentProvider } from "@cutroom/voice";
 import { buildRunRequest, type MakeFlags } from "../make-options";
+import { findPrebuiltBundle, runPreflight } from "../preflight";
 import { printEgressManifest, printStoryboard, promptForApproval, promptForEgress } from "../review-prompt";
 import { printEvent } from "../terminal-ui";
 
@@ -25,11 +26,18 @@ function printDeliverables(run: RunRecord): void {
 
 /** `cutroom make`: the same pipeline and contracts as the web app, in a terminal (PRD §6.2). */
 export async function runMake(flags: MakeFlags, env: CutroomEnv): Promise<number> {
+  const problems = await runPreflight({ flags, env });
+  if (problems.length > 0) {
+    for (const problem of problems) console.error(`✘ ${problem}`);
+    return 1;
+  }
+  const prebuiltBundleDirectory = findPrebuiltBundle(import.meta.dirname);
   const services = createPipelineServices({
     env,
     logger: createLogger({ level: env.LOG_LEVEL === "info" ? "warn" : env.LOG_LEVEL }),
     overrides: {
       enforceLocalEgress: true,
+      ...(prebuiltBundleDirectory ? { prebuiltBundleDirectory } : {}),
       ...(flags.scripted ? { modelTransportOverride: createShipnoteScriptedTransport() } : {}),
       ...(flags.silent ? { voiceProviderOverride: createSilentProvider() } : {}),
     },
