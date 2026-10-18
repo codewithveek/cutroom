@@ -7,7 +7,7 @@ import type React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Label, TextInput } from "@/components/ui/field";
+import { Label, TextArea, TextInput } from "@/components/ui/field";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { apiClient } from "@/lib/api-client";
 import { classNames } from "@/lib/class-names";
@@ -95,13 +95,15 @@ function Step(props: {
 }
 
 /** Source → Privacy → Preset or custom → Brand (PRD §9 screen 1). */
-export function NewVideoWizard(): React.ReactElement {
+export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.ReactElement {
   const router = useRouter();
+  const initialPreset = presets[props.initialPresetId ?? "launch-editorial"];
   const [repo, setRepo] = useState("");
+  const [direction, setDirection] = useState("");
   const [privacyMode, setPrivacyMode] = useState<PrivacyMode>("local");
-  const [presetId, setPresetId] = useState<PresetId>("launch-editorial");
-  const [look, setLook] = useState<LookId | "auto">("editorial");
-  const [ratios, setRatios] = useState<AspectRatio[]>(presets["launch-editorial"].ratios);
+  const [presetId, setPresetId] = useState<PresetId>(initialPreset.id);
+  const [look, setLook] = useState<LookId | "auto">(initialPreset.look);
+  const [ratios, setRatios] = useState<AspectRatio[]>(initialPreset.ratios);
   const [accentColor, setAccentColor] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>();
@@ -118,7 +120,7 @@ export function NewVideoWizard(): React.ReactElement {
     setError(undefined);
     try {
       const run = await apiClient.createRun(
-        buildRunRequest({ repo, presetId, privacyMode, ratios, look, accentColor }),
+        buildRunRequest({ repo, presetId, privacyMode, ratios, look, accentColor, direction }),
       );
       router.push(`/runs/${run.id}`);
     } catch (caught) {
@@ -146,6 +148,18 @@ export function NewVideoWizard(): React.ReactElement {
           onChange={(event) => setRepo(event.target.value)}
           placeholder="~/code/my-app or https://github.com/you/app"
         />
+        <div className="mt-4">
+          <Label htmlFor="direction" hint="optional, up to 280 characters">
+            Direction
+          </Label>
+          <TextArea
+            id="direction"
+            maxLength={280}
+            value={direction}
+            onChange={(event) => setDirection(event.target.value)}
+            placeholder="Who it is for, what to focus on, what to leave out"
+          />
+        </div>
       </Step>
       <Step number={2} title="Privacy">
         <PrivacyPicker value={privacyMode} onChange={setPrivacyMode} />

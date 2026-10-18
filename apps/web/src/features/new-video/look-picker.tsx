@@ -1,25 +1,12 @@
 "use client";
 
-import type { LookId, Storyboard } from "@cutroom/scene-spec";
-import { fixtureStoryboard, lookTokensById } from "@cutroom/video-kit";
+import type { LookId } from "@cutroom/scene-spec";
+import { lookTokensById } from "@cutroom/video-kit";
 import type React from "react";
 import { useMemo } from "react";
+import { lookIds, lookPreviewStoryboard } from "@/features/video-preview/look-preview";
 import { StoryboardPlayer } from "@/features/video-preview/storyboard-player";
 import { classNames } from "@/lib/class-names";
-
-const lookIds: ReadonlyArray<LookId> = ["editorial", "studio", "graphic", "cinematic"];
-
-/** A three-second sample in each look: a headline and the feature cards. */
-function previewStoryboard(look: LookId): Storyboard {
-  const sampleScenes = fixtureStoryboard.scenes.filter(
-    (scene) => scene.block === "kinetic-headline" || scene.block === "feature-cards",
-  );
-  return {
-    ...fixtureStoryboard,
-    look,
-    scenes: sampleScenes.map((scene) => ({ ...scene, baseFrames: 45, narration: [] })),
-  };
-}
 
 export interface LookPickerProps {
   value: LookId | "auto";
@@ -28,7 +15,7 @@ export interface LookPickerProps {
 
 export function LookPicker(props: LookPickerProps): React.ReactElement {
   const storyboards = useMemo(
-    () => Object.fromEntries(lookIds.map((look) => [look, previewStoryboard(look)])),
+    () => Object.fromEntries(lookIds.map((look) => [look, lookPreviewStoryboard(look)])),
     [],
   );
   return (
