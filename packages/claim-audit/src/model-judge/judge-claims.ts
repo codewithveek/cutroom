@@ -34,6 +34,8 @@ For every weak or unsupported claim, give a precise rewrite the evidence does su
 Cite evidence as file path, start line, end line and a verbatim excerpt from the snippets. Return JSON only, matching the schema.`;
 
 const CLAIMS_PER_CALL = 10;
+/** Calls per batch: the first for every claim, the rest only for claims still without a verdict. */
+const JUDGE_ROUNDS_PER_BATCH = 3;
 const SNIPPETS_PER_CLAIM = 4;
 /** Extra room for semantic hits found in places the keywords missed. */
 const SEMANTIC_SNIPPETS_PER_CLAIM = 2;
@@ -117,42 +119,56 @@ export async function judgeClaims(
   const judged = new Map<string, JudgedClaim>();
   const usage: TokenUsage = { inputTokens: 0, outputTokens: 0 };
   for (let start = 0; start < options.claims.length; start += CLAIMS_PER_CALL) {
-    const batch = options.claims.slice(start, start + CLAIMS_PER_CALL);
-    const batchIds = new Set(batch.map((claim) => claim.id));
-    const semantic = await options.retriever?.retrieve({
-      claims: batch,
-      limit: SEMANTIC_SNIPPETS_PER_CLAIM + 1,
-    });
-    const result = await options.model.generateStructured({
-      schema: claimVerdictsSchema,
-      schemaName: "claim_verdicts",
-      system: judgeSystemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: `Verified brief for ${options.brief.name}:\n${renderBrief(options.brief)}\n\nClaims to judge:\n\n${renderClaims({ claims: batch, index: options.index, semantic })}`,
-        },
-      ],
-      validate: (output) => {
-        const returned = new Set(output.verdicts.map((verdict) => verdict.claimId));
-        return [...batchIds]
-          .filter((claimId) => !returned.has(claimId))
-          .map((claimId) => `verdicts: missing claimId ${claimId}`);
-      },
-      operation: "audit-claims",
-      temperature: 0.1,
-      maxOutputTokens: 2500,
-    });
-    usage.inputTokens += result.usage.inputTokens;
-    usage.outputTokens += result.usage.outputTokens;
-    for (const verdict of result.output.verdicts) {
-      if (!batchIds.has(verdict.claimId)) continue;
-      const { rewrite, ...rest } = verdict;
-      judged.set(
-        verdict.claimId,
-        await keepVerifiedEvidence(options.reader, { ...rest, ...(rewrite ? { rewrite } : {}) }),
-      );
+    let pending = options.claims.slice(start, start + CLAIMS_PER_CALL);
+    for (let round = 1; round <= JUDGE_ROUNDS_PER_BATCH && pending.length > 0; round += 1) {
+      const batchUsage = await judgeBatch({ options, batch: pending, judged });
+      usage.inputTokens += batchUsage.inputTokens;
+      usage.outputTokens += batchUsage.outputTokens;
+      // Small models drop claims from long lists; ask again for only the ones left out.
+      pending = pending.filter((claim) => !judged.has(claim.id));
     }
   }
   return { judged, usage };
+}
+
+interface JudgeBatchOptions {
+  options: JudgeClaimsOptions;
+  batch: ReadonlyArray<Claim>;
+  judged: Map<string, JudgedClaim>;
+}
+
+/** One judge call; records every verdict it returns for a claim in the batch. */
+async function judgeBatch({ options, batch, judged }: JudgeBatchOptions): Promise<TokenUsage> {
+  const batchIds = new Set(batch.map((claim) => claim.id));
+  const semantic = await options.retriever?.retrieve({
+    claims: batch,
+    limit: SEMANTIC_SNIPPETS_PER_CLAIM + 1,
+  });
+  const result = await options.model.generateStructured({
+    schema: claimVerdictsSchema,
+    schemaName: "claim_verdicts",
+    system: judgeSystemPrompt,
+    messages: [
+      {
+        role: "user",
+        content: `Verified brief for ${options.brief.name}:\n${renderBrief(options.brief)}\n\nClaims to judge:\n\n${renderClaims({ claims: batch, index: options.index, semantic })}`,
+      },
+    ],
+    validate: (output) =>
+      output.verdicts.some((verdict) => batchIds.has(verdict.claimId))
+        ? []
+        : [`verdicts: give a verdict for each claim id listed (${[...batchIds].join(", ")})`],
+    operation: "audit-claims",
+    temperature: 0.1,
+    maxOutputTokens: 2500,
+  });
+  for (const verdict of result.output.verdicts) {
+    if (!batchIds.has(verdict.claimId)) continue;
+    const { rewrite, ...rest } = verdict;
+    judged.set(
+      verdict.claimId,
+      await keepVerifiedEvidence(options.reader, { ...rest, ...(rewrite ? { rewrite } : {}) }),
+    );
+  }
+  return result.usage;
 }

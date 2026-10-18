@@ -201,6 +201,32 @@ describe("auditClaims · model judge", () => {
   });
 });
 
+describe("auditClaims · judge left claims out", () => {
+  it("keeps the verdicts it got and asks again for only the missing claims", async () => {
+    let call = 0;
+    const transport = createScriptedTransport((request) => {
+      call += 1;
+      const answer = judgeResponder(request);
+      // First call: the model answers for one claim only, as gemma4:e4b did on long batches.
+      return call === 1 ? { verdicts: answer.verdicts.slice(0, 1) } : answer;
+    });
+    const { results: partial } = await auditClaims({
+      storyboard: storyboardSchema.parse(storyboardInput),
+      reader,
+      brief,
+      model: createModelClientFromTransport(transport),
+    });
+    const askedFor = transport.requests.map(
+      (request) => [...(request.messages[0]?.content ?? "").matchAll(/- id: (\S+)/g)].length,
+    );
+    expect(askedFor.length).toBe(2);
+    expect(askedFor[1]).toBe((askedFor[0] ?? 0) - 1);
+    expect(
+      partial.flatMap((result) => result.checks).some((check) => check.detail === "No verdict returned"),
+    ).toBe(false);
+  });
+});
+
 describe("approval gate", () => {
   it("blocks on unsupported claims until each one is overridden with a reason", () => {
     const blockers = findApprovalBlockers(results, []);
