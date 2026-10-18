@@ -185,4 +185,27 @@ for (const [route, name] of [
   await other.close();
 }
 
+// Phone width: the top bar and drawer, and the stacked editor. Nothing may scroll sideways.
+for (const [route, name, menu] of [
+  ["/", "20-phone-dashboard", false],
+  ["/", "21-phone-menu", true],
+  [new URL(runUrl).pathname, "22-phone-editor", false],
+] as const) {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    hasTouch: true,
+  });
+  const phone = await context.newPage();
+  await phone.goto(`${webUrl}${route}`);
+  await phone.waitForTimeout(4500);
+  if (menu) await phone.getByRole("button", { name: "Open menu" }).click();
+  const overflow = await phone.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  if (overflow > 0) throw new Error(`UI check failed: ${name} scrolls sideways by ${overflow}px`);
+  await capture({ page: phone, name });
+  await context.close();
+}
+
 await browser.close();
