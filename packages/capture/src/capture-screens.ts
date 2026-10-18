@@ -22,6 +22,7 @@ export class CaptureError extends Error {
 export const CAPTURE_VIEWPORT = { width: 1440, height: 900 } as const;
 export const CAPTURE_SCALE = 2;
 const NAVIGATION_TIMEOUT_MS = 20_000;
+const SETTLE_TIMEOUT_MS = 5_000;
 const MAX_TARGETS_PER_SCREEN = 40;
 const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
 
@@ -137,6 +138,23 @@ async function findTargets(page: Page, uiStrings: ReadonlyArray<string>): Promis
 }
 
 /** Captures each route of a running app: screenshot, page title and camera targets (PRD §7.14). */
+/**
+ * Waits for `load`, then gives requests a moment to settle. Pages that hold a stream open
+ * (server-sent events, polling) never reach network idle, so that wait is best effort.
+ */
+async function openPage(page: Page, url: string): Promise<void> {
+  const response = await page
+    .goto(url, { waitUntil: "load", timeout: NAVIGATION_TIMEOUT_MS })
+    .catch((error: unknown) => {
+      throw new CaptureError(
+        `Could not open ${url}; is the app running? (${error instanceof Error ? error.message : String(error)})`,
+      );
+    });
+  if (!response) throw new CaptureError(`Could not open ${url}; is the app running?`);
+  if (!response.ok()) throw new CaptureError(`${url} answered ${response.status()}`);
+  await page.waitForLoadState("networkidle", { timeout: SETTLE_TIMEOUT_MS }).catch(() => undefined);
+}
+
 export async function captureScreens(options: CaptureScreensOptions): Promise<CaptureManifest> {
   const appUrl = new URL(options.request.appUrl);
   if (options.privacyMode === "local" && !isLoopbackHost(appUrl.hostname))
@@ -158,10 +176,7 @@ export async function captureScreens(options: CaptureScreensOptions): Promise<Ca
         onBlocked: () => (blockedRequests += 1),
       });
       const url = new URL(route, appUrl).toString();
-      const response = await page
-        .goto(url, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT_MS })
-        .catch(() => null);
-      if (!response) throw new CaptureError(`Could not open ${url}; is the app running?`);
+      await openPage(page, url);
       const redactions = await redactPageText(page);
       const id = `screen-${index + 1}`;
       const fileName = `${id}.png`;
