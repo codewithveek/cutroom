@@ -13,6 +13,7 @@ Usage:
   ${productBrand.cliName} make --repo <path|git-url|app.zip> [--preset launch-editorial] [--ratios 16:9,9:16]
                 [--privacy local|hybrid|cloud] [--look editorial] [--type launch] [--seconds 45]
                 [--voice af_heart] [--music upbeat|calm|none] [--yes] [--silent] [--scripted]
+                [--app-url http://localhost:3000 --routes /,/settings]
   ${productBrand.cliName} demo [--ratios 16:9,9:16] [--voice af_heart]
                Film the bundled demo repo with a scripted model: no Ollama or GPU needed
                (silent unless --voice is given, which needs \`setup\` first)
@@ -20,7 +21,9 @@ Usage:
 
   --yes       approve automatically when no claim is unsupported
   --silent    no voiceover (timing still follows the narration)
-  --scripted  use the scripted model for the shipnote fixture (no Ollama needed)`;
+  --scripted  use the scripted model for the shipnote fixture (no Ollama needed)
+  --app-url   capture screens of the running app (read-only) for window scenes
+  --routes    comma-separated routes to capture on --app-url (default /)`;
 
 const entryDirectory = import.meta.dirname;
 
@@ -38,12 +41,14 @@ function parseMakeFlags(args: ReadonlyArray<string>): MakeFlags {
       voice: { type: "string" },
       music: { type: "string" },
       seed: { type: "string" },
+      "app-url": { type: "string" },
+      routes: { type: "string" },
       yes: { type: "boolean", default: false },
       silent: { type: "boolean", default: false },
       scripted: { type: "boolean", default: false },
     },
   });
-  return makeFlagsSchema.parse(values);
+  return makeFlagsSchema.parse({ ...values, appUrl: values["app-url"] });
 }
 
 /** `cutroom demo`: the shipnote fixture, the scripted model, approved automatically. */

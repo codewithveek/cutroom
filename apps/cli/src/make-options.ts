@@ -24,12 +24,23 @@ export const makeFlagsSchema = z.object({
   scripted: z.boolean().default(false),
   silent: z.boolean().default(false),
   seed: z.coerce.number().int().nonnegative().default(1),
+  appUrl: z.url().optional(),
+  routes: z.string().optional(),
 });
 export type MakeFlags = z.infer<typeof makeFlagsSchema>;
 
 function parseRatios(value: string | undefined, preset: Preset): AspectRatio[] {
   if (!value) return preset.ratios;
   return value.split(",").map((ratio) => aspectRatioSchema.parse(ratio.trim()));
+}
+
+function captureFor(flags: MakeFlags): RunRequestInput["capture"] {
+  if (!flags.appUrl) return undefined;
+  const routes = (flags.routes ?? "/")
+    .split(",")
+    .map((route) => route.trim())
+    .filter(Boolean);
+  return { appUrl: flags.appUrl, routes: routes.length > 0 ? routes : ["/"] };
 }
 
 function sourceFor(repo: string): RunRequestInput["source"] {
@@ -62,5 +73,6 @@ export function buildRunRequest(flags: MakeFlags, source?: RunRequestInput["sour
     privacyMode: flags.privacy,
     autoApprove: flags.yes,
     seed: flags.seed,
+    ...(flags.appUrl ? { capture: captureFor(flags) } : {}),
   };
 }
