@@ -49,6 +49,20 @@ export const envSchema = z
     EMBEDDINGS: z.enum(["off", "ollama", "hashing"]).default("off"),
     EMBEDDING_MODEL_ID: z.string().min(1).default("nomic-embed-text"),
 
+    /** Deployed instances only (E7): `none` is refused on a non-loopback address (resolveAuthConfig). */
+    CUTROOM_AUTH_MODE: z.enum(["none", "password"]).optional(),
+    /** Seeds the single admin account on first boot; later changes need CUTROOM_ADMIN_RESET=true. */
+    CUTROOM_ADMIN_EMAIL: z.email().optional(),
+    CUTROOM_ADMIN_PASSWORD: optionalSecret,
+    CUTROOM_ADMIN_RESET: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
+    /** At least 32 random bytes (any encoding); signs the session cookie. */
+    CUTROOM_SESSION_SECRET: optionalSecret,
+    /** The web app's exact origin, for CSRF checks; otherwise the proxied request's own host is used. */
+    CUTROOM_PUBLIC_URL: optionalUrl,
+
     BROWSER_EXECUTABLE: z.string().min(1).optional(),
     SENTRY_DSN: optionalUrl,
     SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(1),
