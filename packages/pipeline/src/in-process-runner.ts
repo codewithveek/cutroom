@@ -3,7 +3,7 @@ import { regenerateScene } from "@cutroom/agent";
 import { assertApprovable } from "@cutroom/claim-audit";
 import { createStepLogger, withPipelineStepSpan } from "@cutroom/observability";
 import { type EgressGuard, installLocalEgressGuard } from "@cutroom/providers";
-import { type Storyboard, storyboardSchema } from "@cutroom/scene-spec";
+import { type RunSettingsUpdate, type Storyboard, storyboardSchema } from "@cutroom/scene-spec";
 import { lookTokensById } from "@cutroom/video-kit";
 import { ulid } from "ulid";
 import { describeError } from "./describe-error";
@@ -163,6 +163,21 @@ export class InProcessRunner implements PipelineRunner {
       previousResults: previous.claimResults,
     });
     return { versionId, version: previous.version + 1, claimResults: results };
+  }
+
+  /** Voice and music may change until approval; the voice step reads them afterwards. */
+  async updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void> {
+    const run = await this.requireRun(runId);
+    if (run.approval || terminalStatuses.has(run.status))
+      throw new RunStateError(`Run ${runId} is ${run.status}; settings are fixed once it is approved`);
+    await this.services.store.update(runId, (current) => ({
+      ...current,
+      request: {
+        ...current.request,
+        ...(settings.voice ? { voice: settings.voice } : {}),
+        ...(settings.music ? { music: settings.music } : {}),
+      },
+    }));
   }
 
   /** Re-runs generation for one scene with the others fixed, then versions and re-audits it (FR-SB-7). */

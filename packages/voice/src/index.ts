@@ -6,6 +6,7 @@ export {
 } from "./create-voice-provider";
 export { createElevenLabsProvider, VoiceProviderError } from "./elevenlabs-provider";
 export { createKokoroProvider, type KokoroProviderOptions, VoiceModelMissingError } from "./kokoro-provider";
+export { kokoroVoices } from "./kokoro-voices";
 export { createSilentProvider } from "./silent-provider";
 export {
   type NarrationResult,

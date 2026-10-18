@@ -1,4 +1,4 @@
-import type { ClaimOverride, ClaimResult, Storyboard } from "@cutroom/scene-spec";
+import type { ClaimOverride, ClaimResult, RunSettingsUpdate, Storyboard } from "@cutroom/scene-spec";
 import type { RunEvent, RunRecord, RunRequestInput, RunStatus } from "./run-schema";
 
 export interface ApproveStoryboardInput {
@@ -27,6 +27,7 @@ export interface PipelineRunner {
   confirmEgress(runId: string, manifestSha256: string): Promise<void>;
   updateStoryboard(runId: string, storyboard: Storyboard): Promise<UpdateStoryboardResult>;
   regenerateScene(runId: string, request: RegenerateSceneRequest): Promise<UpdateStoryboardResult>;
+  updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void>;
   getRun(runId: string): Promise<RunRecord | undefined>;
   listRuns(): Promise<RunRecord[]>;
   listEvents(runId: string): Promise<RunEvent[]>;
