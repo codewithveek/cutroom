@@ -35,6 +35,7 @@ import { useElementSize } from "../use-fit-size";
 import { CaptionClip, VideoClip, VoiceClip } from "./timeline-clips";
 
 const TRACK_HEADER_WIDTH = 188;
+const COMPACT_TRACK_HEADER_WIDTH = 44;
 const RULER_HEIGHT = 30;
 
 function TransportButton(
@@ -58,13 +59,20 @@ function TransportButton(
 function TrackHeader(props: {
   Icon: typeof Film;
   label: string;
+  compact: boolean;
   children?: React.ReactNode;
 }): React.ReactElement {
   return (
-    <div className="flex h-full items-center gap-2 rounded-xl bg-panel-raised px-3 text-sm text-ink-muted">
+    <div
+      title={props.label}
+      className={classNames(
+        "flex h-full items-center gap-2 rounded-xl bg-panel-raised text-sm text-ink-muted",
+        props.compact ? "justify-center" : "px-3",
+      )}
+    >
       <props.Icon className="size-4 shrink-0" aria-hidden="true" />
-      <span className="flex-1 truncate">{props.label}</span>
-      {props.children}
+      <span className={classNames("flex-1 truncate", props.compact && "sr-only")}>{props.label}</span>
+      {props.compact ? null : props.children}
     </div>
   );
 }
@@ -94,11 +102,108 @@ function ToggleIcon(props: {
   );
 }
 
+/** Undo/redo, play, the clock, volume, zoom and fullscreen. */
+function TimelineTransport(props: {
+  compact: boolean;
+  zoom: number;
+  onZoom: (zoom: number) => void;
+}): React.ReactElement {
+  const { compact, zoom } = props;
+  const setZoom = props.onZoom;
+  const editor = useEditor();
+  const { player, playerState, timeline, draft } = editor;
+  const frames = totalFrames(timeline);
+  return (
+    <div className={classNames("flex h-14 shrink-0 items-center gap-3", compact ? "px-2" : "px-4")}>
+      <h2 className={classNames("w-[172px] text-[15px] font-medium", compact && "sr-only")}>Timeline</h2>
+      <div className="mx-auto flex items-center gap-2">
+        <div className="flex items-center rounded-xl border border-line bg-panel-raised px-1">
+          <TransportButton label="Undo (Ctrl+Z)" disabled={!draft.canUndo} onClick={draft.undo}>
+            <Undo2 className="size-4" aria-hidden="true" />
+          </TransportButton>
+          <TransportButton label="Redo (Ctrl+Shift+Z)" disabled={!draft.canRedo} onClick={draft.redo}>
+            <Redo2 className="size-4" aria-hidden="true" />
+          </TransportButton>
+          <span className="mx-1 h-4 w-px bg-line" aria-hidden="true" />
+          <TransportButton label="Back to the start" onClick={() => editor.seekToFrame(0)}>
+            <RotateCcw className="size-4" aria-hidden="true" />
+          </TransportButton>
+        </div>
+        <TransportButton
+          label={playerState.playing ? "Pause (Space)" : "Play (Space)"}
+          onClick={() => player?.toggle()}
+          className="size-9 rounded-xl border border-line bg-panel-raised text-ink"
+        >
+          {playerState.playing ? (
+            <Pause className="size-4 fill-current" aria-hidden="true" />
+          ) : (
+            <Play className="size-4 translate-x-px fill-current" aria-hidden="true" />
+          )}
+        </TransportButton>
+        <span className="font-mono text-sm tabular-nums">
+          {formatClock(playerState.frame, timeline.fps)}
+          <span className="text-ink-faint"> / {formatClock(frames, timeline.fps)}</span>
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <TransportButton
+          label={playerState.muted ? "Unmute" : "Mute"}
+          onClick={() => (playerState.muted ? player?.unmute() : player?.mute())}
+        >
+          {playerState.muted ? (
+            <VolumeX className="size-4" aria-hidden="true" />
+          ) : (
+            <Volume2 className="size-4" aria-hidden="true" />
+          )}
+        </TransportButton>
+        <input
+          type="range"
+          aria-label="Volume"
+          min={0}
+          max={1}
+          step={0.05}
+          value={playerState.muted ? 0 : playerState.volume}
+          onChange={(event) => {
+            player?.setVolume(Number(event.target.value));
+            if (playerState.muted) player?.unmute();
+          }}
+          className={classNames("w-24 accent-[var(--color-ink-muted)]", compact && "hidden")}
+        />
+        <label
+          className={classNames(
+            "ml-2 items-center gap-1.5 text-[11px] text-ink-faint",
+            compact ? "hidden" : "flex",
+          )}
+        >
+          Zoom
+          <input
+            type="range"
+            min={1}
+            max={4}
+            step={0.25}
+            value={zoom}
+            onChange={(event) => setZoom(Number(event.target.value))}
+            className="w-16 accent-[var(--color-ink-muted)]"
+          />
+        </label>
+        <TransportButton
+          label="Full screen"
+          onClick={() => player?.requestFullscreen()}
+          className="border border-line bg-panel-raised"
+        >
+          <Maximize2 className="size-4" aria-hidden="true" />
+        </TransportButton>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Video, voice, music and caption tracks on one clock, with the transport. Clip lengths come
  * from the voice (narration drives timing), so clips reorder but never stretch.
  */
-export function TimelinePanel(): React.ReactElement {
+export function TimelinePanel(props: { compact?: boolean }): React.ReactElement {
+  const compact = props.compact ?? false;
   const editor = useEditor();
   const { player, playerState, timeline, draft } = editor;
   const [locked, setLocked] = useState(false);
@@ -125,89 +230,17 @@ export function TimelinePanel(): React.ReactElement {
   const contentWidth = frames * pixelsPerFrame + 24;
   return (
     <section className="panel flex h-[272px] shrink-0 flex-col" aria-label="Timeline">
-      <div className="flex h-14 shrink-0 items-center gap-3 px-4">
-        <h2 className="w-[172px] text-[15px] font-medium">Timeline</h2>
-        <div className="mx-auto flex items-center gap-2">
-          <div className="flex items-center rounded-xl border border-line bg-panel-raised px-1">
-            <TransportButton label="Undo (Ctrl+Z)" disabled={!draft.canUndo} onClick={draft.undo}>
-              <Undo2 className="size-4" aria-hidden="true" />
-            </TransportButton>
-            <TransportButton label="Redo (Ctrl+Shift+Z)" disabled={!draft.canRedo} onClick={draft.redo}>
-              <Redo2 className="size-4" aria-hidden="true" />
-            </TransportButton>
-            <span className="mx-1 h-4 w-px bg-line" aria-hidden="true" />
-            <TransportButton label="Back to the start" onClick={() => editor.seekToFrame(0)}>
-              <RotateCcw className="size-4" aria-hidden="true" />
-            </TransportButton>
-          </div>
-          <TransportButton
-            label={playerState.playing ? "Pause (Space)" : "Play (Space)"}
-            onClick={() => player?.toggle()}
-            className="size-9 rounded-xl border border-line bg-panel-raised text-ink"
-          >
-            {playerState.playing ? (
-              <Pause className="size-4 fill-current" aria-hidden="true" />
-            ) : (
-              <Play className="size-4 translate-x-px fill-current" aria-hidden="true" />
-            )}
-          </TransportButton>
-          <span className="font-mono text-sm tabular-nums">
-            {formatClock(playerState.frame, timeline.fps)}
-            <span className="text-ink-faint"> / {formatClock(frames, timeline.fps)}</span>
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <TransportButton
-            label={playerState.muted ? "Unmute" : "Mute"}
-            onClick={() => (playerState.muted ? player?.unmute() : player?.mute())}
-          >
-            {playerState.muted ? (
-              <VolumeX className="size-4" aria-hidden="true" />
-            ) : (
-              <Volume2 className="size-4" aria-hidden="true" />
-            )}
-          </TransportButton>
-          <input
-            type="range"
-            aria-label="Volume"
-            min={0}
-            max={1}
-            step={0.05}
-            value={playerState.muted ? 0 : playerState.volume}
-            onChange={(event) => {
-              player?.setVolume(Number(event.target.value));
-              if (playerState.muted) player?.unmute();
-            }}
-            className="w-24 accent-[var(--color-ink-muted)]"
-          />
-          <label className="ml-2 flex items-center gap-1.5 text-[11px] text-ink-faint">
-            Zoom
-            <input
-              type="range"
-              min={1}
-              max={4}
-              step={0.25}
-              value={zoom}
-              onChange={(event) => setZoom(Number(event.target.value))}
-              className="w-16 accent-[var(--color-ink-muted)]"
-            />
-          </label>
-          <TransportButton
-            label="Full screen"
-            onClick={() => player?.requestFullscreen()}
-            className="border border-line bg-panel-raised"
-          >
-            <Maximize2 className="size-4" aria-hidden="true" />
-          </TransportButton>
-        </div>
-      </div>
-      <div className="flex min-h-0 flex-1 gap-3 px-4 pb-4">
+      <TimelineTransport compact={compact} zoom={zoom} onZoom={setZoom} />
+      <div className={classNames("flex min-h-0 flex-1 gap-2 pb-4", compact ? "px-2" : "px-4")}>
         <div
           className="grid shrink-0 gap-2"
-          style={{ width: TRACK_HEADER_WIDTH, gridTemplateRows: `${RULER_HEIGHT - 8}px 52px 34px 22px 30px` }}
+          style={{
+            width: compact ? COMPACT_TRACK_HEADER_WIDTH : TRACK_HEADER_WIDTH,
+            gridTemplateRows: `${RULER_HEIGHT - 8}px 52px 34px 22px 30px`,
+          }}
         >
           <span />
-          <TrackHeader Icon={Film} label="Video">
+          <TrackHeader compact={compact} Icon={Film} label="Video">
             <ToggleIcon
               label={locked ? "Unlock scene order" : "Lock scene order"}
               pressed={locked}
@@ -216,7 +249,7 @@ export function TimelinePanel(): React.ReactElement {
               off={Unlock}
             />
           </TrackHeader>
-          <TrackHeader Icon={Waves} label="Voice">
+          <TrackHeader compact={compact} Icon={Waves} label="Voice">
             <ToggleIcon
               label={playerState.muted ? "Unmute" : "Mute"}
               pressed={playerState.muted}
@@ -225,8 +258,8 @@ export function TimelinePanel(): React.ReactElement {
               off={Volume2}
             />
           </TrackHeader>
-          <TrackHeader Icon={Music2} label="Music" />
-          <TrackHeader Icon={Captions} label="Captions">
+          <TrackHeader compact={compact} Icon={Music2} label="Music" />
+          <TrackHeader compact={compact} Icon={Captions} label="Captions">
             <ToggleIcon
               label={captionsVisible ? "Hide captions in the preview" : "Show captions in the preview"}
               pressed={!captionsVisible}

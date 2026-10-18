@@ -34,10 +34,10 @@ export function Dashboard(): React.ReactElement {
         aria-hidden="true"
         className="pointer-events-none absolute -top-48 left-1/2 h-96 w-[56rem] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl"
       />
-      <div className="relative mx-auto max-w-5xl space-y-14 px-6 pt-[10vh] pb-16">
+      <div className="relative mx-auto max-w-5xl space-y-10 px-4 pt-[6vh] pb-12 sm:space-y-14 sm:px-6 sm:pt-[10vh] sm:pb-16">
         <header className="space-y-5 text-center">
           <HeroMark />
-          <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{greeting.title}</h1>
+          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-4xl">{greeting.title}</h1>
           <p className="mx-auto max-w-xl text-balance text-sm leading-relaxed text-ink-muted">
             {greeting.subtitle}
           </p>

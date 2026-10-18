@@ -130,7 +130,7 @@ export function NewVideoWizard(props: { initialPresetId?: PresetId }): React.Rea
   };
 
   return (
-    <form onSubmit={submit} className="mx-auto max-w-5xl space-y-5 px-5 py-8">
+    <form onSubmit={submit} className="mx-auto max-w-5xl space-y-5 px-3 py-6 sm:px-5 sm:py-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Make a product video from your code</h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-muted">

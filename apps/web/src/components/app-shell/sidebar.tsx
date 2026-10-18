@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type React from "react";
@@ -128,7 +128,10 @@ function ProjectsItem(props: {
 
 export interface SidebarProps {
   collapsed: boolean;
-  onToggleCollapsed: () => void;
+  /** Absent when the width is forced (the tablet rail) or the sidebar is a phone drawer. */
+  onToggleCollapsed?: (() => void) | undefined;
+  /** Phone drawer: full height, closes with this button. */
+  onClose?: (() => void) | undefined;
 }
 
 /** The app's navigation: brand, two groups of items with a projects tree, theme switch. */
@@ -145,6 +148,7 @@ export function Sidebar(props: SidebarProps): React.ReactElement {
       aria-label="Sidebar"
       className={classNames(
         "panel relative flex h-full shrink-0 flex-col py-5 transition-[width] duration-200",
+        props.onClose && "rounded-l-none",
         props.collapsed ? "w-[76px] px-3" : "w-[264px] px-4",
       )}
     >
@@ -153,6 +157,16 @@ export function Sidebar(props: SidebarProps): React.ReactElement {
           <LogoMark className="size-8 shrink-0" />
           {props.collapsed ? null : <span className="text-lg font-semibold tracking-tight">Cutroom</span>}
         </Link>
+        {props.onClose ? (
+          <button
+            type="button"
+            onClick={props.onClose}
+            aria-label="Close menu"
+            className="ml-auto grid size-9 place-items-center rounded-xl text-ink-muted hover:bg-panel-raised hover:text-ink"
+          >
+            <X className="size-5" aria-hidden="true" />
+          </button>
+        ) : null}
       </div>
       <nav aria-label="Main" className={classNames("mt-10 flex-1", props.collapsed ? "" : "overflow-y-auto")}>
         {navGroups.map((group, groupIndex) => (
@@ -184,18 +198,20 @@ export function Sidebar(props: SidebarProps): React.ReactElement {
       </nav>
       <div className="mt-4 space-y-3">
         <ThemeSwitch collapsed={props.collapsed} />
-        <button
-          type="button"
-          onClick={props.onToggleCollapsed}
-          aria-label={props.collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className={classNames(
-            "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-ink-faint hover:text-ink",
-            props.collapsed && "mx-auto px-0",
-          )}
-        >
-          <CollapseIcon className="size-4" aria-hidden="true" />
-          {props.collapsed ? null : "Collapse"}
-        </button>
+        {props.onToggleCollapsed ? (
+          <button
+            type="button"
+            onClick={props.onToggleCollapsed}
+            aria-label={props.collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className={classNames(
+              "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-ink-faint hover:text-ink",
+              props.collapsed && "mx-auto px-0",
+            )}
+          >
+            <CollapseIcon className="size-4" aria-hidden="true" />
+            {props.collapsed ? null : "Collapse"}
+          </button>
+        ) : null}
       </div>
     </aside>
   );

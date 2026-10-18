@@ -144,7 +144,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <fieldset className="flex flex-wrap justify-center gap-2">
+      <fieldset className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0">
         <legend className="sr-only">Video type</legend>
         {Object.values(presets).map((preset) => (
           <button
@@ -153,7 +153,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
             aria-pressed={preset.id === presetId}
             onClick={() => choosePreset(preset.id)}
             className={classNames(
-              "rounded-full border px-3.5 py-1.5 text-[13px] transition-colors",
+              "shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] whitespace-nowrap transition-colors",
               preset.id === presetId
                 ? "border-accent/60 bg-accent-soft text-ink"
                 : "border-line bg-panel text-ink-muted hover:border-line-strong hover:text-ink",
@@ -197,7 +197,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
             className="w-full bg-transparent font-mono text-[15px] text-ink placeholder:font-sans placeholder:text-ink-faint focus:outline-none"
           />
         </label>
-        <label className="block px-4 pt-2 pb-1 pl-12">
+        <label className="block px-4 pt-2 pb-1 sm:pl-12">
           <span className="sr-only">Direction</span>
           <textarea
             id="direction"

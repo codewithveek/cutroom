@@ -22,7 +22,7 @@ export function PageHeader(props: {
 export function PageFrame(props: { children: React.ReactNode }): React.ReactElement {
   return (
     <div className="min-h-full rounded-2xl bg-panel/40">
-      <div className="mx-auto max-w-6xl space-y-8 px-6 py-10">{props.children}</div>
+      <div className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:px-6 sm:py-10">{props.children}</div>
     </div>
   );
 }

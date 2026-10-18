@@ -57,7 +57,7 @@ export function EditorHeader(props: EditorHeaderProps): React.ReactElement {
   const activity = runActivity(run);
   const tabs = editorTabs.filter((tab) => !tab.requires || isEnabled(tab.requires));
   return (
-    <header className="panel flex h-16 shrink-0 items-center gap-3 px-3">
+    <header className="panel flex min-h-16 shrink-0 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5 md:flex-nowrap md:py-0">
       <Link
         href="/"
         aria-label="Back to Home"
@@ -65,7 +65,7 @@ export function EditorHeader(props: EditorHeaderProps): React.ReactElement {
       >
         <ChevronLeft className="size-5" aria-hidden="true" />
       </Link>
-      <div className="min-w-0 max-w-64">
+      <div className="min-w-0 flex-1 md:max-w-64 md:flex-none">
         <div className="truncate text-[15px] font-medium">{videoLabel(run)}</div>
         <div className="truncate text-[11px] text-ink-faint">
           {sourceLabel(run.request.source)}
@@ -73,7 +73,10 @@ export function EditorHeader(props: EditorHeaderProps): React.ReactElement {
           {props.dirty ? " · unsaved edits" : ""}
         </div>
       </div>
-      <nav aria-label="Editor" className="mx-auto flex items-center gap-0.5 rounded-2xl bg-panel-raised p-1">
+      <nav
+        aria-label="Editor"
+        className="order-last flex w-full items-center justify-between gap-0.5 overflow-x-auto rounded-2xl bg-panel-raised p-1 md:order-none md:mx-auto md:w-auto md:justify-start"
+      >
         {tabs.map((tab) => {
           const active = tab.id === props.tab;
           return (
@@ -110,7 +113,7 @@ export function EditorHeader(props: EditorHeaderProps): React.ReactElement {
         </button>
         <span
           title={`${run.request.privacyMode} mode`}
-          className="flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-xs text-ink-muted capitalize"
+          className="hidden h-9 items-center gap-1.5 rounded-xl px-2.5 text-xs text-ink-muted capitalize sm:flex"
         >
           <PrivacyIcon className="size-4" aria-hidden="true" />
           <span className="hidden lg:inline">{run.request.privacyMode}</span>

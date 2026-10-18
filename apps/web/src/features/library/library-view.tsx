@@ -65,7 +65,7 @@ export function LibraryView(props: LibraryViewProps): React.ReactElement {
         }
       />
       <div className="flex flex-wrap items-center gap-3">
-        <fieldset className="flex rounded-xl bg-panel p-1">
+        <fieldset className="flex max-w-full overflow-x-auto rounded-xl bg-panel p-1">
           <legend className="sr-only">Filter</legend>
           {filters.map((candidate) => (
             <button
@@ -74,7 +74,7 @@ export function LibraryView(props: LibraryViewProps): React.ReactElement {
               aria-pressed={candidate.id === filter}
               onClick={() => setFilter(candidate.id)}
               className={classNames(
-                "rounded-lg px-3 py-1.5 text-sm transition-colors",
+                "shrink-0 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
                 candidate.id === filter
                   ? "bg-panel-hover font-medium text-ink"
                   : "text-ink-muted hover:text-ink",
@@ -89,7 +89,7 @@ export function LibraryView(props: LibraryViewProps): React.ReactElement {
             </button>
           ))}
         </fieldset>
-        <label className="ml-auto flex h-10 w-72 items-center gap-2 rounded-xl border border-line bg-panel px-3 focus-within:border-line-strong">
+        <label className="flex h-10 w-full items-center sm:ml-auto sm:w-72 gap-2 rounded-xl border border-line bg-panel px-3 focus-within:border-line-strong">
           <Search className="size-4 text-ink-faint" aria-hidden="true" />
           <span className="sr-only">Search videos</span>
           <input

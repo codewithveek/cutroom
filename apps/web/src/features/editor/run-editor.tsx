@@ -16,6 +16,7 @@ import { EgressPanel } from "@/features/render-queue/egress-panel";
 import { RendersPanel } from "@/features/render-queue/renders-panel";
 import { apiClient, type RunView } from "@/lib/api-client";
 import { classNames } from "@/lib/class-names";
+import { breakpoints, useMediaQuery } from "@/lib/use-media-query";
 import { useRun } from "@/lib/use-run";
 import {
   EditorContext,
@@ -49,6 +50,15 @@ const leftPanels: Readonly<Record<EditorTabId, () => React.ReactElement>> = {
   captions: CaptionsPanel,
   transitions: TransitionsPanel,
 };
+
+type MobilePaneId = "edit" | "style" | "timeline";
+
+/** Below the desktop breakpoint the three regions share one column, one at a time under the stage. */
+const mobilePanes: ReadonlyArray<{ id: MobilePaneId; label: string }> = [
+  { id: "edit", label: "Edit" },
+  { id: "style", label: "Voice & style" },
+  { id: "timeline", label: "Timeline" },
+];
 
 function isTyping(target: EventTarget | null): boolean {
   return (
@@ -88,6 +98,8 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
   const [sheet, setSheet] = useState<EditorSheet>();
   const [stageMode, setStageMode] = useState<"preview" | "renders">("preview");
   const [player, setPlayer] = useState<PlayerRef | null>(null);
+  const isDesktop = useMediaQuery(breakpoints.lg);
+  const [mobilePane, setMobilePane] = useState<MobilePaneId>("edit");
   const playerState = usePlayerState(player);
   const stopAtFrame = useRef<number | undefined>(undefined);
 
@@ -256,10 +268,47 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
     openSheet: setSheet,
   };
   const LeftPanel = leftPanels[tab];
+  const stageRegion = (
+    <>
+      {run.egress && !run.egress.confirmedAt ? (
+        <div className="max-h-[50%] shrink-0 overflow-y-auto">
+          <EgressPanel run={run} onRunChange={props.replaceRun} />
+        </div>
+      ) : null}
+      {hasRenders ? (
+        <fieldset className="flex shrink-0 self-center rounded-xl bg-panel p-1 text-xs">
+          <legend className="sr-only">Stage</legend>
+          {(["preview", "renders"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={stageMode === mode}
+              onClick={() => setStageMode(mode)}
+              className={classNames(
+                "rounded-lg px-3 py-1 capitalize",
+                stageMode === mode ? "bg-panel-hover text-ink" : "text-ink-muted",
+              )}
+            >
+              {mode === "preview" ? "Live preview" : "Final renders"}
+            </button>
+          ))}
+        </fieldset>
+      ) : null}
+      {stageMode === "renders" && hasRenders ? (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <RendersPanel run={run} events={props.events} />
+        </div>
+      ) : (
+        <PreviewStage playerRef={setPlayer} />
+      )}
+    </>
+  );
 
   return (
     <EditorContext.Provider value={context}>
-      <div className="flex h-full min-h-0 flex-col gap-3">
+      <div
+        className={classNames("flex flex-col gap-2 lg:gap-3", isDesktop ? "h-full min-h-0" : "min-h-full")}
+      >
         <EditorHeader
           run={run}
           events={props.events}
@@ -270,44 +319,42 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
           onOpenSheet={setSheet}
           primary={primary}
         />
-        <div className="grid min-h-0 flex-1 grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(300px,360px)] gap-3">
-          <LeftPanel />
-          <div className="flex min-h-0 min-w-0 flex-col gap-3">
-            {run.egress && !run.egress.confirmedAt ? (
-              <div className="max-h-[50%] shrink-0 overflow-y-auto">
-                <EgressPanel run={run} onRunChange={props.replaceRun} />
-              </div>
-            ) : null}
-            {hasRenders ? (
-              <fieldset className="flex shrink-0 self-center rounded-xl bg-panel p-1 text-xs">
-                <legend className="sr-only">Stage</legend>
-                {(["preview", "renders"] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    aria-pressed={stageMode === mode}
-                    onClick={() => setStageMode(mode)}
-                    className={classNames(
-                      "rounded-lg px-3 py-1 capitalize",
-                      stageMode === mode ? "bg-panel-hover text-ink" : "text-ink-muted",
-                    )}
-                  >
-                    {mode === "preview" ? "Live preview" : "Final renders"}
-                  </button>
-                ))}
-              </fieldset>
-            ) : null}
-            {stageMode === "renders" && hasRenders ? (
-              <div className="min-h-0 flex-1 overflow-y-auto">
-                <RendersPanel run={run} events={props.events} />
-              </div>
-            ) : (
-              <PreviewStage playerRef={setPlayer} />
-            )}
-          </div>
-          <InspectorPanel />
-        </div>
-        <TimelinePanel />
+        {isDesktop ? (
+          <>
+            <div className="grid min-h-0 flex-1 grid-cols-[minmax(260px,340px)_minmax(0,1fr)_minmax(280px,360px)] gap-3">
+              <LeftPanel />
+              <div className="flex min-h-0 min-w-0 flex-col gap-3">{stageRegion}</div>
+              <InspectorPanel />
+            </div>
+            <TimelinePanel />
+          </>
+        ) : (
+          <>
+            <div className="flex h-[42vh] min-h-[220px] shrink-0 flex-col gap-2">{stageRegion}</div>
+            <fieldset className="flex shrink-0 rounded-xl bg-panel p-1 text-sm">
+              <legend className="sr-only">Panel</legend>
+              {mobilePanes.map((pane) => (
+                <button
+                  key={pane.id}
+                  type="button"
+                  aria-pressed={mobilePane === pane.id}
+                  onClick={() => setMobilePane(pane.id)}
+                  className={classNames(
+                    "flex-1 rounded-lg py-1.5",
+                    mobilePane === pane.id ? "bg-panel-hover font-medium text-ink" : "text-ink-muted",
+                  )}
+                >
+                  {pane.label}
+                </button>
+              ))}
+            </fieldset>
+            <div className="flex min-h-[60vh] flex-1 flex-col">
+              {mobilePane === "edit" ? <LeftPanel /> : null}
+              {mobilePane === "style" ? <InspectorPanel /> : null}
+              {mobilePane === "timeline" ? <TimelinePanel compact /> : null}
+            </div>
+          </>
+        )}
       </div>
       {notice ? (
         <div
