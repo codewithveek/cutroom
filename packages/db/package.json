@@ -1,0 +1,30 @@
+{
+  "name": "@cutroom/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "generate": "drizzle-kit generate",
+    "migrate": "tsx scripts/migrate.ts"
+  },
+  "dependencies": {
+    "@cutroom/config": "workspace:*",
+    "@cutroom/pipeline": "workspace:*",
+    "@cutroom/scene-spec": "workspace:*",
+    "drizzle-orm": "0.45.4",
+    "pg": "8.23.1",
+    "ulid": "3.0.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@cutroom/observability": "workspace:*",
+    "@cutroom/voice": "workspace:*",
+    "@types/pg": "8.23.1",
+    "drizzle-kit": "0.31.11",
+    "tsx": "4.23.15"
+  }
+}
