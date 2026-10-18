@@ -98,8 +98,32 @@ describe("storyboardDraftIssues", () => {
     const issues = storyboardDraftIssues(broken, "launch");
     expect(issues.some((issue) => issue.includes("at most 8"))).toBe(true);
     expect(issues.some((issue) => issue.includes("filler opener"))).toBe(true);
-    expect(issues.some((issue) => issue.includes("headline has 2 words"))).toBe(true);
+    expect(issues.some((issue) => issue.includes('headline has 2 words ("Too short")'))).toBe(true);
+    expect(issues.some((issue) => issue.includes("so add at least 2 words"))).toBe(true);
+    expect(issues.some((issue) => issue.includes("Cut at least"))).toBe(true);
     expect(issues).toContain("The last scene must be an end-card.");
+  });
+
+  it("names how many words to cut from a long headline", () => {
+    const [problem, ...rest] = shipnoteStoryboardDraft.scenes;
+    if (problem?.block !== "kinetic-headline") throw new Error("fixture drift");
+    const longHeadline = {
+      ...shipnoteStoryboardDraft,
+      scenes: [
+        {
+          ...problem,
+          props: {
+            ...problem.props,
+            lines: ["Release notes eat a whole *afternoon*", "of every single release you ship"],
+          },
+        },
+        ...rest,
+      ],
+    };
+    const issues = storyboardDraftIssues(longHeadline, "launch");
+    expect(
+      issues.some((issue) => issue.includes("headline has 12 words") && issue.includes("cut at least 3")),
+    ).toBe(true);
   });
 });
 

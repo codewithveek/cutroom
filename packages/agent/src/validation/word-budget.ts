@@ -33,7 +33,7 @@ function narrationIssues({ scene, index, beat }: SceneIssueOptions & { beat: Bea
   const words = narrationWordCount(scene);
   if (words > beat.narrationWords[1]) {
     issues.push(
-      `${sceneLabel(scene, index)}: narration has ${words} words; the ${beat.beat} beat allows at most ${beat.narrationWords[1]} (2.5 words per second).`,
+      `${sceneLabel(scene, index)}: narration has ${words} words; the ${beat.beat} beat allows at most ${beat.narrationWords[1]} (2.5 words per second). Cut at least ${words - beat.narrationWords[1]} words.`,
     );
   }
   scene.narration.forEach((line, lineIndex) => {
@@ -52,8 +52,12 @@ function headlineIssues({ scene, index, videoType }: SceneIssueOptions & { video
     videoType === "teaser" ? TEASER_HEADLINE_WORD_RANGE : HEADLINE_WORD_RANGE;
   const words = countWords(stripStars(scene.props.lines.join(" ")));
   if (words >= minimumWords && words <= maximumWords) return [];
+  // Small models miss a bare range when asked again, so quote the headline and name the change.
+  const change =
+    words > maximumWords ? `cut at least ${words - maximumWords}` : `add at least ${minimumWords - words}`;
+  const quoted = scene.props.lines.map((line) => `"${line}"`).join(" / ");
   return [
-    `${sceneLabel(scene, index)}: headline has ${words} words; use ${minimumWords}–${maximumWords} words across its lines.`,
+    `${sceneLabel(scene, index)}: headline has ${words} words (${quoted}); use ${minimumWords}–${maximumWords} words across its lines, so ${change} words. Shorten each line rather than adding lines.`,
   ];
 }
 
