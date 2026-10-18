@@ -1,6 +1,12 @@
-import { regenerateScene } from "@cutroom/agent";
+import { regenerateScene, reverifyBrief } from "@cutroom/agent";
 import { assertApprovable } from "@cutroom/claim-audit";
-import { type RunSettingsUpdate, type Storyboard, storyboardSchema } from "@cutroom/scene-spec";
+import {
+  type ProductBrief,
+  productBriefSchema,
+  type RunSettingsUpdate,
+  type Storyboard,
+  storyboardSchema,
+} from "@cutroom/scene-spec";
 import { lookTokensById } from "@cutroom/video-kit";
 import { ulid } from "ulid";
 import type {
@@ -17,7 +23,7 @@ import {
 } from "./run-schema";
 import type { StepExecutor } from "./step-executor";
 import { auditVersion } from "./steps/audit-step";
-import { LOGO_ASSET_KEY } from "./steps/plan-step";
+import { LOGO_ASSET_KEY, planFromBrief } from "./steps/plan-step";
 import { createRunModelClient, requireSnapshot } from "./steps/run-resources";
 import { RunNotFoundError } from "./store/run-store";
 
@@ -176,6 +182,46 @@ export class RunCommands {
       ...(request.instruction ? { instruction: request.instruction } : {}),
     });
     return this.updateStoryboard(runId, storyboard);
+  }
+
+  /**
+   * The user edited the brief: re-verify its evidence, store it, plan a new storyboard version
+   * from it and audit every scene. Only during review.
+   */
+  async updateBrief(runId: string, briefInput: ProductBrief): Promise<UpdateStoryboardResult> {
+    const brief = productBriefSchema.parse(briefInput);
+    const run = await this.requireRun(runId);
+    if (run.status !== "awaiting_review")
+      throw new RunStateError(`Run ${runId} is ${run.status}; the brief can only change during review`);
+    const previous = latestStoryboardVersion(run);
+    if (!previous) throw new RunStateError("No storyboard to re-plan");
+    const context = this.executor.createContext(runId, "plan-storyboard");
+    const { reader } = await requireSnapshot(context);
+    const verified = await reverifyBrief({ brief, reader });
+    const withBrief = await this.store.update(runId, (current) => ({ ...current, brief: verified }));
+    const planned = await planFromBrief({ context, run: withBrief, brief: verified });
+    const versionId = ulid();
+    const updated = await this.store.update(runId, (current) => ({
+      ...current,
+      storyboardVersions: [
+        ...current.storyboardVersions,
+        {
+          id: versionId,
+          version: previous.version + 1,
+          storyboard: planned.storyboard,
+          author: "agent",
+          createdAt: new Date().toISOString(),
+          claimResults: [],
+          audited: false,
+        },
+      ],
+    }));
+    const { results } = await auditVersion({
+      context: this.executor.createContext(runId, "audit-claims"),
+      run: updated,
+      versionId,
+    });
+    return { versionId, version: previous.version + 1, claimResults: results };
   }
 
   /** Voice and music may change until approval; the voice step reads them afterwards. */

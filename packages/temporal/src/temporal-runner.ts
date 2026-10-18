@@ -14,7 +14,7 @@ import {
   type UpdateStoryboardResult,
   waitForRunStatus,
 } from "@cutroom/pipeline";
-import type { RunSettingsUpdate, Storyboard } from "@cutroom/scene-spec";
+import type { ProductBrief, RunSettingsUpdate, Storyboard } from "@cutroom/scene-spec";
 import type { Client } from "@temporalio/client";
 import { WorkflowExecutionAlreadyStartedError } from "@temporalio/client";
 import {
@@ -97,6 +97,10 @@ export class TemporalRunner implements PipelineRunner {
 
   regenerateScene(runId: string, request: RegenerateSceneRequest): Promise<UpdateStoryboardResult> {
     return this.commands.regenerateScene(runId, request);
+  }
+
+  updateBrief(runId: string, brief: ProductBrief): Promise<UpdateStoryboardResult> {
+    return this.commands.updateBrief(runId, brief);
   }
 
   updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void> {

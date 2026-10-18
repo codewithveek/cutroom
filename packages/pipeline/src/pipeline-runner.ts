@@ -1,4 +1,10 @@
-import type { ClaimOverride, ClaimResult, RunSettingsUpdate, Storyboard } from "@cutroom/scene-spec";
+import type {
+  ClaimOverride,
+  ClaimResult,
+  ProductBrief,
+  RunSettingsUpdate,
+  Storyboard,
+} from "@cutroom/scene-spec";
 import type { RunEvent, RunRecord, RunRequestInput, RunStatus } from "./run-schema";
 
 export interface ApproveStoryboardInput {
@@ -28,6 +34,8 @@ export interface PipelineRunner {
   updateStoryboard(runId: string, storyboard: Storyboard): Promise<UpdateStoryboardResult>;
   regenerateScene(runId: string, request: RegenerateSceneRequest): Promise<UpdateStoryboardResult>;
   updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void>;
+  /** The user edited the brief: re-verify it and plan a new storyboard version from it. */
+  updateBrief(runId: string, brief: ProductBrief): Promise<UpdateStoryboardResult>;
   /** The file behind a media key (voice clip or logo), for previews in the browser. */
   mediaFilePath(runId: string, assetKey: string): Promise<string | undefined>;
   getRun(runId: string): Promise<RunRecord | undefined>;

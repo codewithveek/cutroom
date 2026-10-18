@@ -1,5 +1,5 @@
 import { type EgressGuard, installLocalEgressGuard } from "@cutroom/providers";
-import type { RunSettingsUpdate, Storyboard } from "@cutroom/scene-spec";
+import type { ProductBrief, RunSettingsUpdate, Storyboard } from "@cutroom/scene-spec";
 import type {
   ApproveStoryboardInput,
   PipelineRunner,
@@ -84,6 +84,10 @@ export class InProcessRunner implements PipelineRunner {
 
   regenerateScene(runId: string, request: RegenerateSceneRequest): Promise<UpdateStoryboardResult> {
     return this.commands.regenerateScene(runId, request);
+  }
+
+  updateBrief(runId: string, brief: ProductBrief): Promise<UpdateStoryboardResult> {
+    return this.commands.updateBrief(runId, brief);
   }
 
   updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void> {

@@ -137,6 +137,17 @@ describe("runs", () => {
     expect(settings.json().request.voice.voiceId).toBe("bf_emma");
     expect(settings.json().request.music).toEqual({ kind: "none" });
     const emptySettings = await app.inject({ method: "PATCH", url: `/runs/${runId}/settings`, payload: {} });
+    const before = (await app.inject({ method: "GET", url: `/runs/${runId}` })).json();
+    const editedBrief = { ...before.brief, tagline: "Changelogs from commits, in one command" };
+    const replanned = await app.inject({
+      method: "PUT",
+      url: `/runs/${runId}/brief`,
+      payload: { brief: editedBrief },
+    });
+    expect(replanned.statusCode).toBe(200);
+    expect(replanned.json().brief.tagline).toBe("Changelogs from commits, in one command");
+    expect(replanned.json().storyboard.version).toBe(before.storyboard.version + 1);
+    expect(replanned.json().storyboard.author).toBe("agent");
     const unknownMedia = await app.inject({ method: "GET", url: `/runs/${runId}/media/nope` });
     expect(unknownMedia.statusCode).toBe(404);
     expect(emptySettings.statusCode).toBe(400);
