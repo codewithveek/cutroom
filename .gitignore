@@ -13,3 +13,5 @@ evals/workspace/
 *.log
 .DS_Store
 apps/cli/LICENSE
+
+deploy/cloud.env

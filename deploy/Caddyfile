@@ -1,0 +1,15 @@
+# Automatic HTTPS for the demo domain (e.g. cutroom.tech) and its api. subdomain.
+{$CUTROOM_DOMAIN} {
+	reverse_proxy web:3000
+}
+
+api.{$CUTROOM_DOMAIN} {
+	# Hybrid render bundles, archives and music (200, 100 and 30 MB, enforced by the API itself).
+	request_body {
+		max_size 210MB
+	}
+	reverse_proxy api:4100 {
+		# Server-sent run events must not be buffered.
+		flush_interval -1
+	}
+}

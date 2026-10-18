@@ -1,0 +1,85 @@
+# The whole stack on one host (a DigitalOcean Droplet): web, API and worker sharing one data
+# volume, Postgres with pgvector, a Temporal server, and Caddy terminating TLS for your domain.
+# Gemma runs elsewhere (a GPU Droplet with vLLM, see deploy/gemma-vllm.sh) and is reached through
+# OPENAI_COMPAT_BASE_URL in Cloud mode. Usage, from the repo root on the Droplet:
+#   cp deploy/cloud.env.example deploy/cloud.env   # fill it in
+#   docker compose -f deploy/docker-compose.cloud.yml --env-file deploy/cloud.env up -d --build
+name: cutroom
+
+x-node-service: &node-service
+  build: { context: .., dockerfile: deploy/node-services.Dockerfile }
+  env_file: cloud.env
+  environment:
+    RUN_STORE: postgres
+    RUNNER: temporal
+    DATABASE_URL: postgres://cutroom:${POSTGRES_PASSWORD}@postgres:5432/cutroom
+    TEMPORAL_ADDRESS: ${TEMPORAL_ADDRESS:-temporal:7233}
+    CUTROOM_DATA_DIR: /data
+  volumes: ["cutroom-data:/data"]
+  depends_on:
+    postgres: { condition: service_healthy }
+  restart: unless-stopped
+
+services:
+  api:
+    <<: *node-service
+    command: ["api"]
+    environment:
+      RUN_STORE: postgres
+      RUNNER: temporal
+      DATABASE_URL: postgres://cutroom:${POSTGRES_PASSWORD}@postgres:5432/cutroom
+      TEMPORAL_ADDRESS: ${TEMPORAL_ADDRESS:-temporal:7233}
+      CUTROOM_DATA_DIR: /data
+      API_HOST: 0.0.0.0
+      API_PORT: 4100
+      WEB_ORIGIN: https://${CUTROOM_DOMAIN}
+
+  worker:
+    <<: *node-service
+    command: ["worker"]
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.${CUTROOM_DOMAIN}
+    restart: unless-stopped
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: cutroom
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: cutroom
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cutroom"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # Self-hosted Temporal for the demo. For Temporal Cloud, set TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE
+  # and TEMPORAL_API_KEY in cloud.env and start without this service (--scale temporal=0).
+  temporal:
+    image: temporalio/temporal:latest
+    command: ["server", "start-dev", "--ip", "0.0.0.0", "--db-filename", "/temporal/temporal.db"]
+    volumes: ["temporal-data:/temporal"]
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    environment:
+      CUTROOM_DOMAIN: ${CUTROOM_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [web, api]
+    restart: unless-stopped
+
+volumes:
+  cutroom-data:
+  postgres-data:
+  temporal-data:
+  caddy-data:
