@@ -28,7 +28,11 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   registerErrorHandler(app);
-  await app.register(cors, { origin: [options.env.WEB_ORIGIN] });
+  await app.register(cors, {
+    origin: [options.env.WEB_ORIGIN],
+    // The plugin's default omits PUT and PATCH, which the editor uses to save and change settings.
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH"],
+  });
   await app.register(multipart);
   await app.register(catalogueRoutes);
   await app.register(systemRoutes, { system: options.system });

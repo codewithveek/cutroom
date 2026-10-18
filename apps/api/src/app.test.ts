@@ -134,6 +134,16 @@ describe("runs", () => {
     expect(emptySettings.statusCode).toBe(400);
   });
 
+  it("lets the web app PUT and PATCH across origins", async () => {
+    const preflight = await app.inject({
+      method: "OPTIONS",
+      url: "/runs/01M55MVJYSFBS7DCNYGS3CFHDF/settings",
+      headers: { origin: "http://localhost:3000", "access-control-request-method": "PATCH" },
+    });
+    expect(preflight.headers["access-control-allow-methods"]).toContain("PATCH");
+    expect(preflight.headers["access-control-allow-methods"]).toContain("PUT");
+  });
+
   it("reports the toolchain and lists voices", async () => {
     const status = await app.inject({ method: "GET", url: "/system/status" });
     expect(status.statusCode).toBe(200);
