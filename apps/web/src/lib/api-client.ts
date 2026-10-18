@@ -13,7 +13,11 @@ import {
 } from "@cutroom/scene-spec";
 import { z } from "zod";
 
-export const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4100";
+/**
+ * The web app's own proxy route by default (it forwards to CUTROOM_API_URL at runtime); set
+ * NEXT_PUBLIC_API_URL at build time to call the API directly instead.
+ */
+export const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "/cutroom-api";
 
 export class ApiRequestError extends Error {
   override readonly name = "ApiRequestError";
