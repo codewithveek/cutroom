@@ -1,0 +1,12 @@
+**/node_modules
+**/.next
+**/.turbo
+**/dist
+**/coverage
+.cutroom
+evals/workspace
+.env
+.env.*
+!.env.example
+.git
+docs/screenshots
