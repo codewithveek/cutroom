@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { brandSchema } from "./brand";
 import { captureManifestSchema, captureRequestSchema } from "./capture-contracts";
+import { changeRequestSchema } from "./changes";
 import { claimOverrideSchema, claimResultSchema } from "./claims";
 import { musicSelectionSchema } from "./music";
 import { presetIdSchema } from "./preset-id";
@@ -34,6 +35,8 @@ export const runRequestSchema = z.object({
   direction: z.string().trim().max(280).optional(),
   /** Capture these routes of the running app for screenshot-window scenes (FR-CAP-1). */
   capture: captureRequestSchema.optional(),
+  /** A "what's new" video of a range of history instead of the whole product (E2). */
+  changes: changeRequestSchema.optional(),
 });
 export type RunRequest = z.infer<typeof runRequestSchema>;
 export type RunRequestInput = z.input<typeof runRequestSchema>;

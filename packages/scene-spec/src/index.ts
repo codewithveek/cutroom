@@ -14,6 +14,7 @@ export * from "./blocks/word-slot";
 export * from "./brand";
 export * from "./captions";
 export * from "./capture-contracts";
+export * from "./changes";
 export * from "./claims";
 export { collectClaims, collectSceneClaims } from "./collect-claims";
 export * from "./direction";

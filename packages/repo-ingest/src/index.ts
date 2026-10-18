@@ -1,4 +1,13 @@
 export { extractBrandHints, isDarkColor } from "./brand-hints";
+export {
+  buildChangeSnapshot,
+  listTags,
+  resolveCommit,
+  uiStringsOnAddedLines,
+} from "./changes/change-snapshot";
+export { createChangesFixtureRepo } from "./changes/changes-fixture-repo";
+export { extractCommitTree } from "./changes/git-output";
+export { isOnAddedLines } from "./changes/parse-diff";
 export { webUiFrameworks } from "./frameworks";
 export { defaultIgnorePatterns } from "./ignore-rules";
 export {
