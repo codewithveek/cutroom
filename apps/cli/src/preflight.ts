@@ -1,6 +1,4 @@
 import { execFile } from "node:child_process";
-import { existsSync } from "node:fs";
-import path from "node:path";
 import type { CutroomEnv } from "@cutroom/config";
 import { z } from "zod";
 import type { MakeFlags } from "./make-options";
@@ -64,13 +62,4 @@ export async function runPreflight(options: { flags: MakeFlags; env: CutroomEnv 
     modelId: options.env.MODEL_ID,
     ollamaHost: options.env.OLLAMA_HOST,
   });
-}
-
-/**
- * The published package ships a Remotion bundle next to its entry file; a source checkout does not,
- * and bundles video-kit on first render instead.
- */
-export function findPrebuiltBundle(entryDirectory: string): string | undefined {
-  const directory = path.join(entryDirectory, "remotion-bundle");
-  return existsSync(path.join(directory, "index.html")) ? directory : undefined;
 }

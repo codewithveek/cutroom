@@ -1,8 +1,5 @@
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { findPrebuiltBundle, type PreflightFacts, preflightProblems } from "./preflight";
+import { type PreflightFacts, preflightProblems } from "./preflight";
 
 const ready: PreflightFacts = {
   ffmpegAvailable: true,
@@ -25,15 +22,5 @@ describe("preflightProblems", () => {
 
   it("ignores Ollama when the run does not use it", () => {
     expect(preflightProblems({ ...ready, needsOllama: false, ollamaModels: null })).toEqual([]);
-  });
-});
-
-describe("findPrebuiltBundle", () => {
-  it("finds a bundle next to the entry file and ignores a source checkout", async () => {
-    const entryDirectory = await mkdtemp(path.join(tmpdir(), "cutroom-dist-"));
-    expect(findPrebuiltBundle(entryDirectory)).toBeUndefined();
-    await mkdir(path.join(entryDirectory, "remotion-bundle"));
-    await writeFile(path.join(entryDirectory, "remotion-bundle", "index.html"), "<html></html>");
-    expect(findPrebuiltBundle(entryDirectory)).toBe(path.join(entryDirectory, "remotion-bundle"));
   });
 });
