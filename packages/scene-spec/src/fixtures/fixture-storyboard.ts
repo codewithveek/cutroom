@@ -117,6 +117,7 @@ export const fixtureStoryboardInput: StoryboardInput = {
         view: {
           imageWidth: 1440,
           imageHeight: 900,
+          route: "/releases/next",
           focusBox: { x: 0.2014, y: 0.5756, width: 0.1359, height: 0.0456 },
         },
       },

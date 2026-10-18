@@ -15,6 +15,7 @@ export function screenViewFor(options: {
   return {
     imageWidth: screen.width,
     imageHeight: screen.height,
+    route: screen.route.slice(0, 80),
     ...(target
       ? {
           focusBox: {

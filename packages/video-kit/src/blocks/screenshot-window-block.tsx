@@ -102,7 +102,7 @@ export function ScreenshotWindowBlock(props: { scene: ScreenshotWindowScene }): 
     <BlockFrame>
       <FadeRise startFrame={0} distancePx={50} style={{ width: windowWidth }}>
         <Card scale={sizes.scale} style={{ width: "100%" }}>
-          <WindowChrome title={screenId} scale={sizes.scale} />
+          <WindowChrome title={view?.route ?? screenId} scale={sizes.scale} />
           <div
             style={{
               position: "relative",

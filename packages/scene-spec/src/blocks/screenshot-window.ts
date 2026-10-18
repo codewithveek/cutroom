@@ -13,6 +13,8 @@ export const normalizedBoxSchema = z.object({
 export const screenshotViewSchema = z.object({
   imageWidth: z.number().int().positive(),
   imageHeight: z.number().int().positive(),
+  /** The captured route, shown in the window's title bar. */
+  route: z.string().max(80).optional(),
   focusBox: normalizedBoxSchema.optional(),
 });
 

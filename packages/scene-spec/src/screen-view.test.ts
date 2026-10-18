@@ -31,6 +31,7 @@ describe("attachScreenView", () => {
     expect(scene.block === "screenshot-window" && scene.props.view).toEqual({
       imageWidth: 1440,
       imageHeight: 900,
+      route: "/",
       focusBox: { x: 0.2, y: 0.5, width: 0.1, height: 0.05 },
     });
   });
@@ -43,6 +44,7 @@ describe("attachScreenView", () => {
     expect(scene.block === "screenshot-window" && scene.props.view).toEqual({
       imageWidth: 1440,
       imageHeight: 900,
+      route: "/",
     });
   });
 });
