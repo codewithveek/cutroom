@@ -9,7 +9,10 @@ export interface CreatePipelineServicesOptions {
   env: CutroomEnv;
   logger?: CutroomLogger;
   overrides?: Partial<
-    Pick<PipelineServices, "modelTransportOverride" | "voiceProviderOverride" | "enforceLocalEgress">
+    Pick<
+      PipelineServices,
+      "modelTransportOverride" | "voiceProviderOverride" | "enforceLocalEgress" | "prebuiltBundleDirectory"
+    >
   >;
 }
 

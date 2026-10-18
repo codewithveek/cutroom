@@ -2,7 +2,7 @@ export { encodeWav, normalizePeak, type PcmAudio } from "@cutroom/audio-io";
 export { synthesizeMusicBed } from "./audio/music-bed";
 export { synthesizeClick, synthesizeWhoosh } from "./audio/sound-effects";
 export { resolveBrowserExecutable } from "./browser-executable";
-export { bundleVideoKit, type VideoKitBundle } from "./bundle-video-kit";
+export { type BundleVideoKitOptions, bundleVideoKit, type VideoKitBundle } from "./bundle-video-kit";
 export { buildWebVtt, formatVttTimestamp } from "./captions-vtt";
 export { embedCoverArt } from "./cover-art";
 export { FfmpegError, runFfmpeg } from "./ffmpeg";

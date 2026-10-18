@@ -19,6 +19,8 @@ export interface PipelineServices {
   voiceProviderOverride?: VoiceProvider;
   /** CLI only: block every non-loopback connection while a Local-mode run executes. */
   enforceLocalEgress?: boolean;
+  /** A prebuilt Remotion bundle to copy instead of bundling video-kit from source (published CLI). */
+  prebuiltBundleDirectory?: string;
 }
 
 export function dataPaths(dataDirectory: string) {

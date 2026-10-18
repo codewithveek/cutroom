@@ -105,7 +105,10 @@ export const renderStep: StepFunction = async (context, run) => {
   const version = run.storyboardVersions.find((candidate) => candidate.id === run.approval?.versionId);
   if (!version || !run.voiceTimeline)
     throw new MissingStepOutputError("Approve the storyboard and synthesise the voice first.");
-  const { serveUrl } = await bundleVideoKit({ outDir: dataPaths(context.services.dataDirectory).bundle });
+  const { serveUrl } = await bundleVideoKit({
+    outDir: dataPaths(context.services.dataDirectory).bundle,
+    prebuiltDirectory: context.services.prebuiltBundleDirectory,
+  });
   const localAssets = await localAssetsFor(context, run);
   const deliverables = await produceDeliverables({
     serveUrl,
