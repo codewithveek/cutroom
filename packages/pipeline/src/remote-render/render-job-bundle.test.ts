@@ -2,7 +2,12 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { encodeWav } from "@cutroom/audio-io";
-import { estimateTimeline, fixtureStoryboardInput, storyboardSchema } from "@cutroom/scene-spec";
+import {
+  estimateTimeline,
+  fixtureStoryboardInput,
+  renderJobSchema,
+  storyboardSchema,
+} from "@cutroom/scene-spec";
 import { describe, expect, it } from "vitest";
 import { buildRenderJobBundle, RenderJobIntegrityError, verifyRenderJobUpload } from "./render-job-bundle";
 import { createRenderJobClient } from "./render-job-client";
@@ -19,6 +24,7 @@ async function makeBundle() {
       voiceTimeline: estimateTimeline({ scenes: storyboard.scenes, transitionFrames: 14 }),
       ratios: ["16:9"],
       music: { kind: "generated", bed: "calm" },
+      watermark: true,
     },
     files: [{ assetKey: "voice-abc", kind: "voice-clip", filePath: clipPath }],
     bundleDirectory: path.join(directory, "bundle"),
@@ -38,6 +44,11 @@ describe("render job bundle", () => {
     expect(bundle.manifest.codeExcerpts).toEqual([
       { sceneId: "scene-code", filePath: "src/group-commits.ts", lineStart: 1, lineEnd: 5 },
     ]);
+  });
+
+  it("carries the watermark choice to the render host", async () => {
+    const { jobJson } = await makeBundle();
+    expect(renderJobSchema.parse(JSON.parse(jobJson)).watermark).toBe(true);
   });
 
   it("accepts the untouched upload and rejects tampering, extra and missing files", async () => {

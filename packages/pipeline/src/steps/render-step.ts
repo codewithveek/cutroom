@@ -129,6 +129,7 @@ export const renderStep: StepFunction = async (context, run) => {
     voiceTimeline: run.voiceTimeline,
     ratios: run.request.ratios.filter((ratio) => !renderedRatios.has(ratio)),
     music: run.request.music,
+    watermark: run.request.watermark,
     localAssets,
     outputDirectory: path.join(context.runDirectory, "deliverables"),
     workDirectory: path.join(context.runDirectory, "work"),

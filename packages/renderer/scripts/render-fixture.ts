@@ -44,6 +44,7 @@ for (const look of looks) {
     voiceTimeline,
     ratios,
     music: { kind: "generated", bed: look === "studio" || look === "cinematic" ? "calm" : "upbeat" },
+    watermark: false,
     localAssets: [
       {
         assetKey: screenshotAssetKey("screen-1"),

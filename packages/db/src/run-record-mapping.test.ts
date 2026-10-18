@@ -11,6 +11,7 @@ const record: RunRecord = {
     targetSeconds: 30,
     voice: { provider: "kokoro", voiceId: "af_heart", speed: 1 },
     music: { kind: "none" },
+    watermark: false,
     privacyMode: "local",
     autoApprove: false,
     seed: 1,

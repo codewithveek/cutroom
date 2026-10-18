@@ -33,6 +33,7 @@ export const qualityCheckStep: StepFunction = async (context, run) => {
       voiceTimeline: run.voiceTimeline,
       ratio: video.ratio,
       music: run.request.music,
+      watermark: run.request.watermark,
       assetUrls,
       ...deliveryOptionsForRatio(video.ratio),
       thumbnailTitle: deriveThumbnailTitle(version.storyboard),

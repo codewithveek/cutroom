@@ -38,6 +38,8 @@ export interface ProduceDeliverablesOptions {
   voiceTimeline: VoiceTimeline;
   ratios: ReadonlyArray<AspectRatio>;
   music: MusicSelection;
+  /** The "created with Cutroom" badge on every ratio. */
+  watermark: boolean;
   /** assetKey → local file (voice clips, uploaded music, logo). */
   localAssets: ReadonlyArray<StagedAsset>;
   outputDirectory: string;
@@ -121,6 +123,7 @@ async function renderOneRatio(options: RenderOneRatioOptions): Promise<RatioDeli
     music: produce.music,
     assetUrls: options.assetUrls,
     ...ratioOptions,
+    watermark: produce.watermark,
     thumbnailTitle: deriveThumbnailTitle(produce.storyboard),
   };
   const rawPath = path.join(produce.workDirectory, `raw-${ratioFileSuffix[ratio]}.mp4`);

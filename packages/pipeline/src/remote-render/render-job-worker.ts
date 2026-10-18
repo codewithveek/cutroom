@@ -103,6 +103,7 @@ export class RenderJobWorker {
         voiceTimeline: job.voiceTimeline,
         ratios: job.ratios,
         music: job.music,
+        watermark: job.watermark,
         localAssets,
         outputDirectory: path.join(directory, "out"),
         workDirectory: path.join(directory, "work"),

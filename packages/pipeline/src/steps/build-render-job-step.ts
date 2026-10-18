@@ -45,6 +45,7 @@ export const buildRenderJobStep: StepFunction = async (context, run) => {
       voiceTimeline: run.voiceTimeline,
       ratios: run.request.ratios,
       music: run.request.music,
+      watermark: run.request.watermark,
     },
     files,
     bundleDirectory,

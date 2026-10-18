@@ -2,10 +2,12 @@
  * Contract check (PRD §11): every block renders a still in every allowed look × every ratio.
  * Writes .cutroom/block-stills/<look>-<ratio>.jpg contact sheets and prints a hash per still,
  * so diffs between runs are easy to spot. Usage: pnpm --filter @cutroom/renderer render:block-stills
+ * Add `--watermark` to check the "created with cutroom" badge over every block too.
  */
 import { createHash } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { parseArgs } from "node:util";
 import {
   aspectRatioSchema,
   type BlockId,
@@ -19,7 +21,11 @@ import {
 import { fixtureStoryboard, lookTokensById } from "@cutroom/video-kit";
 import { bundleVideoKit, renderStills, resolveBrowserExecutable, runFfmpeg } from "../src/index";
 
-const outputDirectory = path.resolve(import.meta.dirname, "../../../.cutroom/block-stills");
+const { values: flags } = parseArgs({ options: { watermark: { type: "boolean", default: false } } });
+const outputDirectory = path.resolve(
+  import.meta.dirname,
+  flags.watermark ? "../../../.cutroom/block-stills-watermark" : "../../../.cutroom/block-stills",
+);
 await mkdir(outputDirectory, { recursive: true });
 const { serveUrl } = await bundleVideoKit({ outDir: path.resolve(outputDirectory, "..", "bundle") });
 const browserExecutable = resolveBrowserExecutable(process.env.BROWSER_EXECUTABLE);
@@ -40,6 +46,7 @@ for (const look of lookIdSchema.options) {
       assetUrls: { [screenshotAssetKey("screen-1")]: "public/fixtures/screen-1.png" },
       openOnThumbnail: false,
       burnCaptions: false,
+      watermark: flags.watermark,
     };
     const frames = timeline.scenes.map((sceneTiming, index) => {
       const nextTransition = timeline.scenes[index + 1]?.transitionInFrames ?? 0;
