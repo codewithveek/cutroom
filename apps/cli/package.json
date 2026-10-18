@@ -1,27 +1,70 @@
 {
-  "name": "@cutroom/cli",
-  "version": "0.0.0",
-  "private": true,
+  "name": "cutroom",
+  "version": "0.1.0",
+  "description": "Turn a codebase into product videos with an agent that runs on open models (Gemma via Ollama, Kokoro voice, Remotion).",
+  "keywords": [
+    "video",
+    "product-video",
+    "remotion",
+    "ollama",
+    "gemma",
+    "kokoro",
+    "cli",
+    "agent"
+  ],
+  "homepage": "https://github.com/codewithveek/cutroom#readme",
+  "bugs": "https://github.com/codewithveek/cutroom/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codewithveek/cutroom.git",
+    "directory": "apps/cli"
+  },
+  "license": "MIT",
   "type": "module",
   "bin": {
-    "cutroom": "./src/main.ts"
+    "cutroom": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
   },
   "scripts": {
+    "build": "tsx scripts/build.ts",
     "typecheck": "tsc --noEmit",
-    "start": "tsx src/main.ts"
+    "start": "tsx src/main.ts",
+    "prepack": "tsx scripts/build.ts"
   },
   "dependencies": {
+    "@huggingface/transformers": "3.8.1",
+    "@remotion/fonts": "4.0.536",
+    "@remotion/renderer": "4.0.536",
+    "@remotion/transitions": "4.0.536",
+    "@sentry/node": "11.8.0",
+    "ignore": "7.0.12",
+    "kokoro-js": "1.2.1",
+    "pino": "10.4.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.536",
+    "shiki": "4.5.0",
+    "ulid": "3.0.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
     "@cutroom/claim-audit": "workspace:*",
     "@cutroom/config": "workspace:*",
     "@cutroom/observability": "workspace:*",
     "@cutroom/pipeline": "workspace:*",
     "@cutroom/presets": "workspace:*",
+    "@cutroom/renderer": "workspace:*",
     "@cutroom/repo-ingest": "workspace:*",
     "@cutroom/scene-spec": "workspace:*",
     "@cutroom/voice": "workspace:*",
-    "zod": "4.6.7"
-  },
-  "devDependencies": {
+    "esbuild": "0.28.2",
     "tsx": "4.23.15"
   }
 }
