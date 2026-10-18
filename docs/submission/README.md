@@ -10,7 +10,7 @@ referenced from the draft post ([`post-draft.md`](post-draft.md)).
 | E6-3 | Agent session export (DevRelay or Entire) | **Needs the author's account** | — |
 | E6-4 | Live demo on the `.tech` domain, deployed with the Render button | **Needs the author's Render account and DNS** | — |
 | E6-5 | Eval table from `pnpm eval` | One Gemma configuration on CPU, run here | `eval-table.md` (pending) |
-| E6-6 | Cutroom's own launch video, made by Cutroom from this repo, plus a 9:16 cutdown of the last day's changes | Made with `gemma4:e4b` on a 4-core CPU, watermarked | `cutroom-launch-16x9.mp4`, `cutroom-launch-9x16.mp4` (pending) |
+| E6-6 | Cutroom's own launch video, made by Cutroom from this repo, plus a 9:16 cutdown of the last day's changes | Made with `gemma4:e4b` on a 4-core CPU, watermarked | `cutroom-launch-16x9.mp4` (34.7 s), `cutroom-launch-9x16.mp4` (33.9 s), `cutroom-launch-delivery-note.md`; the 9:16 changes cutdown is pending |
 
 ## What the self-filmed runs found and fixed
 
