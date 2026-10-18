@@ -7,18 +7,33 @@ import { progressBetween } from "./easing";
 export const WORD_STAGGER_FRAMES = 3;
 const WORD_RISE_FRAMES = 16;
 
+/** One rising word; "*days*." is one word with a starred and a plain part. */
 interface Word {
-  text: string;
-  starred: boolean;
+  parts: Array<{ text: string; starred: boolean }>;
 }
 
-function splitWords(source: string): Word[] {
-  return parseStarredText(source).flatMap((segment) =>
-    segment.text
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((text) => ({ text, starred: segment.starred })),
-  );
+/**
+ * Words split on whitespace only, so punctuation right after a starred phrase stays on the same
+ * word: "*days*." rises as "days." instead of "days" and a lone ".", which wrapped to its own line.
+ */
+export function splitWords(source: string): Word[] {
+  const words: Word[] = [];
+  let joinsPrevious = false;
+  for (const segment of parseStarredText(source)) {
+    const tokens = segment.text.split(/(\s+)/);
+    tokens.forEach((token) => {
+      if (token === "") return;
+      if (/^\s+$/.test(token)) {
+        joinsPrevious = false;
+        return;
+      }
+      const previous = words.at(-1);
+      if (joinsPrevious && previous) previous.parts.push({ text: token, starred: segment.starred });
+      else words.push({ parts: [{ text: token, starred: segment.starred }] });
+      joinsPrevious = true;
+    });
+  }
+  return words;
 }
 
 export function countRisingWords(source: string): number {
@@ -47,7 +62,7 @@ export function RisingText(props: RisingTextProps): React.ReactElement {
         });
         return (
           <span
-            key={`${word.text}-${wordIndex}`}
+            key={`${word.parts.map((part) => part.text).join("")}-${wordIndex}`}
             style={{
               display: "inline-block",
               overflow: "hidden",
@@ -60,10 +75,13 @@ export function RisingText(props: RisingTextProps): React.ReactElement {
               style={{
                 display: "inline-block",
                 transform: `translateY(${(1 - progress) * 105}%)`,
-                color: word.starred ? props.starColor : undefined,
               }}
             >
-              {word.text}
+              {word.parts.map((part, partIndex) => (
+                <span key={partIndex} style={part.starred ? { color: props.starColor } : undefined}>
+                  {part.text}
+                </span>
+              ))}
             </span>
             {wordIndex < words.length - 1 ? " " : null}
           </span>
