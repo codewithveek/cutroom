@@ -1,0 +1,35 @@
+import { describe, expect, it } from "vitest";
+import { buildRunRequest, sourceFor } from "./run-request";
+
+describe("buildRunRequest", () => {
+  it("fills the preset and keeps only meaningful overrides", () => {
+    const request = buildRunRequest({
+      repo: "  ~/code/app ",
+      presetId: "teaser-cinematic",
+      privacyMode: "local",
+      ratios: ["9:16"],
+      direction: "   ",
+      accentColor: "orange",
+    });
+    expect(request.source).toEqual({ kind: "path", path: "~/code/app" });
+    expect(request.videoType).toBe("teaser");
+    expect(request.look).toBe("cinematic");
+    expect(request.targetSeconds).toBe(15);
+    expect(request).not.toHaveProperty("direction");
+    expect(request).not.toHaveProperty("brandOverride");
+  });
+
+  it("lets recommendLook decide on auto and passes a direction through", () => {
+    const request = buildRunRequest({
+      repo: "https://github.com/x/y",
+      presetId: "launch-editorial",
+      privacyMode: "cloud",
+      ratios: ["16:9"],
+      look: "auto",
+      direction: "Focus on the CLI",
+    });
+    expect(request).not.toHaveProperty("look");
+    expect(request.direction).toBe("Focus on the CLI");
+    expect(sourceFor("git@github.com:x/y.git").kind).toBe("git");
+  });
+});

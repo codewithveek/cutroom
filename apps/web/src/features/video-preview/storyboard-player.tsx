@@ -2,18 +2,18 @@
 
 import {
   type AspectRatio,
-  estimateTimeline,
   frameSizeByRatio,
   type Storyboard,
   totalVideoFrames,
   type VideoProps,
   type VoiceTimeline,
 } from "@cutroom/scene-spec";
-import { lookTokensById, VideoComposition } from "@cutroom/video-kit";
+import { VideoComposition } from "@cutroom/video-kit";
 import { Player, type PlayerRef } from "@remotion/player";
 import type React from "react";
 import { forwardRef, useMemo } from "react";
 import { ensurePreviewFonts } from "./load-fonts";
+import { previewVideoProps } from "./preview-props";
 
 ensurePreviewFonts();
 
@@ -22,6 +22,8 @@ export interface StoryboardPlayerProps {
   ratio: AspectRatio;
   /** Real voice timing when available; otherwise estimated from word counts (FR-HR-3). */
   voiceTimeline?: VoiceTimeline | undefined;
+  assetUrls?: Readonly<Record<string, string>> | undefined;
+  burnCaptions?: boolean | undefined;
   autoPlay?: boolean;
   loop?: boolean;
   controls?: boolean;
@@ -32,24 +34,17 @@ export interface StoryboardPlayerProps {
 export const StoryboardPlayer = forwardRef<PlayerRef, StoryboardPlayerProps>(
   function StoryboardPlayer(props, ref) {
     const { storyboard, ratio, voiceTimeline } = props;
-    const inputProps = useMemo<VideoProps>(() => {
-      const timeline =
-        voiceTimeline?.scenes.length === storyboard.scenes.length
-          ? voiceTimeline
-          : estimateTimeline({
-              scenes: storyboard.scenes,
-              transitionFrames: lookTokensById[storyboard.look].crossfadeFrames,
-            });
-      return {
-        storyboard,
-        voiceTimeline: timeline,
-        ratio,
-        music: { kind: "none" },
-        assetUrls: {},
-        openOnThumbnail: false,
-        burnCaptions: ratio === "9:16" || ratio === "1:1",
-      };
-    }, [storyboard, ratio, voiceTimeline]);
+    const inputProps = useMemo<VideoProps>(
+      () =>
+        previewVideoProps({
+          storyboard,
+          ratio,
+          voiceTimeline,
+          ...(props.assetUrls ? { assetUrls: props.assetUrls } : {}),
+          burnCaptions: props.burnCaptions,
+        }),
+      [storyboard, ratio, voiceTimeline, props.assetUrls, props.burnCaptions],
+    );
     const size = frameSizeByRatio[ratio];
     return (
       <Player

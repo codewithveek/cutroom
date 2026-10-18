@@ -1,7 +1,7 @@
 "use client";
 
 import { type PresetId, presets } from "@cutroom/presets";
-import type { AspectRatio, LookId, PrivacyMode, RunRequestInput } from "@cutroom/scene-spec";
+import type { AspectRatio, LookId, PrivacyMode } from "@cutroom/scene-spec";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
@@ -13,14 +13,9 @@ import { apiClient } from "@/lib/api-client";
 import { classNames } from "@/lib/class-names";
 import { LookPicker } from "./look-picker";
 import { PrivacyPicker } from "./privacy-picker";
+import { buildRunRequest } from "./run-request";
 
 const ratioOptions: ReadonlyArray<AspectRatio> = ["16:9", "9:16", "1:1", "4:5"];
-
-function sourceFor(repo: string): RunRequestInput["source"] {
-  return /^(https:\/\/|git@)/.test(repo.trim())
-    ? { kind: "git", url: repo.trim() }
-    : { kind: "path", path: repo.trim() };
-}
 
 function PresetPicker(props: {
   value: PresetId;
@@ -119,22 +114,12 @@ export function NewVideoWizard(): React.ReactElement {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const preset = presets[presetId];
     setSubmitting(true);
     setError(undefined);
     try {
-      const run = await apiClient.createRun({
-        source: sourceFor(repo),
-        presetId,
-        videoType: preset.videoType,
-        ...(look === "auto" ? {} : { look }),
-        ratios,
-        targetSeconds: preset.targetSeconds,
-        voice: preset.voice,
-        music: preset.music,
-        privacyMode,
-        ...(/^#[0-9a-fA-F]{6}$/.test(accentColor) ? { brandOverride: { accentColor } } : {}),
-      });
+      const run = await apiClient.createRun(
+        buildRunRequest({ repo, presetId, privacyMode, ratios, look, accentColor }),
+      );
       router.push(`/runs/${run.id}`);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
