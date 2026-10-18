@@ -1,13 +1,13 @@
 "use client";
 
-import { type ClaimResult, type Scene, sceneSchemaByBlock, transitionSchema } from "@cutroom/scene-spec";
+import { type ClaimResult, type Scene, sceneSchemaByBlock } from "@cutroom/scene-spec";
 import { RefreshCw } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { VerdictBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label, Select, TextInput } from "@/components/ui/field";
+import { Label, TextInput } from "@/components/ui/field";
 import { type JsonSchemaNode, SchemaField } from "./schema-form";
 
 function propsJsonSchema(block: Scene["block"]): JsonSchemaNode {
@@ -15,7 +15,7 @@ function propsJsonSchema(block: Scene["block"]): JsonSchemaNode {
   return z.toJSONSchema(propsSchema, { io: "input", unrepresentable: "any" }) as JsonSchemaNode;
 }
 
-function NarrationEditor(props: {
+export function NarrationEditor(props: {
   scene: Scene;
   onChange: (path: string, value: unknown) => void;
 }): React.ReactElement {
@@ -55,7 +55,7 @@ function NarrationEditor(props: {
   );
 }
 
-function ClaimDetails(props: {
+export function ClaimDetails(props: {
   claims: ReadonlyArray<ClaimResult>;
   onApply: (fieldPath: string, suggestion: string) => void;
 }): React.ReactElement {
@@ -97,16 +97,7 @@ function ClaimDetails(props: {
   );
 }
 
-export interface SceneInspectorProps {
-  scene: Scene;
-  claims: ReadonlyArray<ClaimResult>;
-  editable: boolean;
-  busy: boolean;
-  onChange: (path: string, value: unknown) => void;
-  onRegenerate: (instruction: string) => void;
-}
-
-function RegenerateControl(props: {
+export function RegenerateControl(props: {
   busy: boolean;
   onRegenerate: (instruction: string) => void;
 }): React.ReactElement {
@@ -126,50 +117,19 @@ function RegenerateControl(props: {
   );
 }
 
-/** Props form generated from the block's schema, narration, transition and audit details. */
-export function SceneInspector(props: SceneInspectorProps): React.ReactElement {
+/** The block's props as a form generated from its Zod schema. */
+export function SceneFields(props: {
+  scene: Scene;
+  onChange: (path: string, value: unknown) => void;
+}): React.ReactElement {
   const schema = useMemo(() => propsJsonSchema(props.scene.block), [props.scene.block]);
   return (
-    <div className="space-y-6">
-      <div>
-        <div className="font-mono text-[11px] uppercase tracking-wide text-ink-faint">
-          {props.scene.block}
-        </div>
-        {props.scene.beat ? <div className="text-xs text-ink-muted">beat: {props.scene.beat}</div> : null}
-      </div>
-      {props.editable ? <RegenerateControl busy={props.busy} onRegenerate={props.onRegenerate} /> : null}
-      <fieldset disabled={!props.editable} className="space-y-6 disabled:opacity-70">
-        <SchemaField
-          schema={schema}
-          value={props.scene.props}
-          path="props"
-          label="props"
-          onChange={props.onChange}
-        />
-        <NarrationEditor scene={props.scene} onChange={props.onChange} />
-        <div>
-          <Label htmlFor="transition">Transition in</Label>
-          <Select
-            id="transition"
-            value={props.scene.transitionIn ?? ""}
-            onChange={(event) => props.onChange("transitionIn", event.target.value || undefined)}
-          >
-            <option value="">Look default</option>
-            {transitionSchema.options.map((transition) => (
-              <option key={transition} value={transition}>
-                {transition}
-              </option>
-            ))}
-          </Select>
-        </div>
-      </fieldset>
-      <section>
-        <h3 className="mb-2 text-xs font-medium text-ink-muted">Claim audit</h3>
-        <ClaimDetails
-          claims={props.claims}
-          onApply={(fieldPath, suggestion) => props.onChange(fieldPath, suggestion)}
-        />
-      </section>
-    </div>
+    <SchemaField
+      schema={schema}
+      value={props.scene.props}
+      path="props"
+      label="props"
+      onChange={props.onChange}
+    />
   );
 }
