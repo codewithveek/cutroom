@@ -42,8 +42,9 @@ services:
     build:
       context: ..
       dockerfile: deploy/web.Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: https://api.${CUTROOM_DOMAIN}
+    environment:
+      # The web app proxies the browser's API calls to here (the api. subdomain is for Hybrid renders).
+      CUTROOM_API_URL: http://api:4100
     restart: unless-stopped
 
   postgres:

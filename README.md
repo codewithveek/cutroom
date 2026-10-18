@@ -18,6 +18,22 @@ Gemma does the reasoning and Kokoro does the voice, so in **Local mode** the who
 
 > Built for the DEV Hacktoberfest 2026 Open-Source AI Challenge (Week 2, "Side Hustle"). See [`prd.md`](prd.md) for the full product spec and [`docs/progress.md`](docs/progress.md) for what is done.
 
+## Deploy your own
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/codewithveek/cutroom)
+[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/codewithveek/cutroom/tree/main)
+
+Both buttons stand up the web app, the API and Postgres from this repo (`render.yaml`, `.do/deploy.template.yaml`). Hosted platforms have no GPU, so the deploy asks for an OpenAI-compatible Gemma endpoint and starts runs in Cloud mode.
+
+**Gemma on a GPU Droplet** (for either button):
+1. Create a GPU Droplet and run `deploy/gemma-vllm.sh` on it with `GEMMA_MODEL`, `HF_TOKEN` and `VLLM_API_KEY` set.
+2. Note the URL it prints (`http://<droplet IP>:8000/v1`) and the model id.
+3. Paste them into `OPENAI_COMPAT_BASE_URL`, `OPENAI_COMPAT_MODEL_ID` and `OPENAI_COMPAT_API_KEY` (the `VLLM_API_KEY`) when the deploy asks.
+
+> **Anyone with the URL can start runs.** The API has no login yet. Keep the deployment's URL private, or put it behind your platform's access controls.
+
+Durable runs with Temporal Cloud, the single-host stack with its own Temporal and HTTPS, and what each setting does: [`docs/deploy.md`](docs/deploy.md).
+
 ## Who it is for
 
 | Persona | Job to be done |

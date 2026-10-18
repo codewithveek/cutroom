@@ -2,7 +2,7 @@
 # (also used for read-only screen capture). Workspace packages ship TypeScript source and run
 # with tsx (docs/decisions/0002), so there is no build step.
 #   docker build -f deploy/node-services.Dockerfile -t cutroom-node .
-#   docker run cutroom-node api      |      docker run cutroom-node worker
+#   docker run cutroom-node        (api + in-container worker)  |  docker run cutroom-node worker
 FROM node:22-bookworm-slim
 
 # Remotion's Linux dependencies for Chrome Headless Shell (remotion.dev/docs/docker), ffmpeg for
@@ -34,4 +34,5 @@ ENV NODE_ENV=production API_HOST=0.0.0.0
 VOLUME ["/data"]
 COPY deploy/node-services-entrypoint.sh /usr/local/bin/cutroom-service
 ENTRYPOINT ["cutroom-service"]
-CMD ["api"]
+# `all` is `api`, plus the Temporal worker in this container when RUNNER=temporal (ADR 0015).
+CMD ["all"]

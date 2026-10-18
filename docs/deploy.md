@@ -4,13 +4,17 @@ Two images cover every service:
 
 | Image | Dockerfile | Runs |
 | --- | --- | --- |
-| `cutroom-node` | `deploy/node-services.Dockerfile` | `api` or `worker` (the argument to `cutroom-service`). Node 22, ffmpeg, Chrome Headless Shell downloaded at build time. Runs migrations first when `RUN_STORE=postgres`. |
-| `cutroom-web` | `deploy/web.Dockerfile` | The Next.js app. `NEXT_PUBLIC_API_URL` is inlined at build time, so pass the API's public URL as a build arg. |
+| `cutroom-node` | `deploy/node-services.Dockerfile` | `all` (default: the API, plus the Temporal worker in the same container when `RUNNER=temporal`), `api` or `worker`. Node 22, ffmpeg, Chrome Headless Shell downloaded at build time. Runs migrations first when `RUN_STORE=postgres`. |
+| `cutroom-web` | `deploy/web.Dockerfile` | The Next.js app. The browser calls the web app's `/cutroom-api/*`, which it forwards to `CUTROOM_API_URL`, read at runtime. One image fits every deploy. |
 
 Neither image downloads anything when it starts.
 
 The API and the worker share files on disk (snapshots, voice WAVs, renders), so they need the same
-volume at `CUTROOM_DATA_DIR` (`/data` in the image). That decides the two layouts below.
+volume at `CUTROOM_DATA_DIR` (`/data` in the image). On one host that is a shared Docker volume;
+on Render and DigitalOcean, where a disk belongs to one service, both run in one container (ADR 0015).
+
+`GET /health` reports the runner, the database and each toolchain check (model, voice, ffmpeg). It
+answers 503 only when the database is unreachable, so a fresh deploy boots before the model is set.
 
 ## Option A · One host (DigitalOcean Droplet)
 
@@ -25,7 +29,7 @@ dev server and Caddy with automatic HTTPS for `CUTROOM_DOMAIN` and `api.CUTROOM_
    docker compose -f deploy/docker-compose.cloud.yml --env-file deploy/cloud.env up -d --build
    ```
 
-3. Check `https://api.<domain>/health` returns `{"status":"ok"}`, then open `https://<domain>`.
+3. Check `https://api.<domain>/health` reports `"status":"ok"`, then open `https://<domain>`.
 
 Runs go through Temporal (`RUNNER=temporal`), so a worker restart mid-render resumes the run.
 
@@ -38,18 +42,28 @@ switches the connection to TLS. Then start without the dev server:
 docker compose -f deploy/docker-compose.cloud.yml --env-file deploy/cloud.env up -d --build --scale temporal=0
 ```
 
-## Option B · Render (render.yaml)
+## Option B · Render (one click)
 
-`render.yaml` is a blueprint for the web app, the API with a 20 GB disk, and Render Postgres (which
-supports pgvector). A Render disk belongs to one service, so the API runs steps itself
-(`RUNNER=in-process`) and there is no separate worker. Use Option A when you want the durable
-Temporal split.
+The README's **Deploy to Render** button reads `render.yaml`: the web app, the API with a 20 GB disk,
+and Render Postgres (with pgvector). Render asks for these at creation:
 
-Fill in the `sync: false` values in the dashboard when you create the blueprint:
+- `OPENAI_COMPAT_BASE_URL`, `OPENAI_COMPAT_MODEL_ID`, `OPENAI_COMPAT_API_KEY`: the Gemma endpoint.
+- `ELEVENLABS_API_KEY`, `SENTRY_DSN`: optional.
 
-- `WEB_ORIGIN`: the web service's URL (CORS).
-- `NEXT_PUBLIC_API_URL`: the API service's URL. Render passes it to the Docker build.
-- The model: `OPENAI_COMPAT_BASE_URL`, `OPENAI_COMPAT_API_KEY`, `OPENAI_COMPAT_MODEL_ID`.
+`RENDER_API_TOKEN` (the remote render API's bearer token) is generated, so that API is never open.
+The web app finds the API through Render's internal address; there is no URL to copy.
+
+Runs start in Cloud mode (`DEFAULT_PRIVACY_MODE=cloud`) and the API runs the pipeline itself
+(`RUNNER=in-process`, no durability across restarts). For durable runs, add Temporal Cloud:
+set `RUNNER=temporal`, `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE` and `TEMPORAL_API_KEY` on
+`cutroom-api`; the worker then starts in the same container.
+
+## Option C · DigitalOcean App Platform (one click)
+
+The **Deploy to DigitalOcean** button reads `.do/deploy.template.yaml`: the public web app, the API
+as an internal service, and a dev Postgres. It asks for the same model settings as Render.
+App Platform has no persistent disks, so snapshots, voice clips and renders reset on redeploy
+(run records stay in Postgres). Use Option A for a long-lived install.
 
 ## The model in Cloud mode
 

@@ -1,0 +1,78 @@
+# "Deploy to DigitalOcean" (App Platform). The web app is public; the API is internal and reached
+# through the web app's /cutroom-api proxy (CUTROOM_API_URL, bound at runtime). App Platform has no
+# GPUs and no persistent disks: point the OPENAI_COMPAT_* settings at Gemma on a GPU Droplet
+# (README, "Gemma on a GPU Droplet"), and expect run files to reset on redeploy (runs stay in Postgres).
+spec:
+  name: cutroom
+  services:
+    - name: web
+      github:
+        repo: codewithveek/cutroom
+        branch: main
+        deploy_on_push: true
+      dockerfile_path: deploy/web.Dockerfile
+      http_port: 3000
+      instance_size_slug: apps-s-1vcpu-1gb
+      instance_count: 1
+      health_check:
+        http_path: /
+      envs:
+        - key: CUTROOM_API_URL
+          scope: RUN_TIME
+          value: ${api.PRIVATE_URL}
+
+    - name: api
+      github:
+        repo: codewithveek/cutroom
+        branch: main
+        deploy_on_push: true
+      dockerfile_path: deploy/node-services.Dockerfile
+      internal_ports:
+        - 4100
+      instance_size_slug: apps-s-2vcpu-4gb
+      instance_count: 1
+      health_check:
+        http_path: /health
+        port: 4100
+      envs:
+        - key: API_HOST
+          scope: RUN_TIME
+          value: 0.0.0.0
+        - key: API_PORT
+          scope: RUN_TIME
+          value: "4100"
+        - key: RUN_STORE
+          scope: RUN_TIME
+          value: postgres
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${db.DATABASE_URL}
+        - key: DEFAULT_PRIVACY_MODE
+          scope: RUN_TIME
+          value: cloud
+        - key: RUNNER
+          scope: RUN_TIME
+          value: in-process
+        # Left empty so App Platform asks for them: Gemma's OpenAI-compatible URL (…/v1) and model id.
+        - key: OPENAI_COMPAT_BASE_URL
+          scope: RUN_TIME
+        - key: OPENAI_COMPAT_MODEL_ID
+          scope: RUN_TIME
+        - key: OPENAI_COMPAT_API_KEY
+          scope: RUN_TIME
+          type: SECRET
+        - key: RENDER_API_TOKEN
+          scope: RUN_TIME
+          type: SECRET
+        - key: ELEVENLABS_API_KEY
+          scope: RUN_TIME
+          type: SECRET
+        - key: SENTRY_DSN
+          scope: RUN_TIME
+          type: SECRET
+
+  databases:
+    - name: db
+      engine: PG
+      version: "17"
+      production: false

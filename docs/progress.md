@@ -86,5 +86,8 @@ Cutroom made its own demo video (16:9 + 9:16, watermarked). The run surfaced and
 - 2026-10-18 · `@cutroom/temporal`: `produceVideoWorkflow` (PRD retries/timeouts, heartbeats, review/egress signals, `getRunStatus` query), activities on the step executor, `TemporalRunner`; `apps/worker`; API picks the runner from `RUNNER`
 - 2026-10-18 · Acceptance: `scripts/check-durability.ts` kills the worker mid-render; a new worker finishes the run (CI job `durability`)
 
+## M8 · PRD extension (prd-extend-1)
+- 2026-10-18 · E4 one-click deploys: Render Blueprint and DigitalOcean App Platform template with README buttons; web app proxies the API at a runtime address; API and Temporal worker share one container (`cutroom-service all`); `/health` reports runner, database and checks; generated render-API token; `DEFAULT_PRIVACY_MODE` (ADR 0015)
+
 ## Not done yet
 - Deploying to the .tech domain (needs the Droplet or Render account and DNS)

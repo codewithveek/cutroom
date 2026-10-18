@@ -1,13 +1,14 @@
-# Render blueprint (render.com/docs/blueprint-spec): the web app, and the API with its own disk.
-# The API runs pipeline steps in-process (RUNNER=in-process) because steps share working files on
-# disk, and a Render disk belongs to one service. For the Temporal worker split, use the single-host
-# stack in deploy/docker-compose.cloud.yml (docs/deploy.md).
+# Render Blueprint (render.com/docs/blueprint-spec), behind the README's "Deploy to Render" button.
+# Three resources: the web app, the API (pipeline + remote render API, with the run data disk) and
+# Postgres. A Render disk belongs to one service, so the Temporal worker, when used, runs inside the
+# API's container on the same disk (`cutroom-service all`, ADR 0015). Without Temporal the API runs
+# the pipeline itself (RUNNER=in-process): fine for demos, no durability across restarts.
 services:
   - type: web
     name: cutroom-api
     runtime: docker
+    plan: 2c-4g
     dockerfilePath: ./deploy/node-services.Dockerfile
-    dockerCommand: cutroom-service api
     healthCheckPath: /health
     disk:
       name: cutroom-data
@@ -20,22 +21,29 @@ services:
         value: "10000"
       - key: RUN_STORE
         value: postgres
-      - key: RUNNER
-        value: in-process
       - key: DATABASE_URL
         fromDatabase:
           name: cutroom-db
           property: connectionString
-      - key: WEB_ORIGIN
-        sync: false
+      # No Ollama on Render: runs default to Cloud mode and the model below.
+      - key: DEFAULT_PRIVACY_MODE
+        value: cloud
       - key: MODEL_PROVIDER
         value: auto
+      # Any OpenAI-compatible Gemma endpoint, e.g. vLLM on a GPU Droplet (deploy/gemma-vllm.sh).
       - key: OPENAI_COMPAT_BASE_URL
-        sync: false
-      - key: OPENAI_COMPAT_API_KEY
         sync: false
       - key: OPENAI_COMPAT_MODEL_ID
         sync: false
+      - key: OPENAI_COMPAT_API_KEY
+        sync: false
+      # The remote render API (Hybrid mode) only exists with a token; generate one so it is never open.
+      - key: RENDER_API_TOKEN
+        generateValue: true
+      # Durable runs with Temporal Cloud: set RUNNER=temporal plus TEMPORAL_ADDRESS,
+      # TEMPORAL_NAMESPACE and TEMPORAL_API_KEY after the first deploy.
+      - key: RUNNER
+        value: in-process
       - key: ELEVENLABS_API_KEY
         sync: false
       - key: SENTRY_DSN
@@ -44,14 +52,20 @@ services:
   - type: web
     name: cutroom-web
     runtime: docker
+    plan: 0.5c-512mb
     dockerfilePath: ./deploy/web.Dockerfile
+    healthCheckPath: /
     envVars:
-      # Read at build time (Render passes environment variables to the Docker build as build args).
-      - key: NEXT_PUBLIC_API_URL
-        sync: false
+      # The web app proxies /cutroom-api/* to this address at runtime (no build-time URL needed).
+      - key: CUTROOM_API_URL
+        fromService:
+          type: web
+          name: cutroom-api
+          property: hostport
 
 databases:
   # Render Postgres supports pgvector; migration 0000 creates the extension.
   - name: cutroom-db
     databaseName: cutroom
     user: cutroom
+    postgresMajorVersion: "17"
