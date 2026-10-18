@@ -1,6 +1,7 @@
 export { type BlockCatalogEntry, blockCatalog, blocksAllowedInLook } from "./block-catalog";
 export * from "./blocks/big-number";
 export * from "./blocks/code-card";
+export * from "./blocks/diagram-flow";
 export * from "./blocks/end-card";
 export * from "./blocks/feature-cards";
 export * from "./blocks/icons";
@@ -10,6 +11,7 @@ export * from "./blocks/title-card";
 export * from "./blocks/word-slot";
 export * from "./brand";
 export * from "./captions";
+export * from "./capture-contracts";
 export * from "./claims";
 export { collectClaims, collectSceneClaims } from "./collect-claims";
 export {
