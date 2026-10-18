@@ -15,6 +15,8 @@ export const videoPropsSchema = z.object({
   /** 16:9 videos open on the thumbnail because feeds preview the first frame (FR-RD-4). */
   openOnThumbnail: z.boolean().default(false),
   burnCaptions: z.boolean().default(false),
+  /** A "created with Cutroom" badge in the bottom-right corner. */
+  watermark: z.boolean().default(false),
   /** Two-line thumbnail title for the 16:9 intro; derived from the storyboard when absent. */
   thumbnailTitle: z.tuple([z.string().min(1), z.string().min(1)]).optional(),
 });

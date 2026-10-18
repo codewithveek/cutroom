@@ -21,6 +21,7 @@ export const renderJobSchema = z.object({
   voiceTimeline: voiceTimelineSchema,
   ratios: z.array(aspectRatioSchema).min(1),
   music: musicSelectionSchema,
+  watermark: z.boolean().default(false),
   assets: z.array(renderAssetSchema),
   manifestSha256: z.string().regex(/^[0-9a-f]{64}$/),
 });

@@ -23,6 +23,8 @@ export const runRequestSchema = z.object({
   targetSeconds: z.number().int().min(10).max(120),
   voice: voiceSelectionSchema,
   music: musicSelectionSchema,
+  /** Every ratio carries a "created with Cutroom" badge in the bottom-right corner. */
+  watermark: z.boolean().default(false),
   privacyMode: privacyModeSchema,
   /** Skip the review pause, but only when no claim is unsupported (FR-HR-1). */
   autoApprove: z.boolean().default(false),
