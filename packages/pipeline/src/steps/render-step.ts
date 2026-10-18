@@ -14,6 +14,7 @@ import { dataPaths } from "../services";
 import { LOGO_ASSET_KEY } from "./plan-step";
 import { MissingStepOutputError, requireSnapshot } from "./run-resources";
 import type { StepContext, StepFunction } from "./step-context";
+import { uploadedMusicAssetKey, uploadedMusicPath } from "./uploaded-music";
 
 /** Voice clips and the repo's logo: the local files a render of this run needs. */
 export async function localAssetsFor(context: StepContext, run: RunRecord): Promise<StagedAsset[]> {
@@ -21,6 +22,9 @@ export async function localAssetsFor(context: StepContext, run: RunRecord): Prom
   const { logoFilePath } = await requireSnapshot(context);
   return [
     ...run.voiceClips.map((clip) => ({ assetKey: clip.assetKey, filePath: clip.filePath })),
+    ...(run.request.music.kind === "uploaded"
+      ? [{ assetKey: uploadedMusicAssetKey, filePath: uploadedMusicPath(context.runDirectory) }]
+      : []),
     ...(logoFilePath && version?.storyboard.brand.logoAssetKey === LOGO_ASSET_KEY
       ? [{ assetKey: LOGO_ASSET_KEY, filePath: logoFilePath }]
       : []),

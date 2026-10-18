@@ -1,9 +1,9 @@
 import path from "node:path";
-import { audioAssetKeys } from "@cutroom/video-kit";
 import { type BundleFile, buildRenderJobBundle, manifestSha256 } from "../remote-render/render-job-bundle";
 import { LOGO_ASSET_KEY } from "./plan-step";
 import { MissingStepOutputError, requireSnapshot } from "./run-resources";
 import type { StepFunction } from "./step-context";
+import { uploadedMusicAssetKey, uploadedMusicPath } from "./uploaded-music";
 
 /**
  * Step 5b, Hybrid only: writes the RenderJob bundle and its egress manifest, then pauses until
@@ -27,11 +27,12 @@ export const buildRenderJobStep: StepFunction = async (context, run) => {
       ? [{ assetKey: LOGO_ASSET_KEY, kind: "logo" as const, filePath: logoFilePath }]
       : []),
   ];
-  if (run.request.music.kind === "uploaded") {
-    throw new MissingStepOutputError(
-      `Uploaded music (${audioAssetKeys.music}) is not supported in Hybrid mode yet.`,
-    );
-  }
+  if (run.request.music.kind === "uploaded")
+    files.push({
+      assetKey: uploadedMusicAssetKey,
+      kind: "music" as const,
+      filePath: uploadedMusicPath(context.runDirectory),
+    });
   const bundleDirectory = path.join(context.runDirectory, "render-job");
   const bundle = await buildRenderJobBundle({
     job: {

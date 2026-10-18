@@ -36,6 +36,8 @@ export interface PipelineRunner {
   updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void>;
   /** The user edited the brief: re-verify it and plan a new storyboard version from it. */
   updateBrief(runId: string, brief: ProductBrief): Promise<UpdateStoryboardResult>;
+  /** Uses the user's track as the run's music (transcoded; until approval). */
+  attachMusic(runId: string, options: { sourcePath: string; fileName: string }): Promise<void>;
   /** The file behind a media key (voice clip or logo), for previews in the browser. */
   mediaFilePath(runId: string, assetKey: string): Promise<string | undefined>;
   getRun(runId: string): Promise<RunRecord | undefined>;

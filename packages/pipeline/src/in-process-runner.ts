@@ -86,6 +86,10 @@ export class InProcessRunner implements PipelineRunner {
     return this.commands.regenerateScene(runId, request);
   }
 
+  attachMusic(runId: string, options: { sourcePath: string; fileName: string }): Promise<void> {
+    return this.commands.attachMusic(runId, options);
+  }
+
   updateBrief(runId: string, brief: ProductBrief): Promise<UpdateStoryboardResult> {
     return this.commands.updateBrief(runId, brief);
   }

@@ -25,6 +25,7 @@ import type { StepExecutor } from "./step-executor";
 import { auditVersion } from "./steps/audit-step";
 import { LOGO_ASSET_KEY, planFromBrief } from "./steps/plan-step";
 import { createRunModelClient, requireSnapshot } from "./steps/run-resources";
+import { transcodeMusic, uploadedMusicAssetKey, uploadedMusicPath } from "./steps/uploaded-music";
 import { RunNotFoundError } from "./store/run-store";
 
 export class RunStateError extends Error {
@@ -224,6 +225,21 @@ export class RunCommands {
     return { versionId, version: previous.version + 1, claimResults: results };
   }
 
+  /** Stores the user's track as the run's music (until approval). The source file is left alone. */
+  async attachMusic(runId: string, options: { sourcePath: string; fileName: string }): Promise<void> {
+    const run = await this.requireRun(runId);
+    if (run.approval || terminalStatuses.has(run.status))
+      throw new RunStateError(`Run ${runId} is ${run.status}; music is fixed once it is approved`);
+    await transcodeMusic({ sourcePath: options.sourcePath, runDirectory: this.store.runDirectory(runId) });
+    await this.store.update(runId, (current) => ({
+      ...current,
+      request: {
+        ...current.request,
+        music: { kind: "uploaded", assetKey: uploadedMusicAssetKey, fileName: options.fileName },
+      },
+    }));
+  }
+
   /** Voice and music may change until approval; the voice step reads them afterwards. */
   async updateSettings(runId: string, settings: RunSettingsUpdate): Promise<void> {
     const run = await this.requireRun(runId);
@@ -244,6 +260,8 @@ export class RunCommands {
     const run = await this.requireRun(runId);
     const clip = run.voiceClips.find((candidate) => candidate.assetKey === assetKey);
     if (clip) return clip.filePath;
+    if (assetKey === uploadedMusicAssetKey && run.request.music.kind === "uploaded")
+      return uploadedMusicPath(this.store.runDirectory(runId));
     if (assetKey !== LOGO_ASSET_KEY) return undefined;
     const { logoFilePath } = await requireSnapshot(
       this.executor.createContext(runId, "ingest-repository"),

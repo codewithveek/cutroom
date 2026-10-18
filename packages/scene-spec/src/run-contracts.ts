@@ -158,7 +158,7 @@ export const runViewSchema = z.object({
   approval: runApprovalSchema.optional(),
   /** Preview media by asset key (voice clips, the brand logo), for the browser player. */
   media: z
-    .array(z.object({ assetKey: z.string(), kind: z.enum(["voice", "logo"]), url: z.string() }))
+    .array(z.object({ assetKey: z.string(), kind: z.enum(["voice", "logo", "music"]), url: z.string() }))
     .default([]),
   egress: runEgressSchema.omit({ bundleDirectory: true }).optional(),
   voiceTimeline: voiceTimelineSchema.optional(),
