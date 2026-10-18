@@ -9,6 +9,12 @@ export { accuracyRules } from "./prompts/shared-rules";
 export { describeScreens, screenIssues } from "./screens/screen-views";
 export { shipnoteBriefDraft, shipnoteStoryboardDraft } from "./shipnote-fixture-drafts";
 export {
+  type AnalyzeChangesOptions,
+  type AnalyzeChangesResult,
+  analyzeChanges,
+  NoUserVisibleChangesError,
+} from "./steps/analyze-changes";
+export {
   type AnalyzeProductOptions,
   type AnalyzeProductResult,
   analyzeProduct,
