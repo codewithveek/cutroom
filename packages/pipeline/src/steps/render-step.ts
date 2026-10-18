@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { StagedAsset } from "@cutroom/renderer";
 import { bundleVideoKit, produceDeliverables } from "@cutroom/renderer";
@@ -16,6 +16,10 @@ import { LOGO_ASSET_KEY } from "./plan-step";
 import { MissingStepOutputError, requireSnapshot } from "./run-resources";
 import type { StepContext, StepFunction } from "./step-context";
 import { uploadedMusicAssetKey, uploadedMusicPath } from "./uploaded-music";
+
+async function fileBytes(filePath: string): Promise<number> {
+  return (await stat(filePath)).size;
+}
 
 /** Voice clips, music, screenshots and the repo's logo: the local files a render of this run needs. */
 export async function localAssetsFor(context: StepContext, run: RunRecord): Promise<StagedAsset[]> {
@@ -133,29 +137,36 @@ export const renderStep: StepFunction = async (context, run) => {
     onProgress: (progress) =>
       context.progress({ ...progress, progress: Math.round(progress.progress * 100) / 100 }),
   });
-  const assets: AssetRecord[] = deliverables.ratios.flatMap((ratio) => [
-    {
+  const assets: AssetRecord[] = [];
+  for (const ratio of deliverables.ratios) {
+    assets.push(
+      {
+        id: ulid(),
+        kind: "video",
+        ratio: ratio.ratio,
+        version: ratio.version,
+        filePath: ratio.videoPath,
+        bytes: ratio.bytes,
+        durationMs: ratio.durationMs,
+      },
+      {
+        id: ulid(),
+        kind: "captions",
+        ratio: ratio.ratio,
+        version: ratio.version,
+        filePath: ratio.captionsPath,
+        bytes: await fileBytes(ratio.captionsPath),
+      },
+    );
+  }
+  for (const thumbnailPath of [deliverables.thumbnailPngPath, deliverables.thumbnailJpgPath])
+    assets.push({
       id: ulid(),
-      kind: "video" as const,
-      ratio: ratio.ratio,
-      version: ratio.version,
-      filePath: ratio.videoPath,
-      bytes: ratio.bytes,
-      durationMs: ratio.durationMs,
-    },
-    {
-      id: ulid(),
-      kind: "captions" as const,
-      ratio: ratio.ratio,
-      version: ratio.version,
-      filePath: ratio.captionsPath,
-      bytes: 0,
-    },
-  ]);
-  assets.push(
-    { id: ulid(), kind: "thumbnail", version: 1, filePath: deliverables.thumbnailPngPath, bytes: 0 },
-    { id: ulid(), kind: "thumbnail", version: 1, filePath: deliverables.thumbnailJpgPath, bytes: 0 },
-  );
+      kind: "thumbnail",
+      version: 1,
+      filePath: thumbnailPath,
+      bytes: await fileBytes(thumbnailPath),
+    });
   await context.updateRun((current) => ({ ...current, assets: [...current.assets, ...assets] }));
   return {
     payload: {

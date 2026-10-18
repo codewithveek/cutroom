@@ -92,6 +92,7 @@ describe("InProcessRunner", () => {
     expect(video?.ratio).toBe("9:16");
     if (!video) throw new Error("no video");
     await access(video.filePath);
+    for (const asset of run.assets) expect(asset.bytes, `${asset.kind} ${asset.filePath}`).toBeGreaterThan(0);
     const note = run.assets.find((asset) => asset.kind === "delivery-note");
     const noteText = await readFile(note?.filePath ?? "", "utf8");
     expect(noteText).toContain("Ran fully local");
