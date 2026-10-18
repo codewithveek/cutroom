@@ -56,7 +56,10 @@ const runBody = {
 
 describe("catalogue", () => {
   it("serves health, presets and looks", async () => {
-    expect((await app.inject({ method: "GET", url: "/health" })).json()).toEqual({ status: "ok" });
+    const health = await app.inject({ method: "GET", url: "/health" });
+    expect(health.statusCode).toBe(200);
+    expect(health.json()).toMatchObject({ runner: "in-process", database: "not-used" });
+    expect(health.json().checks.map((check: { id: string }) => check.id)).toContain("model");
     const presetsResponse = await app.inject({ method: "GET", url: "/presets" });
     expect(presetsResponse.json().presets).toHaveLength(6);
     const looksResponse = await app.inject({ method: "GET", url: "/looks" });

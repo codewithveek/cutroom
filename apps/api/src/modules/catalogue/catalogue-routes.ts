@@ -4,7 +4,6 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 
 /** Presets, looks and video types: the wizard's catalogue. */
 export const catalogueRoutes: FastifyPluginAsyncZod = async (app) => {
-  app.get("/health", async () => ({ status: "ok" as const }));
   app.get("/presets", async () => ({ presets: Object.values(presets) }));
   app.get("/looks", async () => ({
     looks: Object.values(lookTokensById).map((look) => ({

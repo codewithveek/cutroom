@@ -50,3 +50,13 @@ export const runSettingsUpdateSchema = z
     message: "Change the voice, the music or both",
   });
 export type RunSettingsUpdate = z.infer<typeof runSettingsUpdateSchema>;
+
+/** GET /health: liveness for the platform, plus what a fresh deploy still needs (E4-2). */
+export const healthSchema = z.object({
+  /** `degraded` when the model, voice or ffmpeg is not ready yet; the API still answers. */
+  status: z.enum(["ok", "degraded", "down"]),
+  runner: z.enum(["in-process", "temporal"]),
+  database: z.enum(["ready", "down", "not-used"]),
+  checks: z.array(systemCheckSchema.pick({ id: true, state: true, detail: true })),
+});
+export type Health = z.infer<typeof healthSchema>;

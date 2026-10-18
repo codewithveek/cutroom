@@ -39,7 +39,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   });
   await app.register(multipart);
   await app.register(catalogueRoutes);
-  await app.register(systemRoutes, { system: options.system });
+  await app.register(systemRoutes, { system: options.system, store: options.store, env: options.env });
   await app.register(uploadRoutes, { uploadsDirectory: options.uploadsDirectory });
   await app.register(runRoutes, { runner: options.runner });
   await app.register(musicRoutes, { runner: options.runner });
