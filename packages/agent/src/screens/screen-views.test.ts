@@ -1,6 +1,6 @@
 import type { CapturedScreen, SceneDraft } from "@cutroom/scene-spec";
 import { describe, expect, it } from "vitest";
-import { attachScreenView, describeScreens, screenIssues } from "./screen-views";
+import { describeScreens, screenIssues } from "./screen-views";
 
 const capturedScreen: CapturedScreen = {
   id: "screen-1",
@@ -50,30 +50,5 @@ describe("screenIssues", () => {
     const scenes = [screenshotScene({ screenId: "screen-1", focusText: "Publish to Slack" })];
     const [issue] = screenIssues({ scenes, screens: [capturedScreen] });
     expect(issue).toContain("scenes.0.props.focusText");
-  });
-});
-
-describe("attachScreenView", () => {
-  it("fills the image size and the normalised element box from the capture", () => {
-    const scene = attachScreenView({
-      scene: screenshotScene({ screenId: "screen-1", focusText: "Write CHANGELOG.md" }),
-      screens: [capturedScreen],
-    });
-    expect(scene.block === "screenshot-window" && scene.props.view).toEqual({
-      imageWidth: 1440,
-      imageHeight: 900,
-      focusBox: { x: 0.2, y: 0.5, width: 0.1, height: 0.05 },
-    });
-  });
-
-  it("leaves out the focus box when no element was named", () => {
-    const scene = attachScreenView({
-      scene: screenshotScene({ screenId: "screen-1" }),
-      screens: [capturedScreen],
-    });
-    expect(scene.block === "screenshot-window" && scene.props.view).toEqual({
-      imageWidth: 1440,
-      imageHeight: 900,
-    });
   });
 });

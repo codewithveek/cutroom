@@ -35,36 +35,3 @@ export function screenIssues(options: {
   });
   return issues;
 }
-
-/** Fills the code-owned `view` of a screenshot scene from the capture: image size and focus box. */
-export function attachScreenView(options: {
-  scene: SceneDraft;
-  screens: ReadonlyArray<CapturedScreen>;
-}): SceneDraft {
-  const { scene } = options;
-  if (scene.block !== "screenshot-window") return scene;
-  const screen = options.screens.find((candidate) => candidate.id === scene.props.screenId);
-  if (!screen) return scene;
-  const target = screen.targets.find((candidate) => candidate.text === scene.props.focusText);
-  const clamp = (value: number) => Math.min(1, Math.max(0, value));
-  return {
-    ...scene,
-    props: {
-      ...scene.props,
-      view: {
-        imageWidth: screen.width,
-        imageHeight: screen.height,
-        ...(target
-          ? {
-              focusBox: {
-                x: clamp(target.box.x / screen.width),
-                y: clamp(target.box.y / screen.height),
-                width: clamp(target.box.width / screen.width),
-                height: clamp(target.box.height / screen.height),
-              },
-            }
-          : {}),
-      },
-    },
-  };
-}

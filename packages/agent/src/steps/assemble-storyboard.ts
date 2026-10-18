@@ -1,6 +1,7 @@
 import type { BrandHints, SnapshotReader } from "@cutroom/repo-ingest";
 import { normalizeWhitespace } from "@cutroom/repo-ingest";
 import {
+  attachScreenView,
   type Brand,
   blockCatalog,
   type CapturedScreen,
@@ -16,7 +17,6 @@ import {
   type VideoType,
 } from "@cutroom/scene-spec";
 import { ulid } from "ulid";
-import { attachScreenView } from "../screens/screen-views";
 
 /** Minimum on-screen time before narration stretches it: the look's pace inside the block's range. */
 export function baseFramesFor(options: {

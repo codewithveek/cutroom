@@ -37,6 +37,7 @@ export {
   type SceneDraft,
   type StoryboardDraft,
 } from "./scene-draft";
+export * from "./screen-view";
 export { parseStarredText, stripStars, type TextSegment } from "./starred-text";
 export * from "./storyboard";
 export * from "./system-contracts";

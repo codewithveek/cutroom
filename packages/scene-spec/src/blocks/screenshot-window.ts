@@ -16,6 +16,8 @@ export const screenshotViewSchema = z.object({
   focusBox: normalizedBoxSchema.optional(),
 });
 
+export type ScreenshotView = z.infer<typeof screenshotViewSchema>;
+
 export const screenshotWindowPropsSchema = z.object({
   /** A captured screen, e.g. "screen-2". */
   screenId: z.string().regex(/^screen-\d+$/),
