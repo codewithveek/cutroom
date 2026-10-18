@@ -6,6 +6,7 @@ export {
   selectContext,
 } from "./context/repo-context";
 export { accuracyRules } from "./prompts/shared-rules";
+export { attachScreenView, describeScreens, screenIssues } from "./screens/screen-views";
 export { shipnoteBriefDraft, shipnoteStoryboardDraft } from "./shipnote-fixture-drafts";
 export {
   type AnalyzeProductOptions,

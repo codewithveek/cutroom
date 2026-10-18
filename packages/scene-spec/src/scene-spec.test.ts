@@ -11,7 +11,7 @@ import { storyboardSchema } from "./storyboard";
 describe("storyboardSchema", () => {
   it("parses the fixture storyboard and applies defaults", () => {
     const storyboard = storyboardSchema.parse(fixtureStoryboardInput);
-    expect(storyboard.scenes).toHaveLength(9);
+    expect(storyboard.scenes).toHaveLength(10);
     const bigNumber = storyboard.scenes.find((scene) => scene.block === "big-number");
     expect(bigNumber?.block === "big-number" && bigNumber.props.limitState).toBe(false);
   });
@@ -27,19 +27,19 @@ describe("storyboardSchema", () => {
 describe("createStoryboardDraftSchema", () => {
   it("narrows the scene union to the look's blocks", () => {
     expect(blocksAllowedInLook("cinematic")).not.toContain("terminal");
-    const jsonSchema = JSON.stringify(z.toJSONSchema(createStoryboardDraftSchema("cinematic")));
+    const jsonSchema = JSON.stringify(z.toJSONSchema(createStoryboardDraftSchema({ look: "cinematic" })));
     expect(jsonSchema).not.toContain('"const":"terminal"');
     expect(jsonSchema).toContain('"const":"kinetic-headline"');
   });
 
   it("does not ask the model for ids or frame counts", () => {
-    const jsonSchema = JSON.stringify(z.toJSONSchema(createStoryboardDraftSchema("editorial")));
+    const jsonSchema = JSON.stringify(z.toJSONSchema(createStoryboardDraftSchema({ look: "editorial" })));
     expect(jsonSchema).not.toContain("baseFrames");
     expect(jsonSchema).toContain('"const":"terminal"');
   });
 
   it("validates a draft scene without an id", () => {
-    const schema = createStoryboardDraftSchema("graphic");
+    const schema = createStoryboardDraftSchema({ look: "graphic" });
     const result = schema.safeParse({
       title: "Demo",
       scenes: [
@@ -54,7 +54,7 @@ describe("createStoryboardDraftSchema", () => {
 
 describe("createStoryboardDraftSchema with beats", () => {
   it("requires a beat from the template", () => {
-    const schema = createStoryboardDraftSchema("graphic", ["problem", "close"]);
+    const schema = createStoryboardDraftSchema({ look: "graphic", beats: ["problem", "close"] });
     const scenes = [
       { block: "kinetic-headline", props: { lines: ["Hello there friend"], tone: "neutral" } },
       { block: "title-card", props: { variant: "title", name: "Demo", tagline: "x" } },
@@ -76,7 +76,7 @@ describe("collectClaims", () => {
     const codeClaim = claims.find((claim) => claim.kind === "code-excerpt");
     expect(codeClaim?.source).toEqual({ filePath: "src/group-commits.ts", lineStart: 1, lineEnd: 5 });
     expect(claims.find((claim) => claim.id === "scene-number:props.value")?.kind).toBe("number");
-    expect(claims.filter((claim) => claim.kind === "narration")).toHaveLength(9);
+    expect(claims.filter((claim) => claim.kind === "narration")).toHaveLength(10);
     expect(new Set(claims.map((claim) => claim.id)).size).toBe(claims.length);
   });
 });
@@ -125,5 +125,22 @@ describe("diagram-flow", () => {
       "props.nodes.0.detail",
       "props.nodes.1.label",
     ]);
+  });
+});
+
+describe("screenshot-window", () => {
+  it("keeps the code-owned view out of the model's draft schema", () => {
+    const jsonSchema = JSON.stringify(z.toJSONSchema(createStoryboardDraftSchema({ look: "editorial" })));
+    expect(jsonSchema).toContain("screenshot-window");
+    expect(jsonSchema).not.toContain("imageWidth");
+  });
+
+  it("can be excluded when nothing was captured", () => {
+    const jsonSchema = JSON.stringify(
+      z.toJSONSchema(
+        createStoryboardDraftSchema({ look: "editorial", excludeBlocks: ["screenshot-window"] }),
+      ),
+    );
+    expect(jsonSchema).not.toContain("screenshot-window");
   });
 });

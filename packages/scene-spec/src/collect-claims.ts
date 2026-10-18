@@ -52,6 +52,10 @@ const claimFieldExtractors: { [Block in BlockId]: ClaimFieldExtractor<Block> } =
       ),
     ]),
   "word-slot": (scene) => scene.props.items.map((item, index) => field(`props.items.${index}`, item)),
+  "screenshot-window": (scene) => [
+    ...(scene.props.focusText ? [field("props.focusText", scene.props.focusText)] : []),
+    ...(scene.props.caption ? [field("props.caption", scene.props.caption)] : []),
+  ],
   "diagram-flow": (scene) => [
     ...(scene.props.heading ? [field("props.heading", scene.props.heading)] : []),
     ...scene.props.nodes.flatMap((node, index) => [

@@ -6,6 +6,7 @@ export * from "./blocks/end-card";
 export * from "./blocks/feature-cards";
 export * from "./blocks/icons";
 export * from "./blocks/kinetic-headline";
+export * from "./blocks/screenshot-window";
 export * from "./blocks/terminal";
 export * from "./blocks/title-card";
 export * from "./blocks/word-slot";

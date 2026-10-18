@@ -106,6 +106,23 @@ export const fixtureStoryboardInput: StoryboardInput = {
       narration: [{ text: "Commits in, grouped by type, written out as a changelog." }],
     },
     {
+      id: "scene-screen",
+      beat: "moment",
+      block: "screenshot-window",
+      baseFrames: 120,
+      props: {
+        screenId: "screen-1",
+        focusText: "Write CHANGELOG.md",
+        caption: "One click writes the changelog",
+        view: {
+          imageWidth: 1440,
+          imageHeight: 900,
+          focusBox: { x: 0.2014, y: 0.5756, width: 0.1359, height: 0.0456 },
+        },
+      },
+      narration: [{ text: "Preview the notes, then write them out in one click." }],
+    },
+    {
       id: "scene-audience",
       beat: "moment",
       block: "word-slot",

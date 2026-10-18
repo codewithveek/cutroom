@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { blocksAllowedInLook } from "./block-catalog";
+import { screenshotWindowPropsSchema } from "./blocks/screenshot-window";
 import type { LookId } from "./primitives";
 import { type BlockId, type Scene, sceneSchemaByBlock } from "./scene";
 
@@ -8,7 +9,12 @@ import { type BlockId, type Scene, sceneSchemaByBlock } from "./scene";
  * Code assigns `id` and `baseFrames` afterwards, so the model never invents them.
  */
 function draftSchemaForBlock(blockId: BlockId, beats?: ReadonlyArray<string>) {
-  const draft = sceneSchemaByBlock[blockId].omit({ id: true, baseFrames: true, transitionOrigin: true });
+  const omitted = sceneSchemaByBlock[blockId].omit({ id: true, baseFrames: true, transitionOrigin: true });
+  // The screenshot's size and element box come from the capture manifest, never from the model.
+  const draft =
+    blockId === "screenshot-window"
+      ? omitted.extend({ props: screenshotWindowPropsSchema.omit({ view: true }) })
+      : omitted;
   const [firstBeat, ...otherBeats] = beats ?? [];
   // Small models skip optional fields; a required enum makes structured output fill the beat.
   return firstBeat ? draft.extend({ beat: z.enum([firstBeat, ...otherBeats]) }) : draft;
@@ -28,12 +34,18 @@ export interface StoryboardDraft {
  * Builds a storyboard-draft schema whose scenes may only use the blocks the look allows.
  * Narrowing the union shrinks the JSON Schema the model sees, which cuts invalid outputs.
  */
-export function createStoryboardDraftSchema(
-  look: LookId,
-  beats?: ReadonlyArray<string>,
-): z.ZodType<StoryboardDraft> {
-  const [firstBlock, ...otherBlocks] = blocksAllowedInLook(look);
-  if (!firstBlock) throw new Error(`Look ${look} allows no blocks`);
+export function createStoryboardDraftSchema(options: {
+  look: LookId;
+  beats?: ReadonlyArray<string> | undefined;
+  /** Blocks to leave out, e.g. screenshot-window when nothing was captured. */
+  excludeBlocks?: ReadonlyArray<BlockId> | undefined;
+}): z.ZodType<StoryboardDraft> {
+  const { beats } = options;
+  const excluded = new Set(options.excludeBlocks ?? []);
+  const [firstBlock, ...otherBlocks] = blocksAllowedInLook(options.look).filter(
+    (block) => !excluded.has(block),
+  );
+  if (!firstBlock) throw new Error(`Look ${options.look} allows no blocks`);
   const sceneDraftSchema = z.discriminatedUnion("block", [
     draftSchemaForBlock(firstBlock, beats),
     ...otherBlocks.map((block) => draftSchemaForBlock(block, beats)),

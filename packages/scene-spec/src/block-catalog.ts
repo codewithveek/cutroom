@@ -55,6 +55,12 @@ export const blockCatalog: Readonly<Record<BlockId, BlockCatalogEntry>> = {
     allowedLooks: ["studio", "editorial", "graphic"],
     durationRangeSeconds: [4, 9],
   },
+  "screenshot-window": {
+    purpose:
+      "A captured screen of the running app in a window; the camera eases to one real element (focusText, copied exactly from that screen's targets) and a cursor clicks it. Only when screens were captured.",
+    allowedLooks: allLooks,
+    durationRangeSeconds: [3, 8],
+  },
   "end-card": {
     purpose:
       "Verbs as beats, then mark, name, tagline, a call-to-action pill and URL. Always the last scene.",

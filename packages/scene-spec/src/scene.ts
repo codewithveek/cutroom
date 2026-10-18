@@ -5,6 +5,7 @@ import { diagramFlowSceneSchema } from "./blocks/diagram-flow";
 import { endCardSceneSchema } from "./blocks/end-card";
 import { featureCardsSceneSchema } from "./blocks/feature-cards";
 import { kineticHeadlineSceneSchema } from "./blocks/kinetic-headline";
+import { screenshotWindowSceneSchema } from "./blocks/screenshot-window";
 import { terminalSceneSchema } from "./blocks/terminal";
 import { titleCardSceneSchema } from "./blocks/title-card";
 import { wordSlotSceneSchema } from "./blocks/word-slot";
@@ -19,6 +20,7 @@ export const sceneSchemaByBlock = {
   "word-slot": wordSlotSceneSchema,
   "end-card": endCardSceneSchema,
   "diagram-flow": diagramFlowSceneSchema,
+  "screenshot-window": screenshotWindowSceneSchema,
 } as const;
 
 export type BlockId = keyof typeof sceneSchemaByBlock;
@@ -33,6 +35,7 @@ export const blockIdSchema = z.enum([
   "word-slot",
   "end-card",
   "diagram-flow",
+  "screenshot-window",
 ]);
 
 export const sceneSchema = z.discriminatedUnion("block", [
@@ -45,6 +48,7 @@ export const sceneSchema = z.discriminatedUnion("block", [
   wordSlotSceneSchema,
   endCardSceneSchema,
   diagramFlowSceneSchema,
+  screenshotWindowSceneSchema,
 ]);
 
 export type Scene = z.infer<typeof sceneSchema>;

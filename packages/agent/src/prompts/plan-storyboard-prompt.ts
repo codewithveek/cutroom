@@ -3,10 +3,12 @@ import type { RepoSnapshot } from "@cutroom/repo-ingest";
 import {
   blockCatalog,
   blocksAllowedInLook,
+  type CapturedScreen,
   type LookId,
   type ProductBrief,
   type VideoType,
 } from "@cutroom/scene-spec";
+import { describeScreens } from "../screens/screen-views";
 import { accuracyRules } from "./shared-rules";
 
 export const planStoryboardSystemPrompt = `You are the scriptwriter and motion designer inside Cutroom. You turn a verified product brief into a storyboard: a list of scenes, each one block from a fixed library with its props and narration.
@@ -38,8 +40,9 @@ function describeBeatPlan(template: VideoTypeTemplate, look: LookId): string {
     .join("\n");
 }
 
-function describeBlocks(look: LookId): string {
+function describeBlocks(look: LookId, hasScreens: boolean): string {
   return blocksAllowedInLook(look)
+    .filter((block) => hasScreens || block !== "screenshot-window")
     .map((block) => `- ${block}: ${blockCatalog[block].purpose}`)
     .join("\n");
 }
@@ -89,6 +92,7 @@ export interface PlanStoryboardPromptOptions {
   targetSeconds: number;
   /** The user's steer, already redacted. */
   direction?: string | undefined;
+  screens?: ReadonlyArray<CapturedScreen> | undefined;
 }
 
 export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions): string {
@@ -100,7 +104,7 @@ export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions):
     describeBeatPlan(template, options.look),
     "",
     "## Blocks available in this look",
-    describeBlocks(options.look),
+    describeBlocks(options.look, (options.screens?.length ?? 0) > 0),
     "",
     "## Product brief (verified)",
     describeBrief(options.brief),
@@ -110,6 +114,9 @@ export function buildPlanStoryboardPrompt(options: PlanStoryboardPromptOptions):
     "",
     "## Commands you may show in terminal",
     describeCommands(options.snapshot),
+    ...(options.screens && options.screens.length > 0
+      ? ["", "## Captured screens you may show in screenshot-window", describeScreens(options.screens)]
+      : []),
     ...(options.direction
       ? [
           "",

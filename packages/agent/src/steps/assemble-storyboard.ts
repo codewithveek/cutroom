@@ -3,6 +3,7 @@ import { normalizeWhitespace } from "@cutroom/repo-ingest";
 import {
   type Brand,
   blockCatalog,
+  type CapturedScreen,
   FRAMES_PER_SECOND,
   type LookId,
   type ProductBrief,
@@ -15,6 +16,7 @@ import {
   type VideoType,
 } from "@cutroom/scene-spec";
 import { ulid } from "ulid";
+import { attachScreenView } from "../screens/screen-views";
 
 /** Minimum on-screen time before narration stretches it: the look's pace inside the block's range. */
 export function baseFramesFor(options: {
@@ -70,11 +72,16 @@ export interface AssembleSceneOptions {
   reader: SnapshotReader;
   /** Keep an existing id (scene regeneration); a new ULID otherwise. */
   sceneId?: string;
+  /** Captured screens, for screenshot-window scenes' image size and focus box. */
+  screens?: ReadonlyArray<CapturedScreen> | undefined;
 }
 
 /** One draft scene → a Scene with an id, base frames and exact code bytes. */
 export async function assembleScene(options: AssembleSceneOptions): Promise<Scene> {
-  const snapped = await snapCodeToSource(options.draftScene, options.reader);
+  const snapped = attachScreenView({
+    scene: await snapCodeToSource(options.draftScene, options.reader),
+    screens: options.screens ?? [],
+  });
   return sceneSchema.parse({
     ...snapped,
     id: options.sceneId ?? ulid(),
@@ -91,6 +98,7 @@ export interface AssembleStoryboardOptions {
   reader: SnapshotReader;
   seed: number;
   storyboardId?: string;
+  screens?: ReadonlyArray<CapturedScreen> | undefined;
 }
 
 /** Turns a validated draft into a Storyboard: ids, base frames, brand and exact code bytes. */
@@ -98,7 +106,12 @@ export async function assembleStoryboard(options: AssembleStoryboardOptions): Pr
   const scenes: Scene[] = [];
   for (const draftScene of options.draft.scenes) {
     scenes.push(
-      await assembleScene({ draftScene, paceSeconds: options.paceSeconds, reader: options.reader }),
+      await assembleScene({
+        draftScene,
+        paceSeconds: options.paceSeconds,
+        reader: options.reader,
+        screens: options.screens,
+      }),
     );
   }
   return storyboardSchema.parse({

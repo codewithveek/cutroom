@@ -5,6 +5,7 @@ import type { SnapshotReader } from "@cutroom/repo-ingest";
 import { redactSecrets } from "@cutroom/repo-ingest";
 import {
   type Brand,
+  type CapturedScreen,
   createStoryboardDraftSchema,
   type LookId,
   type ProductBrief,
@@ -12,6 +13,7 @@ import {
   type VideoType,
 } from "@cutroom/scene-spec";
 import { buildPlanStoryboardPrompt, planStoryboardSystemPrompt } from "../prompts/plan-storyboard-prompt";
+import { screenIssues } from "../screens/screen-views";
 import { storyboardDraftIssues } from "../validation/word-budget";
 import { assembleStoryboard } from "./assemble-storyboard";
 
@@ -27,6 +29,8 @@ export interface PlanStoryboardOptions {
   seed: number;
   /** Free-text steer from the run request; secrets are redacted here before it reaches the model. */
   direction?: string | undefined;
+  /** Captured screens of the running app; screenshot-window is offered only when there are some. */
+  screens?: ReadonlyArray<CapturedScreen> | undefined;
   logger?: CutroomLogger;
 }
 
@@ -38,11 +42,13 @@ export interface PlanStoryboardResult {
 
 /** Pipeline step 3: brief + beat template + look → validated, repaired Storyboard (FR-SB-1…6). */
 export async function planStoryboard(options: PlanStoryboardOptions): Promise<PlanStoryboardResult> {
+  const screens = options.screens ?? [];
   const result = await options.model.generateStructured({
-    schema: createStoryboardDraftSchema(
-      options.look,
-      videoTypeTemplates[options.videoType].beats.map((beat) => beat.beat),
-    ),
+    schema: createStoryboardDraftSchema({
+      look: options.look,
+      beats: videoTypeTemplates[options.videoType].beats.map((beat) => beat.beat),
+      excludeBlocks: screens.length > 0 ? [] : ["screenshot-window"],
+    }),
     schemaName: "storyboard_draft",
     system: planStoryboardSystemPrompt,
     messages: [
@@ -55,10 +61,14 @@ export async function planStoryboard(options: PlanStoryboardOptions): Promise<Pl
           look: options.look,
           targetSeconds: options.targetSeconds,
           direction: options.direction ? redactSecrets(options.direction).content : undefined,
+          screens,
         }),
       },
     ],
-    validate: (draft) => storyboardDraftIssues(draft, options.videoType),
+    validate: (draft) => [
+      ...storyboardDraftIssues(draft, options.videoType),
+      ...screenIssues({ scenes: draft.scenes, screens }),
+    ],
     operation: "plan-storyboard",
     temperature: 0.5,
     maxOutputTokens: 4000,
@@ -75,6 +85,7 @@ export async function planStoryboard(options: PlanStoryboardOptions): Promise<Pl
     brand: options.brand,
     reader: options.reader,
     seed: options.seed,
+    screens,
   });
   return { storyboard, usage: result.usage, attempts: result.attempts };
 }
