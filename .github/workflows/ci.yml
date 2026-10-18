@@ -22,3 +22,24 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pnpm install --frozen-lockfile
+      - name: Pack the CLI
+        run: cd apps/cli && npm pack --pack-destination "$RUNNER_TEMP"
+      - name: Install the tarball in an empty directory and run the demo
+        run: |
+          mkdir "$RUNNER_TEMP/app" && cd "$RUNNER_TEMP/app"
+          npm init -y
+          npm install "$RUNNER_TEMP"/cutroom-*.tgz
+          npx cutroom demo --ratios 16:9
