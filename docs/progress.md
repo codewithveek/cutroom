@@ -94,5 +94,12 @@ Cutroom made its own demo video (16:9 + 9:16, watermarked). The run surfaced and
 - 2026-10-18 · E1 direction hardened: `directionSchema` parsed from the free text (audience, tone, must-say / must-not-say), a delimited `<user_direction>` block for the brief and the storyboard, a system rule that it cannot add claims, repair issues for missing / forbidden phrases
 - 2026-10-18 · E2 changes-to-video: `ChangeSnapshot` (commits, redacted hunks, added lines, CHANGELOG section), `analyze-changes` with added-line evidence, "new" claims audited against added lines, `no_user_visible_changes`, `feature-drop-editorial` preset, `--changes` / `--include-fixes`, composer `Whole product ▾` chip (ADR 0017)
 
+## cutroom.tech · landing and public demo (prd-site, ADR 0018)
+- 2026-10-19 · Demo mode: `CUTROOM_DEMO_MODE` (the one public `auth none` exception, no secrets), read-only `onRequest` hook (403 `DEMO_READ_ONLY`), 120/min/IP rate limit keyed on the load balancer's address, no upload or git routes, `DemoModeDisabledError` in the executor, ingest, render, model and voice factories
+- 2026-10-19 · Demo seed: shipnote run (brief, storyboard, 24-claim audit, Kokoro voice, 16:9 + 9:16 MP4s, captions, thumbnails) in `demo/seed`, loaded into an empty store on boot; exporter script
+- 2026-10-19 · Demo UI: banner, `shipnote (sample)` composer, browser-only edits with the API's message in the toast, Approve & render opens the pre-rendered result, noindex + robots.txt
+- 2026-10-19 · `apps/landing`: nav, hero, Cutroom's own launch video (captions burned in, reduced motion respected), features, how it works, four looks rendered by video-kit, quick start with copy, waitlist (Zod, honeypot, 5 per 10 min per IP, stored once), footer credit, OG/Twitter tags; no horizontal scroll at 360 px
+- 2026-10-19 · `deploy/cutroom-tech.render.yaml` and `deploy/landing.Dockerfile`
+
 ## Not done yet
 - Deploying to the .tech domain (needs the Droplet or Render account and DNS)

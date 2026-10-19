@@ -133,10 +133,11 @@ More in [`docs/architecture.md`](docs/architecture.md) and the decision records 
 ## Repository layout
 
 ```
-apps/       web · api · cli
+apps/       web · api · cli · worker · landing (cutroom.tech)
 packages/   scene-spec · video-kit · repo-ingest · agent · claim-audit · providers
             voice · renderer · pipeline · presets · audio-io · observability · config
 evals/      fixtures (shipnote) and the eval harness
+demo/       the public demo's pre-rendered seed runs (ADR 0018)
 docs/       architecture, decisions (ADRs), progress
 ```
 
