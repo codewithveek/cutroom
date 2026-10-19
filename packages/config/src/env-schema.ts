@@ -60,6 +60,16 @@ export const envSchema = z
       .transform((value) => value === "true"),
     /** At least 32 random bytes (any encoding); signs the session cookie. */
     CUTROOM_SESSION_SECRET: optionalSecret,
+    /**
+     * The public showcase (demo.cutroom.tech): read-only, sample repository only, nothing that ingests
+     * or generates is constructed (D-1..D-4). The only case where auth mode `none` is allowed on a public host.
+     */
+    CUTROOM_DEMO_MODE: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
+    /** The demo's sample runs and pre-rendered files (`runs/<runId>/`), relative to the repository root; loaded into an empty store. */
+    CUTROOM_DEMO_SEED_DIR: z.string().min(1).default("demo/seed"),
     /** The web app's exact origin, for CSRF checks; otherwise the proxied request's own host is used. */
     CUTROOM_PUBLIC_URL: optionalUrl,
 
@@ -68,6 +78,21 @@ export const envSchema = z
     SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(1),
   })
   .superRefine((env, context) => {
+    if (env.CUTROOM_DEMO_MODE && env.CUTROOM_AUTH_MODE === "password")
+      context.addIssue({
+        code: "custom",
+        path: ["CUTROOM_AUTH_MODE"],
+        message: "The demo is public and read-only: leave CUTROOM_AUTH_MODE as none",
+      });
+    if (env.CUTROOM_DEMO_MODE) {
+      for (const secretName of ["ELEVENLABS_API_KEY", "OPENAI_COMPAT_API_KEY"] as const)
+        if (env[secretName])
+          context.addIssue({
+            code: "custom",
+            path: [secretName],
+            message: "A public demo holds no provider secrets: unset it or turn off CUTROOM_DEMO_MODE",
+          });
+    }
     if ((env.RUN_STORE === "postgres" || env.RUNNER === "temporal") && !env.DATABASE_URL)
       context.addIssue({
         code: "custom",

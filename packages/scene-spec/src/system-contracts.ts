@@ -29,6 +29,9 @@ export const systemCheckSchema = z.object({
 });
 export type SystemCheck = z.infer<typeof systemCheckSchema>;
 
+/** The public demo's answer to every write (prd-site D-3), from the API and from the web app. */
+export const DEMO_READ_ONLY_MESSAGE = "This is a read-only demo. Run Cutroom locally to use your own code.";
+
 /** What this installation can do right now: the dashboard's setup strip and the settings page. */
 export const systemStatusSchema = z.object({
   model: z.object({
@@ -40,6 +43,8 @@ export const systemStatusSchema = z.object({
   defaultPrivacyMode: privacyModeSchema,
   /** The shipnote fixture, when this installation has it (the scripted model knows it). */
   demoRepositoryPath: z.string().optional(),
+  /** The public read-only showcase (CUTROOM_DEMO_MODE): the web app shows a banner and disables writes. */
+  demoMode: z.boolean().default(false),
 });
 export type SystemStatus = z.infer<typeof systemStatusSchema>;
 

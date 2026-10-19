@@ -51,6 +51,7 @@ export async function createChangesFixtureRepo(directory: string): Promise<void>
   await write(
     directory,
     "src/draft.ts",
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: the fixture file's own source contains a template literal
     "/** Drafts CHANGELOG.md from the commits since the last tag. */\nexport function draftChangelog(commits: string[]) {\n  return `## Unreleased\\n${commits.map((commit) => `- ${commit}`).join('\\n')}`;\n}\n",
   );
   await write(

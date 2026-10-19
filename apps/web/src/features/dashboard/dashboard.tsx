@@ -52,7 +52,8 @@ export function Dashboard(): React.ReactElement {
           </p>
         ) : null}
         <RecentVideos runs={runs} />
-        {status ? (
+        {/* The demo has no toolchain to check: it only plays back what was rendered beforehand. */}
+        {status && !status.demoMode ? (
           <section aria-labelledby="setup-heading">
             <div className="mb-3 flex items-baseline justify-between">
               <h2 id="setup-heading" className="text-sm font-semibold">

@@ -70,6 +70,9 @@ pnpm typecheck && pnpm lint && pnpm test
 pnpm cutroom make --repo <path> --preset launch-editorial --ratios 16:9,9:16 --privacy local
 docker compose -f deploy/docker-compose.cloud.yml --env-file deploy/cloud.env up -d --build   # cloud stack (docs/deploy.md)
 pnpm eval
+pnpm --filter @cutroom/landing dev  # cutroom.tech landing page on :3001
+pnpm --filter @cutroom/landing render:looks   # the Styles section's stills (BROWSER_EXECUTABLE=<headless shell>)
+pnpm tsx scripts/export-demo-seed.ts --data <data dir> --out demo/seed   # refresh the public demo's seed
 ```
 
 ## Credits

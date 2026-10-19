@@ -1,0 +1,72 @@
+# cutroom.tech itself (prd-site §4), separate from the root render.yaml behind the README's
+# "Deploy to Render" button. In Render: New → Blueprint → this repo → Blueprint path
+# `deploy/cutroom-tech.render.yaml`. Then add the custom domains:
+#   cutroom-landing → cutroom.tech (apex ALIAS/A record) and www.cutroom.tech (CNAME)
+#   cutroom-demo-web → demo.cutroom.tech (CNAME)
+services:
+  # The landing page and its waitlist (apps/landing).
+  - type: web
+    name: cutroom-landing
+    runtime: docker
+    plan: 0.5c-512mb
+    dockerfilePath: ./deploy/landing.Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cutroom-site-db
+          property: connectionString
+
+  # The demo's API: read-only, sample runs only, no secrets, no login (D-1..D-8). The seed loads
+  # from demo/seed into an empty file store on every boot, so it needs no disk and no database.
+  - type: web
+    name: cutroom-demo-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./deploy/node-services.Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: CUTROOM_DEMO_MODE
+        value: "true"
+      - key: CUTROOM_AUTH_MODE
+        value: none
+      - key: CUTROOM_PUBLIC_URL
+        value: https://demo.cutroom.tech
+      - key: WEB_ORIGIN
+        value: https://demo.cutroom.tech
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: "10000"
+      - key: RUN_STORE
+        value: file
+      - key: CUTROOM_DATA_DIR
+        value: /tmp/cutroom
+      - key: RUNNER
+        value: in-process
+      - key: MODEL_PROVIDER
+        value: scripted-shipnote
+
+  # The real web app in demo mode: banner, sample-only composer, noindex.
+  - type: web
+    name: cutroom-demo-web
+    runtime: docker
+    plan: 0.5c-512mb
+    dockerfilePath: ./deploy/web.Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: CUTROOM_DEMO_MODE
+        value: "true"
+      - key: CUTROOM_API_URL
+        fromService:
+          type: web
+          name: cutroom-demo-api
+          property: hostport
+
+databases:
+  # Only the waitlist lives here.
+  - name: cutroom-site-db
+    databaseName: cutroom_site
+    user: cutroom
+    plan: basic-256mb
+    postgresMajorVersion: "17"

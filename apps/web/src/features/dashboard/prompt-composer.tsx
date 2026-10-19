@@ -30,6 +30,25 @@ import { useArchiveUpload } from "./use-archive-upload";
 /** The scope chip's default: the whole product rather than a range of changes (E2-6). */
 const WHOLE_PRODUCT = "whole-product";
 
+/** The one repository the public demo knows; the API refuses the request anyway (D-3). */
+const DEMO_REPOSITORY = "shipnote";
+
+/**
+ * The repository field: what the user typed, or in the demo the sample, shown disabled (D-5b).
+ * Submitting still asks the API, which answers with the read-only message.
+ */
+function useRepositoryField(options: { status: SystemStatus | undefined; hasUpload: boolean }) {
+  const [repo, setRepo] = useState("");
+  const demoMode = options.status?.demoMode === true;
+  return {
+    demoMode,
+    repo,
+    displayValue: demoMode ? `${DEMO_REPOSITORY} (sample)` : repo,
+    setRepo,
+    hasSource: demoMode || options.hasUpload || repo.trim().length > 0,
+  };
+}
+
 const privacyOptions = [
   { value: "local", label: "Local", description: "Nothing leaves this machine.", Icon: Laptop },
   {
@@ -127,7 +146,6 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
   const router = useRouter();
   const modes = availableSourceModes();
   const [sourceMode, setSourceMode] = useState<SourceModeId>("repository");
-  const [repo, setRepo] = useState("");
   const [direction, setDirection] = useState("");
   const [presetId, setPresetId] = useState<PresetId>("launch-editorial");
   const [privacyMode, setPrivacyMode] = useState<PrivacyMode>("local");
@@ -143,7 +161,10 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
   const archive = useArchiveUpload();
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const hasSource = Boolean(archive.upload) || repo.trim().length > 0;
+  const { demoMode, repo, displayValue, setRepo, hasSource } = useRepositoryField({
+    status: props.status,
+    hasUpload: Boolean(archive.upload),
+  });
   const [error, setError] = useState<string>();
   const mode = modes.find((candidate) => candidate.id === sourceMode) ?? modes[0];
   const tags = useRepositoryTags(archive.upload ? "" : repo);
@@ -162,7 +183,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
     try {
       const run = await apiClient.createRun(
         buildRunRequest({
-          repo,
+          repo: demoMode ? DEMO_REPOSITORY : repo,
           upload: archive.upload,
           presetId,
           privacyMode,
@@ -258,7 +279,8 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
               <span className="sr-only">Repository</span>
               <input
                 id="repo"
-                value={repo}
+                value={displayValue}
+                disabled={demoMode}
                 onChange={(event) => setRepo(event.target.value)}
                 placeholder={archive.uploading ? "Uploading the archive…" : mode?.placeholder}
                 autoComplete="off"
@@ -282,7 +304,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
             type="button"
             aria-label="Upload a .zip of the repository"
             title="Upload a .zip (or drop one here)"
-            disabled={archive.uploading}
+            disabled={archive.uploading || demoMode}
             onClick={() => fileInputRef.current?.click()}
             className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-faint hover:bg-panel-hover hover:text-ink disabled:opacity-40"
           >
@@ -351,7 +373,7 @@ export function PromptComposer(props: PromptComposerProps): React.ReactElement {
         </div>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs">
-        {props.status?.demoRepositoryPath ? (
+        {props.status?.demoRepositoryPath && !demoMode ? (
           <button
             type="button"
             onClick={() => setRepo(props.status?.demoRepositoryPath ?? "")}

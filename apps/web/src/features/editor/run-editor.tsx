@@ -19,6 +19,7 @@ import { apiClient, type RunView } from "@/lib/api-client";
 import { classNames } from "@/lib/class-names";
 import { breakpoints, useMediaQuery } from "@/lib/use-media-query";
 import { useRun } from "@/lib/use-run";
+import { useSystemStatus } from "@/lib/use-system-status";
 import {
   EditorContext,
   type EditorContextValue,
@@ -88,7 +89,10 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
   const { run } = props;
   const saved = run.storyboard;
   const draft = useStoryboardDraft({ saved: saved.storyboard, savedVersionId: saved.versionId });
-  const editable = run.status === "awaiting_review";
+  const { status: systemStatus, error: systemStatusError } = useSystemStatus();
+  const demoMode = systemStatus?.demoMode === true;
+  // The demo's seeded video is already rendered; edits stay in this browser so visitors can play (D-5c).
+  const editable = run.status === "awaiting_review" || (demoMode && run.status === "completed");
   const [tab, setTab] = useState<EditorTabId>("script");
   const [selectedSceneId, setSelectedSceneId] = useState<string | undefined>(saved.storyboard.scenes[0]?.id);
   const [selectedLine, setSelectedLine] = useState<LineSelection>();
@@ -111,9 +115,11 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
   const lines = useMemo(() => lineClips(timeline), [timeline]);
   const hasRenders = run.assets.some((asset) => asset.kind === "video");
 
+  // The demo opens on the editor; a finished run elsewhere opens on its renders.
+  const statusSettled = systemStatus !== undefined || systemStatusError !== undefined;
   useEffect(() => {
-    if (hasRenders && run.status === "completed") setStageMode("renders");
-  }, [hasRenders, run.status]);
+    if (statusSettled && !demoMode && hasRenders && run.status === "completed") setStageMode("renders");
+  }, [statusSettled, demoMode, hasRenders, run.status]);
 
   // Open on a resolved frame of the first scene rather than an empty frame 0.
   useEffect(() => {
@@ -218,6 +224,12 @@ function StoryboardWorkspace(props: WorkspaceProps): React.ReactElement {
   const unsupportedClaims = saved.claimResults.filter((claim) => claim.verdict === "unsupported");
   const approve = (overrides: Parameters<typeof apiClient.approve>[1]["overrides"]) => {
     setSheet(undefined);
+    if (demoMode) {
+      // D-6: nothing renders here; the seeded run's pre-rendered files are the result.
+      setStageMode("renders");
+      setNotice("Showing the pre-rendered result. Run Cutroom locally to render your own.");
+      return;
+    }
     void runAction(() => apiClient.approve(run.id, { versionId: saved.versionId, overrides }));
   };
 

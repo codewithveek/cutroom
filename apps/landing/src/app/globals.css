@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* The app's dark palette and accent (apps/web/src/app/globals.css): one design language, no new one. */
+@theme {
+  --color-canvas: #0b0b0c;
+  --color-panel: #151517;
+  --color-panel-raised: #1d1d20;
+  --color-panel-hover: #252529;
+  --color-line: #27272b;
+  --color-line-strong: #38383e;
+  --color-ink: #f3f3f4;
+  --color-ink-muted: #a3a3ab;
+  --color-ink-faint: #6e6e77;
+  --color-accent: #ff7a1a;
+  --color-accent-strong: #ff9447;
+  --color-accent-soft: #ff7a1a24;
+  --color-on-accent: #170a00;
+  --color-supported: #3ccf7f;
+  --color-unsupported: #ff5d5d;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset, 0 12px 32px -16px rgb(0 0 0 / 0.6);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      /* biome-ignore lint/complexity/noImportantStyles: reduced motion must beat every component style */
+      animation-duration: 0.01ms !important;
+      /* biome-ignore lint/complexity/noImportantStyles: reduced motion must beat every component style */
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility panel {
+  border-radius: 1rem;
+  background: var(--color-panel);
+  box-shadow: var(--shadow-panel);
+}

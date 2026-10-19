@@ -1,5 +1,6 @@
 import { SceneNotFoundError } from "@cutroom/agent";
 import { ApprovalBlockedError } from "@cutroom/claim-audit";
+import { DemoModeDisabledError } from "@cutroom/config";
 import {
   describeError,
   RunNotFoundError,
@@ -21,6 +22,7 @@ export const apiErrorCodeSchema = z.enum([
   "conflict",
   "approval_blocked",
   "rate_limited",
+  "DEMO_READ_ONLY",
   "model_output_invalid",
   "model_unavailable",
   "internal",
@@ -77,6 +79,8 @@ function mapError(error: FastifyError | Error): MappedError {
       code: "rate_limited",
       message: "Too many attempts; wait a minute and try again",
     };
+  if (error instanceof DemoModeDisabledError)
+    return { statusCode: 403, code: "DEMO_READ_ONLY", message: error.message };
   if (error instanceof FfmpegError)
     return { statusCode: 400, code: "validation_failed", message: "That file could not be read as audio" };
   if (error instanceof StoryboardEditError)

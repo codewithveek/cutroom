@@ -1,0 +1,116 @@
+{
+  "peakDbfs": -2.000103,
+  "rmsDbfs": -19.412918,
+  "lowEnergyPercent": 45.3,
+  "loudnessTimeline": [
+    {
+      "second": 0,
+      "lufs": -120.7
+    },
+    {
+      "second": 1,
+      "lufs": -18.2
+    },
+    {
+      "second": 2,
+      "lufs": -14.2
+    },
+    {
+      "second": 3,
+      "lufs": -17.6
+    },
+    {
+      "second": 4,
+      "lufs": -21
+    },
+    {
+      "second": 5,
+      "lufs": -11.6
+    },
+    {
+      "second": 6,
+      "lufs": -22.4
+    },
+    {
+      "second": 7,
+      "lufs": -17.9
+    },
+    {
+      "second": 8,
+      "lufs": -15.2
+    },
+    {
+      "second": 9,
+      "lufs": -13.6
+    },
+    {
+      "second": 10,
+      "lufs": -22.1
+    },
+    {
+      "second": 11,
+      "lufs": -23.3
+    },
+    {
+      "second": 12,
+      "lufs": -11.6
+    },
+    {
+      "second": 13,
+      "lufs": -15.7
+    },
+    {
+      "second": 14,
+      "lufs": -17.6
+    },
+    {
+      "second": 15,
+      "lufs": -28.2
+    },
+    {
+      "second": 16,
+      "lufs": -16.2
+    },
+    {
+      "second": 17,
+      "lufs": -15.5
+    },
+    {
+      "second": 18,
+      "lufs": -29.8
+    },
+    {
+      "second": 19,
+      "lufs": -17.2
+    },
+    {
+      "second": 20,
+      "lufs": -12.6
+    },
+    {
+      "second": 21,
+      "lufs": -15.2
+    },
+    {
+      "second": 22,
+      "lufs": -22.9
+    },
+    {
+      "second": 23,
+      "lufs": -18.5
+    },
+    {
+      "second": 24,
+      "lufs": -13.5
+    },
+    {
+      "second": 25,
+      "lufs": -18
+    },
+    {
+      "second": 26,
+      "lufs": -30.1
+    }
+  ],
+  "integratedLufs": -16
+}

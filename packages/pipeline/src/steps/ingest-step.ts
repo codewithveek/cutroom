@@ -1,3 +1,4 @@
+import { assertNotDemoMode } from "@cutroom/config";
 import { ingestRepository, loadSnapshot } from "@cutroom/repo-ingest";
 import { dataPaths } from "../services";
 import { prepareChangesSource, saveChangeSnapshot } from "./changes-source";
@@ -6,6 +7,7 @@ import type { StepFunction } from "./step-context";
 
 /** Step 1: repo in, redacted snapshot out. Skipped when the snapshot is already on disk. */
 export const ingestStep: StepFunction = async (context, run) => {
+  assertNotDemoMode(context.services.env, "Repository ingestion");
   const snapshotDirectory = snapshotDirectoryFor(context);
   const existing = await loadSnapshot(snapshotDirectory);
   if (existing) return { skipped: true };

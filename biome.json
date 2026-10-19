@@ -16,7 +16,8 @@
       "!**/public/fonts",
       "!evals/results",
       "!**/next-env.d.ts",
-      "!evals/fixtures"
+      "!evals/fixtures",
+      "!demo/seed"
     ]
   },
   "formatter": {

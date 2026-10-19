@@ -1,0 +1,35 @@
+WEBVTT
+
+1
+00:00:00.333 --> 00:00:03.767
+Release notes eat an afternoon.
+
+2
+00:00:03.767 --> 00:00:06.500
+Meet Shipnote.
+
+3
+00:00:06.500 --> 00:00:10.667
+It groups your commits and drafts the
+changelog.
+
+4
+00:00:10.667 --> 00:00:14.700
+Commits are grouped by their conventional
+type.
+
+5
+00:00:14.700 --> 00:00:18.233
+Run the draft command in your repo.
+
+6
+00:00:18.233 --> 00:00:21.733
+One command writes the changelog.
+
+7
+00:00:21.733 --> 00:00:22.367
+Shipnote.
+
+8
+00:00:22.367 --> 00:00:24.633
+Release notes from your commits.

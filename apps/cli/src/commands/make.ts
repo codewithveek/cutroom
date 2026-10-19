@@ -35,6 +35,23 @@ export interface RunMakeOptions {
   entryDirectory: string;
 }
 
+/**
+ * Hybrid mode: shows the egress manifest and, when the run waits on it, asks before anything leaves
+ * the machine. Undefined when the user declines.
+ */
+async function confirmEgressIfAsked(options: {
+  runner: InProcessRunner;
+  run: RunRecord;
+}): Promise<RunRecord | undefined> {
+  const { runner, run } = options;
+  if (!run.egress) return run;
+  printEgressManifest(run.egress);
+  if (run.status !== "awaiting_egress") return run;
+  if (!(await promptForEgress())) return undefined;
+  await runner.confirmEgress(run.id, run.egress.manifestSha256);
+  return runner.waitForStatus(run.id, ["completed"]);
+}
+
 /** `cutroom make`: the same pipeline and contracts as the web app, in a terminal (PRD §6.2). */
 export async function runMake(options: RunMakeOptions): Promise<number> {
   const { flags, env } = options;
@@ -96,14 +113,9 @@ export async function runMake(options: RunMakeOptions): Promise<number> {
       await runner.approveStoryboard(runId, approval);
       run = await runner.waitForStatus(runId, ["completed", "awaiting_egress"]);
     }
-    if (run.status === "awaiting_egress" && run.egress) {
-      printEgressManifest(run.egress);
-      if (!(await promptForEgress())) return 2;
-      await runner.confirmEgress(runId, run.egress.manifestSha256);
-      run = await runner.waitForStatus(runId, ["completed"]);
-    } else if (run.egress) {
-      printEgressManifest(run.egress);
-    }
+    const afterEgress = await confirmEgressIfAsked({ runner, run });
+    if (!afterEgress) return 2;
+    run = afterEgress;
     await runner.settled(runId);
     run = (await runner.getRun(runId)) ?? run;
     if (run.status === "failed") {

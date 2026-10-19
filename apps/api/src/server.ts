@@ -3,7 +3,7 @@ import { AuthService, type AuthStore, FileAuthStore } from "@cutroom/auth";
 import { loadEnv, resolveAuthConfig } from "@cutroom/config";
 import { PostgresAuthStore } from "@cutroom/db";
 import { createLogger, initTracing } from "@cutroom/observability";
-import { createSystemService, dataPaths, RenderJobWorker } from "@cutroom/pipeline";
+import { createSystemService, dataPaths, RenderJobWorker, seedDemoRuns } from "@cutroom/pipeline";
 import { buildApp } from "./app";
 import { createRunner } from "./create-runner";
 
@@ -17,6 +17,16 @@ initTracing({
 });
 const logger = createLogger({ level: env.LOG_LEVEL, name: "cutroom-api" });
 const { runner, services, database, close } = await createRunner({ env, logger });
+if (env.CUTROOM_DEMO_MODE) {
+  logger.warn("demo mode: read-only, sample repository only, no login (D-1)");
+  // Relative to the repository root: `pnpm --filter @cutroom/api start` runs inside apps/api.
+  const repositoryRoot = path.resolve(import.meta.dirname, "../../..");
+  await seedDemoRuns({
+    store: services.store,
+    seedDirectory: path.resolve(repositoryRoot, env.CUTROOM_DEMO_SEED_DIR),
+    logger,
+  });
+}
 
 async function createAuthService(): Promise<AuthService | undefined> {
   if (authConfig.mode === "none") {
@@ -35,13 +45,14 @@ async function createAuthService(): Promise<AuthService | undefined> {
 }
 const authService = await createAuthService();
 
-const renderJobWorker = env.RENDER_API_TOKEN
-  ? new RenderJobWorker({
-      dataDirectory: services.dataDirectory,
-      browserExecutable: services.browserExecutable,
-      logger,
-    })
-  : undefined;
+const renderJobWorker =
+  env.RENDER_API_TOKEN && !env.CUTROOM_DEMO_MODE
+    ? new RenderJobWorker({
+        dataDirectory: services.dataDirectory,
+        browserExecutable: services.browserExecutable,
+        logger,
+      })
+    : undefined;
 if (renderJobWorker) {
   // Remote bundles are deleted 24 h after their job finishes (FR-PRV-6).
   setInterval(() => void renderJobWorker.sweep(), 60 * 60 * 1000).unref();

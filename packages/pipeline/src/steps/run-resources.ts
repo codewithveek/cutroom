@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { CodeVectorIndex } from "@cutroom/claim-audit";
+import { assertNotDemoMode } from "@cutroom/config";
 import {
   CODE_EMBEDDING_DIMENSIONS,
   createEmbeddingClient,
@@ -27,6 +28,7 @@ export async function requireSnapshot(context: StepContext): Promise<LoadedSnaps
 }
 
 export function createRunModelClient(context: StepContext, run: RunRecord): ModelClient {
+  assertNotDemoMode(context.services.env, "The model provider");
   return createModelClient({
     mode: run.request.privacyMode,
     env: context.services.env,
