@@ -47,7 +47,7 @@ describe("demo mode", () => {
     expect((await app.inject({ method: "GET", url: "/health" })).statusCode).toBe(200);
     expect((await app.inject({ method: "GET", url: "/runs" })).json()).toEqual({ runs: [] });
     const status = await app.inject({ method: "GET", url: "/system/status" });
-    expect(status.json()).toMatchObject({ demoMode: true, checks: [] });
+    expect(status.json()).toMatchObject({ demoMode: true, checks: [{ id: "model", state: "ready" }] });
   });
 
   it("has no repository lookups at all (D-4)", async () => {

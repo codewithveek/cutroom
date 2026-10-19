@@ -108,7 +108,14 @@ export function createSystemService(services: PipelineServices): SystemService {
       if (services.env.CUTROOM_DEMO_MODE)
         return {
           model: { provider: "scripted", modelId: "scripted-shipnote", installedModels: [] },
-          checks: [],
+          checks: [
+            {
+              id: "model",
+              label: "Scripted model",
+              state: "ready",
+              detail: "The demo plays back runs made beforehand; nothing is generated here.",
+            },
+          ],
           defaultPrivacyMode: "local",
           demoMode: true,
         };
