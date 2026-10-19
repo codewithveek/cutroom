@@ -15,6 +15,7 @@ import { sourceRoutes } from "./modules/sources/source-routes";
 import { systemRoutes } from "./modules/system/system-routes";
 import { uploadRoutes } from "./modules/uploads/upload-routes";
 import { isValidApiToken, registerAuthGuard } from "./plugins/auth-guard";
+import { registerDemoGuard } from "./plugins/demo-guard";
 import { registerErrorHandler } from "./plugins/error-handler";
 
 export interface BuildAppOptions {
@@ -48,6 +49,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     methods: ["GET", "HEAD", "POST", "PUT", "PATCH"],
   });
   await app.register(multipart);
+  // The public demo (D-1..D-8): rate limited and read-only before anything else can run.
+  if (options.env.CUTROOM_DEMO_MODE) await registerDemoGuard(app);
   const authGuard = {
     config: options.auth?.config ?? ({ mode: "none" } as const),
     service: options.auth?.service,
@@ -57,8 +60,11 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   await app.register(authRoutes, { config: authGuard.config, service: authGuard.service });
   await app.register(catalogueRoutes);
   await app.register(systemRoutes, { system: options.system, store: options.store, env: options.env });
-  await app.register(uploadRoutes, { uploadsDirectory: options.uploadsDirectory });
-  await app.register(sourceRoutes);
+  // The demo has no ingestion at all (D-4): no uploads, no repository lookups.
+  if (!options.env.CUTROOM_DEMO_MODE) {
+    await app.register(uploadRoutes, { uploadsDirectory: options.uploadsDirectory });
+    await app.register(sourceRoutes);
+  }
   await app.register(runRoutes, { runner: options.runner });
   await app.register(musicRoutes, { runner: options.runner });
   await app.register(assetRoutes, { runner: options.runner, store: options.store });

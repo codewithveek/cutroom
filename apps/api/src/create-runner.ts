@@ -53,7 +53,8 @@ export async function createRunner(options: {
     overrides: {
       ...(store ? { store } : {}),
       ...(database && env.EMBEDDINGS !== "off" ? { codeIndexFor: codeIndexForRun(database) } : {}),
-      ...(env.MODEL_PROVIDER === "scripted-shipnote"
+      // The demo constructs no model at all (D-4), not even the scripted one.
+      ...(env.MODEL_PROVIDER === "scripted-shipnote" && !env.CUTROOM_DEMO_MODE
         ? { modelTransportOverride: createShipnoteScriptedTransport() }
         : {}),
     },
@@ -85,6 +86,7 @@ export async function createRunner(options: {
   }
 
   const runner = new InProcessRunner(services);
+  if (env.CUTROOM_DEMO_MODE) return { runner, services, database, close: closeStore };
   for (const run of await services.store.list()) {
     if (interruptedStatuses.has(run.status)) {
       logger.info({ runId: run.id, status: run.status }, "resuming interrupted run");
