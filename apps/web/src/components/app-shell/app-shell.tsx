@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { breakpoints, useMediaQuery } from "@/lib/use-media-query";
+import { DemoBanner } from "./demo-banner";
 import { LogoMark } from "./logo-mark";
 import { Sidebar } from "./sidebar";
 
@@ -96,7 +97,10 @@ export function AppShell(props: { children: React.ReactNode }): React.ReactEleme
           </div>
         </div>
       ) : null}
-      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto rounded-2xl">{props.children}</main>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 md:gap-3">
+        <DemoBanner />
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto rounded-2xl">{props.children}</main>
+      </div>
     </div>
   );
 }
