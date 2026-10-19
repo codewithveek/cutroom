@@ -1,5 +1,12 @@
 export { type CreatePipelineServicesOptions, createPipelineServices } from "./create-services";
 export { buildDeliveryNote } from "./delivery-note";
+export {
+  DemoSeedError,
+  type SeedDemoRunsOptions,
+  seedDemoRuns,
+  seedFilesOf,
+  toSeedRun,
+} from "./demo/demo-seed";
 export { type DescribedError, describeError, type ErrorCode, errorCodes } from "./describe-error";
 export { InProcessRunner, RunStateError, StoryboardEditError, waitForRunStatus } from "./in-process-runner";
 export type {
