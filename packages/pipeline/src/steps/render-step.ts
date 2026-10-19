@@ -1,5 +1,6 @@
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { assertNotDemoMode } from "@cutroom/config";
 import type { StagedAsset } from "@cutroom/renderer";
 import { bundleVideoKit, produceDeliverables } from "@cutroom/renderer";
 import { aspectRatioSchema, renderJobSchema } from "@cutroom/scene-spec";
@@ -105,6 +106,7 @@ async function downloadRemoteOutputs(options: DownloadRemoteOutputsOptions): Pro
 
 /** Steps 6–7: every ratio, then loudness, captions, thumbnail and cover art. */
 export const renderStep: StepFunction = async (context, run) => {
+  assertNotDemoMode(context.services.env, "Rendering");
   const renderedRatios = new Set(
     run.assets.filter((asset) => asset.kind === "video").map((asset) => asset.ratio),
   );

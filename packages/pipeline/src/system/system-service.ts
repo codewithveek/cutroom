@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { encodeWav } from "@cutroom/audio-io";
+import { assertNotDemoMode } from "@cutroom/config";
 import { runFfmpeg } from "@cutroom/renderer";
 import type { SystemCheck, SystemStatus, VoiceOption } from "@cutroom/scene-spec";
 import { createVoiceProvider, kokoroVoices, type VoiceProvider } from "@cutroom/voice";
@@ -103,6 +104,14 @@ export function createSystemService(services: PipelineServices): SystemService {
 
   return {
     async status() {
+      // The demo probes nothing (no Ollama, no ffmpeg): it only serves what was rendered beforehand.
+      if (services.env.CUTROOM_DEMO_MODE)
+        return {
+          model: { provider: "scripted", modelId: "scripted-shipnote", installedModels: [] },
+          checks: [],
+          defaultPrivacyMode: "local",
+          demoMode: true,
+        };
       const installed = scripted ? [] : await ollamaModels(services.env.OLLAMA_HOST);
       const model: SystemCheck = scripted
         ? {
@@ -121,6 +130,7 @@ export function createSystemService(services: PipelineServices): SystemService {
         },
         checks: [model, voiceCheck(services), await ffmpegCheck(), renderHostCheck(services)],
         defaultPrivacyMode: services.env.DEFAULT_PRIVACY_MODE,
+        demoMode: false,
         ...(demoRepositoryPath ? { demoRepositoryPath } : {}),
       };
     },
@@ -132,6 +142,7 @@ export function createSystemService(services: PipelineServices): SystemService {
       if (!voice) throw new UnknownVoiceOptionError(`Unknown voice "${voiceId}"`);
       const samplePath = path.join(samplesDirectory, `${voice.id}.wav`);
       if (existsSync(samplePath)) return samplePath;
+      assertNotDemoMode(services.env, "Voice synthesis");
       // Local mode: the privacy guard refuses anything but the on-disk Kokoro model.
       sampleVoice ??= createVoiceProvider({
         mode: "local",

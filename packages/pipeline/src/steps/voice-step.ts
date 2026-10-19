@@ -1,4 +1,5 @@
 import { access } from "node:fs/promises";
+import { assertNotDemoMode } from "@cutroom/config";
 import { lookTokensById } from "@cutroom/video-kit";
 import {
   createCachedVoice,
@@ -24,6 +25,7 @@ async function allExist(filePaths: ReadonlyArray<string>): Promise<boolean> {
 }
 
 export function createRunVoiceProvider(context: StepContext, run: RunRecord): VoiceProvider {
+  assertNotDemoMode(context.services.env, "The voice provider");
   if (context.services.voiceProviderOverride) return context.services.voiceProviderOverride;
   return createVoiceProvider({
     mode: run.request.privacyMode,

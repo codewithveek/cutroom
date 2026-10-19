@@ -1,3 +1,4 @@
+import { assertNotDemoMode } from "@cutroom/config";
 import { createStepLogger, withPipelineStepSpan } from "@cutroom/observability";
 import { ulid } from "ulid";
 import { describeError } from "./describe-error";
@@ -53,6 +54,7 @@ export class StepExecutor {
 
   async runStep(options: RunStepOptions): Promise<StepResult> {
     const { runId, definition } = options;
+    assertNotDemoMode(this.services.env, "Running the pipeline");
     const context = this.createContext(runId, definition.step);
     const run = await this.services.store.update(runId, (current) => ({
       ...current,
