@@ -1,0 +1,1236 @@
+{
+  "id": "01M598DJDG4Z7NBDGQA7NTA8H1",
+  "request": {
+    "source": {
+      "kind": "path",
+      "path": "evals/fixtures/shipnote"
+    },
+    "presetId": "launch-editorial",
+    "videoType": "launch",
+    "look": "editorial",
+    "ratios": [
+      "16:9",
+      "9:16"
+    ],
+    "targetSeconds": 45,
+    "voice": {
+      "provider": "kokoro",
+      "voiceId": "af_heart",
+      "speed": 1
+    },
+    "music": {
+      "kind": "generated",
+      "bed": "upbeat"
+    },
+    "watermark": false,
+    "privacyMode": "local",
+    "autoApprove": true,
+    "seed": 1
+  },
+  "status": "completed",
+  "createdAt": "2026-10-19T04:58:47.600Z",
+  "updatedAt": "2026-10-19T05:03:20.204Z",
+  "look": "editorial",
+  "lookReason": "Chosen by the user",
+  "brief": {
+    "name": "Shipnote",
+    "tagline": "Release notes from your commits",
+    "audience": "Developers and maintainers who ship releases from a git repository",
+    "problem": "Writing release notes by hand takes time and gets skipped",
+    "promise": "Draft a markdown changelog from conventional commits with one command",
+    "features": [
+      {
+        "title": "Group commits by type",
+        "description": "Groups conventional commits into feat, fix and perf sections",
+        "evidence": [
+          {
+            "filePath": "src/group-commits.ts",
+            "lineStart": 1,
+            "lineEnd": 3,
+            "excerpt": "export function groupCommits(commits: Commit[]) {\n  return Object.groupBy(commits, (commit) => commit.type);\n}"
+          }
+        ],
+        "strength": "verified"
+      },
+      {
+        "title": "Draft the changelog",
+        "description": "Writes CHANGELOG.md with one section per commit type",
+        "evidence": [
+          {
+            "filePath": "src/write-changelog.ts",
+            "lineStart": 10,
+            "lineEnd": 10,
+            "excerpt": "await writeFile(\"CHANGELOG.md\", `## ${version}\\n\\n${sections.join(\"\\n\\n\")}\\n`);"
+          }
+        ],
+        "strength": "verified"
+      },
+      {
+        "title": "Start from any tag",
+        "description": "The draft command takes a --since option",
+        "evidence": [],
+        "strength": "weak"
+      }
+    ]
+  },
+  "storyboardVersions": [
+    {
+      "id": "01M598DJJ8Z0KC9BK86G6NJSQP",
+      "version": 1,
+      "storyboard": {
+        "id": "01M598DJJ6Y5TBWRXP4J2F197S",
+        "title": "Shipnote launch",
+        "videoType": "launch",
+        "look": "editorial",
+        "brand": {
+          "name": "Shipnote",
+          "tagline": "Release notes from your commits"
+        },
+        "seed": 1,
+        "scenes": [
+          {
+            "id": "01M598DJJ368EK1M8A6VXK6ZA6",
+            "beat": "problem",
+            "baseFrames": 90,
+            "narration": [
+              {
+                "text": "Release notes eat an afternoon."
+              }
+            ],
+            "block": "kinetic-headline",
+            "props": {
+              "lines": [
+                "Release notes eat *an afternoon*",
+                "every single release"
+              ],
+              "tone": "problem"
+            }
+          },
+          {
+            "id": "01M598DJJ4Q7HFHBB76MKMZ86J",
+            "beat": "introducing",
+            "baseFrames": 90,
+            "narration": [
+              {
+                "text": "Meet Shipnote.",
+                "say": "Meet Ship note."
+              }
+            ],
+            "block": "title-card",
+            "props": {
+              "variant": "introducing",
+              "name": "Shipnote",
+              "tagline": "Release notes from your commits"
+            }
+          },
+          {
+            "id": "01M598DJJ4XKDM726C95M7H3M5",
+            "beat": "pitch",
+            "baseFrames": 120,
+            "narration": [
+              {
+                "text": "It groups your commits and drafts the changelog."
+              }
+            ],
+            "block": "feature-cards",
+            "props": {
+              "cards": [
+                {
+                  "icon": "layers",
+                  "title": "Group commits",
+                  "line": "feat, fix and perf, sorted for you"
+                },
+                {
+                  "icon": "code",
+                  "title": "Draft notes",
+                  "line": "Writes CHANGELOG.md per release"
+                },
+                {
+                  "icon": "terminal",
+                  "title": "One command",
+                  "line": "npx shipnote draft"
+                }
+              ]
+            }
+          },
+          {
+            "id": "01M598DJJ5QWVF4MQM8WK3CW0S",
+            "beat": "moment",
+            "baseFrames": 120,
+            "narration": [
+              {
+                "text": "Commits are grouped by their conventional type."
+              }
+            ],
+            "block": "code-card",
+            "props": {
+              "filePath": "src/group-commits.ts",
+              "language": "ts",
+              "lineStart": 1,
+              "lineEnd": 3,
+              "code": "export function groupCommits(commits: Commit[]) {\n  return Object.groupBy(commits, (commit) => commit.type);\n}",
+              "reveal": "lines"
+            }
+          },
+          {
+            "id": "01M598DJJ5S845DDQW7AHZVGN5",
+            "beat": "moment",
+            "baseFrames": 120,
+            "narration": [
+              {
+                "text": "Run the draft command in your repo."
+              }
+            ],
+            "block": "terminal",
+            "props": {
+              "title": "~/my-app",
+              "commands": [
+                {
+                  "command": "npx shipnote draft",
+                  "output": [
+                    "Wrote CHANGELOG.md"
+                  ]
+                }
+              ],
+              "charsPerSecond": 18
+            }
+          },
+          {
+            "id": "01M598DJJ57NW86BXE6Q612J8Y",
+            "beat": "moment",
+            "baseFrames": 90,
+            "narration": [
+              {
+                "text": "One command writes the changelog."
+              }
+            ],
+            "block": "kinetic-headline",
+            "props": {
+              "lines": [
+                "One command writes",
+                "your *CHANGELOG.md*"
+              ],
+              "tone": "promise"
+            }
+          },
+          {
+            "id": "01M598DJJ5EZCJMQ9SMS5AHQKQ",
+            "beat": "close",
+            "baseFrames": 90,
+            "narration": [
+              {
+                "text": "Shipnote. Release notes from your commits.",
+                "say": "Ship note. Release notes from your commits."
+              }
+            ],
+            "block": "end-card",
+            "props": {
+              "verbs": [
+                "Commit.",
+                "Draft.",
+                "Ship."
+              ],
+              "name": "Shipnote",
+              "tagline": "Release notes from your commits",
+              "cta": "npx shipnote draft"
+            }
+          }
+        ]
+      },
+      "author": "agent",
+      "createdAt": "2026-10-19T04:58:47.752Z",
+      "claimResults": [
+        {
+          "claimId": "01M598DJJ368EK1M8A6VXK6ZA6:props.lines.0",
+          "sceneId": "01M598DJJ368EK1M8A6VXK6ZA6",
+          "fieldPath": "props.lines.0",
+          "claimText": "Release notes eat *an afternoon*",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 3,
+              "lineEnd": 3,
+              "excerpt": "\"version\": \"1.3.0\","
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ368EK1M8A6VXK6ZA6:props.lines.1",
+          "sceneId": "01M598DJJ368EK1M8A6VXK6ZA6",
+          "fieldPath": "props.lines.1",
+          "claimText": "every single release",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 3,
+              "lineEnd": 3,
+              "excerpt": "\"version\": \"1.3.0\","
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ368EK1M8A6VXK6ZA6:narration.0.text",
+          "sceneId": "01M598DJJ368EK1M8A6VXK6ZA6",
+          "fieldPath": "narration.0.text",
+          "claimText": "Release notes eat an afternoon.",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 3,
+              "lineEnd": 3,
+              "excerpt": "\"version\": \"1.3.0\","
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4Q7HFHBB76MKMZ86J:props.name",
+          "sceneId": "01M598DJJ4Q7HFHBB76MKMZ86J",
+          "fieldPath": "props.name",
+          "claimText": "Shipnote",
+          "verdict": "supported",
+          "checks": [],
+          "evidence": []
+        },
+        {
+          "claimId": "01M598DJJ4Q7HFHBB76MKMZ86J:props.tagline",
+          "sceneId": "01M598DJJ4Q7HFHBB76MKMZ86J",
+          "fieldPath": "props.tagline",
+          "claimText": "Release notes from your commits",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 3,
+              "lineEnd": 3,
+              "excerpt": "\"version\": \"1.3.0\","
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4Q7HFHBB76MKMZ86J:narration.0.text",
+          "sceneId": "01M598DJJ4Q7HFHBB76MKMZ86J",
+          "fieldPath": "narration.0.text",
+          "claimText": "Meet Shipnote.",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 1,
+              "lineEnd": 1,
+              "excerpt": "{"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4XKDM726C95M7H3M5:props.cards.0.title",
+          "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+          "fieldPath": "props.cards.0.title",
+          "claimText": "Group commits",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "README.md",
+              "lineStart": 5,
+              "lineEnd": 5,
+              "excerpt": "Shipnote reads your conventional commits since the last tag, groups them by type and"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4XKDM726C95M7H3M5:props.cards.0.line",
+          "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+          "fieldPath": "props.cards.0.line",
+          "claimText": "feat, fix and perf, sorted for you",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "README.md",
+              "lineStart": 21,
+              "lineEnd": 21,
+              "excerpt": "`draft` writes `CHANGELOG.md`. Commit types `feat`, `fix` and `perf` get their own sections."
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4XKDM726C95M7H3M5:props.cards.1.title",
+          "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+          "fieldPath": "props.cards.1.title",
+          "claimText": "Draft notes",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 7,
+              "lineEnd": 7,
+              "excerpt": "\"scripts\": {"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4XKDM726C95M7H3M5:props.cards.1.line",
+          "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+          "fieldPath": "props.cards.1.line",
+          "claimText": "Writes CHANGELOG.md per release",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "README.md",
+              "lineStart": 5,
+              "lineEnd": 5,
+              "excerpt": "Shipnote reads your conventional commits since the last tag, groups them by type and"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4XKDM726C95M7H3M5:props.cards.2.title",
+          "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+          "fieldPath": "props.cards.2.title",
+          "claimText": "One command",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 11,
+              "lineEnd": 11,
+              "excerpt": "\"dependencies\": {"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ4XKDM726C95M7H3M5:props.cards.2.line",
+          "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+          "fieldPath": "props.cards.2.line",
+          "claimText": "npx shipnote draft",
+          "verdict": "supported",
+          "checks": [],
+          "evidence": []
+        },
+        {
+          "claimId": "01M598DJJ4XKDM726C95M7H3M5:narration.0.text",
+          "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+          "fieldPath": "narration.0.text",
+          "claimText": "It groups your commits and drafts the changelog.",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "README.md",
+              "lineStart": 21,
+              "lineEnd": 21,
+              "excerpt": "`draft` writes `CHANGELOG.md`. Commit types `feat`, `fix` and `perf` get their own sections."
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ5QWVF4MQM8WK3CW0S:props.code",
+          "sceneId": "01M598DJJ5QWVF4MQM8WK3CW0S",
+          "fieldPath": "props.code",
+          "claimText": "export function groupCommits(commits: Commit[]) {\n  return Object.groupBy(commits, (commit) => commit.type);\n}",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "code-excerpt",
+              "passed": true,
+              "detail": "Matches src/group-commits.ts:1-3 byte for byte"
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "src/group-commits.ts",
+              "lineStart": 1,
+              "lineEnd": 3,
+              "excerpt": "export function groupCommits(commits: Commit[]) {\n  return Object.groupBy(commits, (commit) => commit.type);\n}"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ5QWVF4MQM8WK3CW0S:narration.0.text",
+          "sceneId": "01M598DJJ5QWVF4MQM8WK3CW0S",
+          "fieldPath": "narration.0.text",
+          "claimText": "Commits are grouped by their conventional type.",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "README.md",
+              "lineStart": 5,
+              "lineEnd": 5,
+              "excerpt": "Shipnote reads your conventional commits since the last tag, groups them by type and"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ5S845DDQW7AHZVGN5:props.commands.0.command",
+          "sceneId": "01M598DJJ5S845DDQW7AHZVGN5",
+          "fieldPath": "props.commands.0.command",
+          "claimText": "npx shipnote draft",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "evidence-search",
+              "passed": true,
+              "detail": "\"npx shipnote draft\" is in the docs or code"
+            }
+          ],
+          "evidence": []
+        },
+        {
+          "claimId": "01M598DJJ5S845DDQW7AHZVGN5:props.commands.0.output.0",
+          "sceneId": "01M598DJJ5S845DDQW7AHZVGN5",
+          "fieldPath": "props.commands.0.output.0",
+          "claimText": "Wrote CHANGELOG.md",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "evidence-search",
+              "passed": true,
+              "detail": "\"Wrote CHANGELOG.md\" is in the docs or code"
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "src/cli.ts",
+              "lineStart": 10,
+              "lineEnd": 10,
+              "excerpt": "console.log(\"Wrote CHANGELOG.md\");"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ5S845DDQW7AHZVGN5:narration.0.text",
+          "sceneId": "01M598DJJ5S845DDQW7AHZVGN5",
+          "fieldPath": "narration.0.text",
+          "claimText": "Run the draft command in your repo.",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "src/cli.ts",
+              "lineStart": 5,
+              "lineEnd": 5,
+              "excerpt": "program"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ57NW86BXE6Q612J8Y:props.lines.0",
+          "sceneId": "01M598DJJ57NW86BXE6Q612J8Y",
+          "fieldPath": "props.lines.0",
+          "claimText": "One command writes",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 11,
+              "lineEnd": 11,
+              "excerpt": "\"dependencies\": {"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ57NW86BXE6Q612J8Y:props.lines.1",
+          "sceneId": "01M598DJJ57NW86BXE6Q612J8Y",
+          "fieldPath": "props.lines.1",
+          "claimText": "your *CHANGELOG.md*",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": ".gitignore",
+              "lineStart": 1,
+              "lineEnd": 1,
+              "excerpt": "node_modules"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ57NW86BXE6Q612J8Y:narration.0.text",
+          "sceneId": "01M598DJJ57NW86BXE6Q612J8Y",
+          "fieldPath": "narration.0.text",
+          "claimText": "One command writes the changelog.",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "README.md",
+              "lineStart": 5,
+              "lineEnd": 5,
+              "excerpt": "Shipnote reads your conventional commits since the last tag, groups them by type and"
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ5EZCJMQ9SMS5AHQKQ:props.tagline",
+          "sceneId": "01M598DJJ5EZCJMQ9SMS5AHQKQ",
+          "fieldPath": "props.tagline",
+          "claimText": "Release notes from your commits",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 3,
+              "lineEnd": 3,
+              "excerpt": "\"version\": \"1.3.0\","
+            }
+          ]
+        },
+        {
+          "claimId": "01M598DJJ5EZCJMQ9SMS5AHQKQ:props.cta",
+          "sceneId": "01M598DJJ5EZCJMQ9SMS5AHQKQ",
+          "fieldPath": "props.cta",
+          "claimText": "npx shipnote draft",
+          "verdict": "supported",
+          "checks": [],
+          "evidence": []
+        },
+        {
+          "claimId": "01M598DJJ5EZCJMQ9SMS5AHQKQ:narration.0.text",
+          "sceneId": "01M598DJJ5EZCJMQ9SMS5AHQKQ",
+          "fieldPath": "narration.0.text",
+          "claimText": "Shipnote. Release notes from your commits.",
+          "verdict": "supported",
+          "checks": [
+            {
+              "check": "model-judge",
+              "passed": true,
+              "detail": "The cited line shows it."
+            }
+          ],
+          "evidence": [
+            {
+              "filePath": "package.json",
+              "lineStart": 3,
+              "lineEnd": 3,
+              "excerpt": "\"version\": \"1.3.0\","
+            }
+          ]
+        }
+      ],
+      "audited": true
+    }
+  ],
+  "approval": {
+    "versionId": "01M598DJJ8Z0KC9BK86G6NJSQP",
+    "overrides": [],
+    "approvedAt": "2026-10-19T04:58:47.821Z",
+    "auto": true
+  },
+  "voiceTimeline": {
+    "fps": 30,
+    "source": "voice",
+    "scenes": [
+      {
+        "sceneId": "01M598DJJ368EK1M8A6VXK6ZA6",
+        "fromFrame": 0,
+        "durationFrames": 113,
+        "transitionInFrames": 0,
+        "lines": [
+          {
+            "lineIndex": 0,
+            "text": "Release notes eat an afternoon.",
+            "fromFrame": 10,
+            "frames": 74,
+            "audioAssetKey": "voice-35ddcb9a030c6ab073be47571137d064"
+          }
+        ]
+      },
+      {
+        "sceneId": "01M598DJJ4Q7HFHBB76MKMZ86J",
+        "fromFrame": 99,
+        "durationFrames": 96,
+        "transitionInFrames": 14,
+        "lines": [
+          {
+            "lineIndex": 0,
+            "text": "Meet Shipnote.",
+            "fromFrame": 14,
+            "frames": 53,
+            "audioAssetKey": "voice-b2d40807f6c3438a410bab859e661dd6"
+          }
+        ]
+      },
+      {
+        "sceneId": "01M598DJJ4XKDM726C95M7H3M5",
+        "fromFrame": 181,
+        "durationFrames": 139,
+        "transitionInFrames": 14,
+        "lines": [
+          {
+            "lineIndex": 0,
+            "text": "It groups your commits and drafts the changelog.",
+            "fromFrame": 14,
+            "frames": 96,
+            "audioAssetKey": "voice-4fd5a9d28b95a77ffb201aa2feeff8c6"
+          }
+        ]
+      },
+      {
+        "sceneId": "01M598DJJ5QWVF4MQM8WK3CW0S",
+        "fromFrame": 306,
+        "durationFrames": 135,
+        "transitionInFrames": 14,
+        "lines": [
+          {
+            "lineIndex": 0,
+            "text": "Commits are grouped by their conventional type.",
+            "fromFrame": 14,
+            "frames": 92,
+            "audioAssetKey": "voice-e9cebc681aa2b39a9f859803538a89ad"
+          }
+        ]
+      },
+      {
+        "sceneId": "01M598DJJ5S845DDQW7AHZVGN5",
+        "fromFrame": 427,
+        "durationFrames": 120,
+        "transitionInFrames": 14,
+        "lines": [
+          {
+            "lineIndex": 0,
+            "text": "Run the draft command in your repo.",
+            "fromFrame": 14,
+            "frames": 75,
+            "audioAssetKey": "voice-dda30e8b70d2affeed6bb438b7c786b7"
+          }
+        ]
+      },
+      {
+        "sceneId": "01M598DJJ57NW86BXE6Q612J8Y",
+        "fromFrame": 533,
+        "durationFrames": 119,
+        "transitionInFrames": 14,
+        "lines": [
+          {
+            "lineIndex": 0,
+            "text": "One command writes the changelog.",
+            "fromFrame": 14,
+            "frames": 76,
+            "audioAssetKey": "voice-e31c62236cebd4d6de5d2f9b8b3d225f"
+          }
+        ]
+      },
+      {
+        "sceneId": "01M598DJJ5EZCJMQ9SMS5AHQKQ",
+        "fromFrame": 638,
+        "durationFrames": 130,
+        "transitionInFrames": 14,
+        "lines": [
+          {
+            "lineIndex": 0,
+            "text": "Shipnote. Release notes from your commits.",
+            "fromFrame": 14,
+            "frames": 87,
+            "audioAssetKey": "voice-aec9b6f11fc6260406b59eed2bc2812e"
+          }
+        ]
+      }
+    ],
+    "totalFrames": 768
+  },
+  "voiceClips": [
+    {
+      "assetKey": "voice-35ddcb9a030c6ab073be47571137d064",
+      "filePath": "voice/35ddcb9a030c6ab073be47571137d064.wav",
+      "durationMs": 2450
+    },
+    {
+      "assetKey": "voice-b2d40807f6c3438a410bab859e661dd6",
+      "filePath": "voice/b2d40807f6c3438a410bab859e661dd6.wav",
+      "durationMs": 1750
+    },
+    {
+      "assetKey": "voice-4fd5a9d28b95a77ffb201aa2feeff8c6",
+      "filePath": "voice/4fd5a9d28b95a77ffb201aa2feeff8c6.wav",
+      "durationMs": 3200
+    },
+    {
+      "assetKey": "voice-e9cebc681aa2b39a9f859803538a89ad",
+      "filePath": "voice/e9cebc681aa2b39a9f859803538a89ad.wav",
+      "durationMs": 3050
+    },
+    {
+      "assetKey": "voice-dda30e8b70d2affeed6bb438b7c786b7",
+      "filePath": "voice/dda30e8b70d2affeed6bb438b7c786b7.wav",
+      "durationMs": 2500
+    },
+    {
+      "assetKey": "voice-e31c62236cebd4d6de5d2f9b8b3d225f",
+      "filePath": "voice/e31c62236cebd4d6de5d2f9b8b3d225f.wav",
+      "durationMs": 2525
+    },
+    {
+      "assetKey": "voice-aec9b6f11fc6260406b59eed2bc2812e",
+      "filePath": "voice/aec9b6f11fc6260406b59eed2bc2812e.wav",
+      "durationMs": 2875
+    }
+  ],
+  "assets": [
+    {
+      "id": "01M598MQ3256TMBH4397GZ7WWE",
+      "kind": "video",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/launch-16x9.mp4",
+      "bytes": 2143969,
+      "durationMs": 26433
+    },
+    {
+      "id": "01M598MQ326EH7WP2XY4HAQZZ6",
+      "kind": "captions",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/launch-16x9.vtt",
+      "bytes": 528
+    },
+    {
+      "id": "01M598MQ33EEJX638GBE3DBGB1",
+      "kind": "video",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/launch-9x16.mp4",
+      "bytes": 2066879,
+      "durationMs": 25600
+    },
+    {
+      "id": "01M598MQ33Z8TDGS7HGT4M5PDE",
+      "kind": "captions",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/launch-9x16.vtt",
+      "bytes": 528
+    },
+    {
+      "id": "01M598MQ34RPSC772DM9RN66DM",
+      "kind": "thumbnail",
+      "version": 1,
+      "filePath": "deliverables/launch-thumbnail.png",
+      "bytes": 1033688
+    },
+    {
+      "id": "01M598MQ34E669T9TK7GJZS4Z4",
+      "kind": "thumbnail",
+      "version": 1,
+      "filePath": "deliverables/launch-thumbnail.jpg",
+      "bytes": 36125
+    },
+    {
+      "id": "01M598NAN1G051X1A5WFFJR750",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/scene-1-end.jpg",
+      "bytes": 26853
+    },
+    {
+      "id": "01M598NAN16EXKBG7JMVKZ64SV",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/transition-1-2.jpg",
+      "bytes": 6679
+    },
+    {
+      "id": "01M598NAN1K3RPKHE05952SH02",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/scene-2-end.jpg",
+      "bytes": 15966
+    },
+    {
+      "id": "01M598NAN2HKXERFJKAAP132HV",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/transition-2-3.jpg",
+      "bytes": 8500
+    },
+    {
+      "id": "01M598NAN2GQZM6FJ3A3H1E0CG",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/scene-3-end.jpg",
+      "bytes": 21231
+    },
+    {
+      "id": "01M598NAN2HKXFAEJNJDF4GBRE",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/transition-3-4.jpg",
+      "bytes": 15020
+    },
+    {
+      "id": "01M598NAN2SWTFKCVE6SRHVTGB",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/scene-4-end.jpg",
+      "bytes": 18345
+    },
+    {
+      "id": "01M598NAN3SXA0MV253CC8E08K",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/transition-4-5.jpg",
+      "bytes": 13299
+    },
+    {
+      "id": "01M598NAN8HHTSMPBRCDPRA2PT",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/scene-5-end.jpg",
+      "bytes": 11137
+    },
+    {
+      "id": "01M598NAN8E0ZT2ZWN65AD53S3",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/transition-5-6.jpg",
+      "bytes": 8068
+    },
+    {
+      "id": "01M598NANEBW7EV19GY8EDYHW9",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/scene-6-end.jpg",
+      "bytes": 23883
+    },
+    {
+      "id": "01M598NANEX4YGV7ZZ97AB20NR",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/transition-6-7.jpg",
+      "bytes": 9110
+    },
+    {
+      "id": "01M598NANF8N3F6XABVPQMD5K5",
+      "kind": "still",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/scene-7-end.jpg",
+      "bytes": 17801
+    },
+    {
+      "id": "01M598NANFG3VTDXQF5N51MREJ",
+      "kind": "audio-report",
+      "ratio": "16:9",
+      "version": 1,
+      "filePath": "deliverables/quality/16x9/audio-report.json",
+      "bytes": 1551
+    },
+    {
+      "id": "01M598NWK6KJQ4RN2DXSNRGT4E",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/scene-1-end.jpg",
+      "bytes": 28789
+    },
+    {
+      "id": "01M598NWK6C9DSKNMNP3W9CWKE",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/transition-1-2.jpg",
+      "bytes": 11730
+    },
+    {
+      "id": "01M598NWK6CJEREXW6Q6A7SN1T",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/scene-2-end.jpg",
+      "bytes": 17911
+    },
+    {
+      "id": "01M598NWK7Y7WN4Z3C2BQ0A8ZW",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/transition-2-3.jpg",
+      "bytes": 10734
+    },
+    {
+      "id": "01M598NWK7WFE5N8FBFKG8RBAE",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/scene-3-end.jpg",
+      "bytes": 25178
+    },
+    {
+      "id": "01M598NWK79DRK957BFW25FHG3",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/transition-3-4.jpg",
+      "bytes": 19579
+    },
+    {
+      "id": "01M598NWK719MCMZCD4QBQ445X",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/scene-4-end.jpg",
+      "bytes": 20481
+    },
+    {
+      "id": "01M598NWK7XZP1MWTFDZ9JZF81",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/transition-4-5.jpg",
+      "bytes": 17861
+    },
+    {
+      "id": "01M598NWK7HJSS09SMVWBHFAPZ",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/scene-5-end.jpg",
+      "bytes": 15686
+    },
+    {
+      "id": "01M598NWK8VW9NVA28AYAQY5QC",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/transition-5-6.jpg",
+      "bytes": 12445
+    },
+    {
+      "id": "01M598NWK9RFS3CE7MZ5R6R08A",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/scene-6-end.jpg",
+      "bytes": 26854
+    },
+    {
+      "id": "01M598NWK9MC1HPH749P2KVMWE",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/transition-6-7.jpg",
+      "bytes": 14555
+    },
+    {
+      "id": "01M598NWK9E705G5RT1BDRBDF2",
+      "kind": "still",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/scene-7-end.jpg",
+      "bytes": 17067
+    },
+    {
+      "id": "01M598NWK9XTF1DPBNKYEJDHDH",
+      "kind": "audio-report",
+      "ratio": "9:16",
+      "version": 1,
+      "filePath": "deliverables/quality/9x16/audio-report.json",
+      "bytes": 1500
+    },
+    {
+      "id": "01M598NWM1BD7JW8PD196AJS0W",
+      "kind": "delivery-note",
+      "version": 1,
+      "filePath": "deliverables/delivery-note.md",
+      "bytes": 1882
+    }
+  ],
+  "providers": {
+    "modelProvider": "scripted",
+    "modelId": "scripted-shipnote",
+    "voiceProvider": "kokoro",
+    "isAiVoice": true,
+    "voiceLicence": "Kokoro-82M, Apache-2.0"
+  },
+  "metrics": [
+    {
+      "step": "ingest-repository",
+      "startedAt": "2026-10-19T04:58:47.614Z",
+      "finishedAt": "2026-10-19T04:58:47.670Z",
+      "durationMs": 56
+    },
+    {
+      "step": "analyze-product",
+      "startedAt": "2026-10-19T04:58:47.698Z",
+      "finishedAt": "2026-10-19T04:58:47.723Z",
+      "durationMs": 25,
+      "usage": {
+        "inputTokens": 362,
+        "outputTokens": 272
+      }
+    },
+    {
+      "step": "plan-storyboard",
+      "startedAt": "2026-10-19T04:58:47.731Z",
+      "finishedAt": "2026-10-19T04:58:47.757Z",
+      "durationMs": 26,
+      "usage": {
+        "inputTokens": 534,
+        "outputTokens": 463
+      }
+    },
+    {
+      "step": "audit-claims",
+      "startedAt": "2026-10-19T04:58:47.776Z",
+      "finishedAt": "2026-10-19T04:58:47.806Z",
+      "durationMs": 30
+    },
+    {
+      "step": "review",
+      "startedAt": "2026-10-19T04:58:47.817Z",
+      "finishedAt": "2026-10-19T04:58:47.824Z",
+      "durationMs": 7
+    },
+    {
+      "step": "synthesize-voice",
+      "startedAt": "2026-10-19T04:58:47.841Z",
+      "finishedAt": "2026-10-19T04:59:15.783Z",
+      "durationMs": 27942
+    },
+    {
+      "step": "render",
+      "startedAt": "2026-10-19T04:59:15.819Z",
+      "finishedAt": "2026-10-19T05:02:41.774Z",
+      "durationMs": 205955
+    },
+    {
+      "step": "quality-check",
+      "startedAt": "2026-10-19T05:02:41.790Z",
+      "finishedAt": "2026-10-19T05:03:20.174Z",
+      "durationMs": 38384
+    },
+    {
+      "step": "finalize-deliverables",
+      "startedAt": "2026-10-19T05:03:20.183Z",
+      "finishedAt": "2026-10-19T05:03:20.196Z",
+      "durationMs": 13
+    }
+  ]
+}
