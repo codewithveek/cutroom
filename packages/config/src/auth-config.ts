@@ -25,9 +25,10 @@ export function isLoopbackAddress(host: string): boolean {
  */
 export function resolveAuthConfig(env: CutroomEnv): AuthConfig {
   const loopback = isLoopbackAddress(env.API_HOST);
-  const mode = env.CUTROOM_AUTH_MODE ?? (loopback ? "none" : "password");
+  const mode = env.CUTROOM_AUTH_MODE ?? (loopback || env.CUTROOM_DEMO_MODE ? "none" : "password");
   if (mode === "none") {
-    if (!loopback)
+    // The one exception (E7-1): the public demo is open because the API is read-only (D-3).
+    if (!loopback && !env.CUTROOM_DEMO_MODE)
       throw new InvalidConfigError([
         `CUTROOM_AUTH_MODE: "none" is only allowed on a loopback address, and API_HOST is ${env.API_HOST}. Set CUTROOM_AUTH_MODE=password with CUTROOM_ADMIN_EMAIL, CUTROOM_ADMIN_PASSWORD and CUTROOM_SESSION_SECRET.`,
       ]);

@@ -20,6 +20,17 @@ describe("resolveAuthConfig", () => {
     expect(() => resolveAuthConfig(parseEnv({ API_HOST: "0.0.0.0" }))).toThrow(InvalidConfigError);
   });
 
+  it("allows an open public host only in demo mode, where the API is read-only", () => {
+    expect(
+      resolveAuthConfig(
+        parseEnv({ API_HOST: "0.0.0.0", CUTROOM_AUTH_MODE: "none", CUTROOM_DEMO_MODE: "true" }),
+      ),
+    ).toEqual({ mode: "none" });
+    expect(resolveAuthConfig(parseEnv({ API_HOST: "0.0.0.0", CUTROOM_DEMO_MODE: "true" }))).toEqual({
+      mode: "none",
+    });
+  });
+
   it("rejects a short password and a weak session secret", () => {
     try {
       resolveAuthConfig(
