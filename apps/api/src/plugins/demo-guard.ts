@@ -1,8 +1,9 @@
+import { DEMO_READ_ONLY_MESSAGE } from "@cutroom/scene-spec";
 import rateLimit from "@fastify/rate-limit";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { ApiError } from "./error-handler";
 
-export const DEMO_READ_ONLY_MESSAGE = "This is a read-only demo. Run Cutroom locally to use your own code.";
+export { DEMO_READ_ONLY_MESSAGE };
 
 /** Reading never changes anything; CORS preflights and HEAD are not writes either. */
 const readMethods = new Set(["GET", "HEAD", "OPTIONS"]);

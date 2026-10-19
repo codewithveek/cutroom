@@ -29,6 +29,9 @@ export const systemCheckSchema = z.object({
 });
 export type SystemCheck = z.infer<typeof systemCheckSchema>;
 
+/** The public demo's answer to every write (prd-site D-3), from the API and from the web app. */
+export const DEMO_READ_ONLY_MESSAGE = "This is a read-only demo. Run Cutroom locally to use your own code.";
+
 /** What this installation can do right now: the dashboard's setup strip and the settings page. */
 export const systemStatusSchema = z.object({
   model: z.object({
