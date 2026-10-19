@@ -17,7 +17,7 @@ export const directionSchema = z.object({
 });
 export type Direction = z.infer<typeof directionSchema>;
 
-const quoted = String.raw`["“']([^"”']{1,80})["”']`;
+const quoted = `["“']([^"”']{1,80})["”']`;
 const mustNotSayPattern = new RegExp(
   String.raw`(?:don'?t|do not|never)\s+(?:say|mention|use)\s+${quoted}|(?:avoid|without)\s+${quoted}`,
   "gi",
