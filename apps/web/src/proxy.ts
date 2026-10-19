@@ -14,4 +14,5 @@ export function proxy(request: Request): Response | undefined {
   );
 }
 
-export const config = { matcher: "/:path*" };
+// Static files skip it: they are reads, and a matched public file 404s behind a proxy.
+export const config = { matcher: "/((?!_next/static|_next/image|fonts/|icon.svg).*)" };
