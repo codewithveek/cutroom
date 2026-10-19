@@ -183,6 +183,9 @@ importers:
       pino:
         specifier: 10.4.0
         version: 10.4.0
+      playwright-core:
+        specifier: 1.56.1
+        version: 1.56.1
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -198,6 +201,12 @@ importers:
       ulid:
         specifier: 3.0.2
         version: 3.0.2
+      undici:
+        specifier: 6.23.0
+        version: 6.23.0
+      yauzl:
+        specifier: 3.4.0
+        version: 3.4.0
       zod:
         specifier: 4.6.7
         version: 4.6.7
