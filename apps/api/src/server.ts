@@ -19,9 +19,11 @@ const logger = createLogger({ level: env.LOG_LEVEL, name: "cutroom-api" });
 const { runner, services, database, close } = await createRunner({ env, logger });
 if (env.CUTROOM_DEMO_MODE) {
   logger.warn("demo mode: read-only, sample repository only, no login (D-1)");
+  // Relative to the repository root: `pnpm --filter @cutroom/api start` runs inside apps/api.
+  const repositoryRoot = path.resolve(import.meta.dirname, "../../..");
   await seedDemoRuns({
     store: services.store,
-    seedDirectory: path.resolve(env.CUTROOM_DEMO_SEED_DIR),
+    seedDirectory: path.resolve(repositoryRoot, env.CUTROOM_DEMO_SEED_DIR),
     logger,
   });
 }

@@ -68,7 +68,7 @@ export const envSchema = z
       .enum(["true", "false"])
       .default("false")
       .transform((value) => value === "true"),
-    /** Where the demo's sample runs and pre-rendered files live (`runs/<runId>/`); loaded into an empty store. */
+    /** The demo's sample runs and pre-rendered files (`runs/<runId>/`), relative to the repository root; loaded into an empty store. */
     CUTROOM_DEMO_SEED_DIR: z.string().min(1).default("demo/seed"),
     /** The web app's exact origin, for CSRF checks; otherwise the proxied request's own host is used. */
     CUTROOM_PUBLIC_URL: optionalUrl,
