@@ -76,6 +76,35 @@ Runs start in Cloud mode (`DEFAULT_PRIVACY_MODE=cloud`) and the API runs the pip
 set `RUNNER=temporal`, `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE` and `TEMPORAL_API_KEY` on
 `cutroom-api`; the worker then starts in the same container.
 
+## cutroom.tech · landing page and public demo
+
+`deploy/cutroom-tech.render.yaml` is a separate Blueprint (New → Blueprint → Blueprint path) with
+three services and one small Postgres (ADR 0018):
+
+| Service | URL | What |
+| --- | --- | --- |
+| `cutroom-landing` | `cutroom.tech`, `www.cutroom.tech` | `apps/landing`; `DATABASE_URL` holds the waitlist |
+| `cutroom-demo-web` | `demo.cutroom.tech` | the web app with `CUTROOM_DEMO_MODE=true` (banner, noindex) |
+| `cutroom-demo-api` | internal | the API with `CUTROOM_DEMO_MODE=true`, `CUTROOM_AUTH_MODE=none`, no secrets |
+
+The demo API seeds `demo/seed` into an empty file store on boot; it has no disk and no database.
+DNS at the `.tech` registrar: `demo` → CNAME to `cutroom-demo-web`'s Render host; the apex →
+the ALIAS/A record Render gives for `cutroom-landing` (or `www` CNAME plus an apex redirect).
+
+Check after deploying:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://cutroom.tech
+curl -s -X POST https://demo.cutroom.tech/cutroom-api/projects   # 403 {"error":{"code":"DEMO_READ_ONLY",…}}
+```
+
+To refresh the demo's video:
+
+```bash
+CUTROOM_DATA_DIR=/tmp/demo-data pnpm cutroom demo --ratios 16:9,9:16 --voice af_heart
+pnpm tsx scripts/export-demo-seed.ts --data /tmp/demo-data --out demo/seed
+```
+
 ## Option C · DigitalOcean App Platform (one click)
 
 The **Deploy to DigitalOcean** button reads `.do/deploy.template.yaml`: the public web app, the API
